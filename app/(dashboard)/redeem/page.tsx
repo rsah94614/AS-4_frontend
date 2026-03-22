@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import WalletBanner from "@/components/features/dashboard/redeem/WalletBanner";
 import RewardCard from "@/components/features/dashboard/redeem/RewardCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/shared/PageHeader";
 // removed imports
 
 const RedeemDialog = dynamic(
@@ -24,14 +25,10 @@ export default function RedeemPage() {
     return (
       <div className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
         {/* Page Header Skeleton */}
-        <div className="bg-white border-b border-gray-100 px-8 md:px-10 py-6 rounded-t-[24px]">
-          <div className="mx-auto flex items-center justify-between">
-            <div className="space-y-2">
-              <Skeleton className="h-6 w-36" />
-              <Skeleton className="h-4 w-56" />
-            </div>
-          </div>
-        </div>
+        <PageHeader
+          title="Reward Store"
+          subtitle="Browse rewards · Redeem with your earned points"
+        />
 
         <div className="px-8 md:px-10 py-8 mx-auto rounded-b-[24px]">
           {/* Wallet Skeleton */}
@@ -79,22 +76,10 @@ export default function RedeemPage() {
   return (
     <div className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
       {/* ── Page Header ── */}
-      <div className="bg-white border-b border-gray-100 px-8 md:px-10 py-6 rounded-t-[24px]">
-        <div className="mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-[20px] font-bold text-primary leading-tight">
-              Reward Store
-            </h1>
-            <p className="text-[14px] text-muted-foreground mt-0.5">
-              Browse rewards · Redeem with your earned points
-            </p>
-          </div>
-          <span className="hidden lg:flex items-center text-xl font-black tracking-tight select-none shrink-0">
-            <span className="text-destructive">A</span>
-            <span className="text-primary">abhar</span>
-          </span>
-        </div>
-      </div>
+      <PageHeader
+        title="Reward Store"
+        subtitle="Browse rewards · Redeem with your earned points"
+      />
 
       {/* ── Main Content ── */}
       <div className="px-8 md:px-10 py-8 mx-auto rounded-b-[24px]">

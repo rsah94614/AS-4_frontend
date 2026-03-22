@@ -1,5 +1,7 @@
 "use client"
 
+import { PageHeader } from "@/components/shared/PageHeader"
+
 import { useReviewPage } from "@/hooks/useReviewPage"
 import { useReviewerWeight } from "@/hooks/useReviewerWeight"
 import ReviewComposeForm from "@/components/features/dashboard/review/ReviewComposeForm"
@@ -14,22 +16,10 @@ export default function ReviewPage() {
   return (
     <div className="flex-1 w-full bg-white overflow-hidden min-h-[calc(100vh-4rem)] md:min-h-[calc(100vh-5rem)] transition-all">
       {/* ── Page Header ── */}
-      <div className="bg-white border-b border-border px-8 md:px-10 py-5">
-        <div className="mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-[20px] font-bold text-primary leading-tight">
-              Employee Recognition
-            </h1>
-            <p className="text-[14px] text-muted-foreground mt-0.5">
-              Recognise teammates · Points credited automatically
-            </p>
-          </div>
-          <span className="hidden lg:flex items-center text-xl font-black tracking-tight select-none shrink-0">
-            <span className="text-destructive">A</span>
-            <span className="text-primary">abhar</span>
-          </span>
-        </div>
-      </div>
+      <PageHeader
+        title="Employee Recognition"
+        subtitle="Recognise teammates · Points credited automatically"
+      />
 
 
 

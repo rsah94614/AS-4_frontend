@@ -19,6 +19,7 @@ import { auth } from "@/services/auth-service";
 import { extractErrorMessage } from "@/lib/error-utils";
 import { Button } from "@/components/ui/button";
 import PaginationControls from "@/components/shared/PaginationControls";
+import { PageHeader } from "@/components/shared/PageHeader";
 
 
 
@@ -318,22 +319,10 @@ export default function Wallet() {
   if (loadingWallet) {
     return (
       <div className="flex-1 w-full min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_45%,#ffffff_100%)] mx-auto shadow-[0_10px_50px_rgba(15,23,42,0.05)]">
-        <div className="border-b border-slate-200/80 bg-[radial-gradient(circle_at_top_left,rgba(0,76,143,0.08),transparent_32%),linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] px-6 md:px-10 py-7 rounded-t-[24px]">
-          <div className="mx-auto flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-2xl font-bold leading-tight" style={{ color: "#004C8F" }}>
-                Wallet
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Manage your points balance and transactions
-              </p>
-            </div>
-            <span className="hidden md:flex items-center text-xl font-black tracking-tight select-none">
-              <span style={{ color: "#E31837" }}>A</span>
-              <span style={{ color: "#004C8F" }}>abhar</span>
-            </span>
-          </div>
-        </div>
+        <PageHeader
+          title="Wallet"
+          subtitle="Manage your points balance and transactions"
+        />
 
         <div className="px-6 md:px-10 py-8 md:py-10 mx-auto rounded-b-[24px]">
           <div className="flex flex-col gap-5">
@@ -370,22 +359,10 @@ export default function Wallet() {
     <div className="flex-1 w-full min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_45%,#ffffff_100%)] mx-auto shadow-[0_10px_50px_rgba(15,23,42,0.05)]">
 
       {/* Page Header */}
-      <div className="border-b border-slate-200/80 bg-[radial-gradient(circle_at_top_left,rgba(0,76,143,0.08),transparent_32%),linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] px-6 md:px-10 py-7 rounded-t-[24px]">
-        <div className="mx-auto flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold leading-tight" style={{ color: "#004C8F" }}>
-              Wallet
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Manage your points balance and transactions
-            </p>
-          </div>
-          <span className="hidden md:flex items-center text-xl font-black tracking-tight select-none">
-            <span style={{ color: "#E31837" }}>A</span>
-            <span style={{ color: "#004C8F" }}>abhar</span>
-          </span>
-        </div>
-      </div>
+      <PageHeader
+        title="Wallet"
+        subtitle="Manage your points balance and transactions"
+      />
 
 
 
