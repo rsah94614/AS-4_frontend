@@ -134,7 +134,7 @@ export default function ReviewCategoriesPage() {
 
   return (
     <>
-      <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
+      <main className="flex-1 w-full min-w-0 flex flex-col min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 
         {/* ── Page Header ── */}
         <AdminPageHeader
@@ -145,16 +145,16 @@ export default function ReviewCategoriesPage() {
 
 
         {/* ── Main content ── */}
-        <div className="px-8 md:px-10 py-8 space-y-6">
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <div>
+            <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
 
               {/* ── How It Works ── */}
               <HowItWorks steps={REVIEW_CAT_STEPS} />
 
               {/* ── Toolbar: filters + add button ── */}
-              <div className="flex flex-wrap items-center gap-3 mb-6">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 mb-6">
                 {/* Search */}
-                <div className="relative flex-1 min-w-[200px] max-w-sm">
+                <div className="relative w-full sm:w-auto sm:flex-1 sm:min-w-[200px] max-w-sm">
                   <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input
                     value={search}
@@ -173,7 +173,7 @@ export default function ReviewCategoriesPage() {
 
                 <button
                   onClick={() => setShowCreate(true)}
-                  className="ml-auto inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white transition-all duration-150"
+                  className="w-full sm:w-auto sm:ml-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white transition-all duration-150"
                   style={{ background: "#004C8F" }}
                 >
                   <Plus className="w-4 h-4" />

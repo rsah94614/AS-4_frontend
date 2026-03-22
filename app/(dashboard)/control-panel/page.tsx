@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { auth } from '@/services/auth-service';
 import { isAdminUser } from '@/lib/role-utils';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 const categories = [
     {
@@ -119,22 +120,10 @@ export default function ControlPanelHub() {
         <div className="flex-1 w-full bg-white shadow-[0_10px_50px_rgba(0,0,0,0.04)] overflow-hidden min-h-[calc(100vh-2rem)] sm:min-h-[calc(100vh-3rem)] transition-all">
 
             {/* ── Page Header ── */}
-            <div className="bg-white border-b border-gray-100 px-4 sm:px-6 md:px-10 py-6 sm:py-7">
-                <div className="w-full flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold leading-tight" style={{ color: '#004C8F' }}>
-                            Control Panel
-                        </h1>
-                        <p className="text-sm text-muted-foreground mt-1">
-                            System administration &amp; configuration
-                        </p>
-                    </div>
-                    <span className="hidden md:flex items-center text-2xl font-black tracking-tighter select-none opacity-90">
-                        <span style={{ color: '#E31837' }}>A</span>
-                        <span style={{ color: '#004C8F' }}>abhar</span>
-                    </span>
-                </div>
-            </div>
+            <PageHeader
+                title="Control Panel"
+                subtitle="System administration & configuration"
+            />
 
             {/* ── Content ── */}
             <div className="px-4 sm:px-6 md:px-10 py-6 sm:py-8 w-full">

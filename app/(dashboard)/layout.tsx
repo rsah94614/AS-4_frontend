@@ -2,6 +2,7 @@
 
 import Navbar from "@/components/layout/Navbar";
 import ProtectedRoute from "@/components/features/auth/ProtectedRoute";
+import PageTransition from "@/components/layout/PageTransition";
 
 export default function DashboardLayout({
   children,
@@ -17,7 +18,7 @@ export default function DashboardLayout({
 
         {/* Main Content Area */}
         <main className="flex-1 min-h-0 overflow-auto">
-          {children}
+          <PageTransition>{children}</PageTransition>
         </main>
       </div>
     </ProtectedRoute>

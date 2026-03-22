@@ -7,6 +7,7 @@ import HistoryList from "@/components/features/dashboard/history/HistoryList";
 import HistoryPagination from "@/components/features/dashboard/history/HistoryPagination";
 import dynamic from "next/dynamic";
 import type { HistoryItem } from "@/types/history-types";
+import { PageHeader } from "@/components/shared/PageHeader";
 
 // Dynamically import the modal to reduce initial JS evaluation time
 const TransactionDetailModal = dynamic(() => import("@/components/features/dashboard/history/TransactionDetailModal"), {
@@ -41,22 +42,10 @@ export default function HistoryPage() {
             onClick={closeDropdowns}
         >
             {/* ── Page Header ── */}
-            <div className="border-b border-slate-200/80 bg-[radial-gradient(circle_at_top_left,rgba(0,76,143,0.08),transparent_32%),linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] px-6 md:px-10 py-7 rounded-t-[24px]">
-                <div className="mx-auto flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <h1 className="text-3xl font-semibold tracking-tight" style={{ color: "#004C8F" }}>
-                            History
-                        </h1>
-                        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                            Review every point movement, reward redemption, and supporting transaction detail in one place.
-                        </p>
-                    </div>
-                    <span className="hidden md:flex items-center text-2xl font-black tracking-tight select-none">
-                        <span style={{ color: "#E31837" }}>A</span>
-                        <span style={{ color: "#004C8F" }}>abhar</span>
-                    </span>
-                </div>
-            </div>
+            <PageHeader
+                title="History"
+                subtitle="Review every point movement, reward redemption, and supporting transaction detail in one place."
+            />
 
             <div className="h-0.5 shrink-0" />
 
