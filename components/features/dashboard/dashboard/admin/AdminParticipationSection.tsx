@@ -12,7 +12,7 @@ const DEPT_COLORS = ["#004C8F", "#1D6EC5", "#5B9BD5", "#93C5FD", "#1E40AF", "#25
 
 function ParticipationSkeleton() {
     return (
-        <div className="h-full animate-pulse">
+        <div className="h-full animate-pulse px-8 md:px-10 py-8">
             <div className="pb-2">
                 <Skeleton className="h-4 w-44 rounded-lg" />
             </div>
@@ -27,7 +27,7 @@ function ParticipationSkeleton() {
                     <div className="flex flex-col gap-3 self-center">
                         {[1, 2, 3, 4].map(i => (
                             <div key={i} className="flex items-center gap-3 p-3 rounded-xl border bg-muted/30">
-                                <Skeleton className="w-8 h-8 rounded-lg flex-shrink-0" />
+                                <Skeleton className="w-8 h-8 rounded-lg shrink-0" />
                                 <div className="flex flex-col gap-1.5 flex-1">
                                     <Skeleton className="h-4 w-12 rounded" />
                                     <Skeleton className="h-3 w-28 rounded" />
@@ -145,7 +145,7 @@ export default function AdminParticipationSection() {
                         <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 mt-0">
                             {pieData.map(({ name, color }) => (
                                 <div key={name} className="flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+                                    <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
                                     <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">{name}</span>
                                 </div>
                             ))}
@@ -156,7 +156,7 @@ export default function AdminParticipationSection() {
                     <div className="lg:col-span-5 flex flex-col gap-4">
                         {stats.map(({ label, value, sub, icon: Icon, color }, i) => (
                             <div key={label} className="flex items-center gap-4 p-4 rounded-2xl border border-slate-50 border-b-slate-100 bg-white shadow-sm transition-all hover:shadow-md animate-in fade-in slide-in-from-right-4 duration-500" style={{ animationDelay: `${i * 100}ms` }}>
-                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
                                     <Icon className="w-5 h-5" />
                                 </div>
                                 <div className="min-w-0">
@@ -181,7 +181,7 @@ export default function AdminParticipationSection() {
                             {(data.by_department ?? []).map(({ name, rate, active, total }, i) => (
                                 <div key={name ?? i} className="flex flex-col gap-2 p-3 rounded-xl border bg-muted/30 animate-in fade-in zoom-in-95 duration-300" style={{ animationDelay: `${300 + i * 50}ms` }}>
                                     <div className="flex items-center gap-1.5">
-                                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: DEPT_COLORS[i % DEPT_COLORS.length] }} />
+                                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: DEPT_COLORS[i % DEPT_COLORS.length] }} />
                                         <span className="text-xs font-semibold text-gray-700 truncate">{name}</span>
                                     </div>
                                     <p className="text-2xl font-bold text-gray-900 leading-none">{rate}%</p>

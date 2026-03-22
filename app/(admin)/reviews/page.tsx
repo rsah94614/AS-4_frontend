@@ -8,7 +8,7 @@ import {
 import { useAdminReviews } from "@/hooks/useAdminReviews";
 import { TeamSection } from "@/components/features/admin/reviews/TeamSection";
 import { CalendarStrip } from "@/components/features/admin/reviews/UIHelpers";
-import { AdminPageHeader } from "@/components/features/admin/AdminControlPanelPageHeader";
+import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 
 
 export default function AdminReviewsPage() {

@@ -12,6 +12,8 @@
 
 /.vscode
 
+/logs
+
 
 pnpm-lock.yaml
 

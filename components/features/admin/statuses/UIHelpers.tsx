@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Check, AlertCircle, X, Info, HelpCircle, } from "lucide-react";
-import { AdminPageHeader as PageHeader } from "@/components/features/admin/AdminControlPanelPageHeader";
+import { AdminPageHeader as PageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 
 // Re-export the shared header so existing imports work unchanged
 export { PageHeader };

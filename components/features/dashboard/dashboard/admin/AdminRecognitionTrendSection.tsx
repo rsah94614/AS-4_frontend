@@ -29,7 +29,7 @@ type TrendState =
 
 function TrendSkeleton() {
     return (
-        <div className="p-6">
+        <div className="px-8 md:px-10 py-8">
             <div className="flex items-center justify-between pb-2">
                 <Skeleton className="h-4 w-40 rounded-lg" />
                 <Skeleton className="h-8 w-52 rounded-xl" />

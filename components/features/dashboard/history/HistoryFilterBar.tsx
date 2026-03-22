@@ -1,18 +1,8 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import { periodOptions } from "./constants";
+import { periodOptions } from "@/lib/history-utils";
 import type { HistoryTypeOption, PeriodFilter, TypeFilter } from "@/types/history-types";
-
-import {
-    FILTER_BTN_BASE,
-    FILTER_BTN_ACTIVE,
-    CLEAR_BTN,
-    DROPDOWN_MENU,
-    DROPDOWN_ITEM,
-    DROPDOWN_ITEM_ACTIVE,
-    DROPDOWN_ITEM_INACTIVE
-} from "./history-styles";
 
 interface HistoryFilterBarProps {
     selectedPeriod: PeriodFilter;
@@ -75,117 +65,117 @@ export default function HistoryFilterBar({
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                {/* Period Dropdown */}
-                <div
-                    className="relative"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setPeriodDropdownOpen(!periodDropdownOpen);
-                            setTypeDropdownOpen(false);
-                        }}
-                        aria-expanded={periodDropdownOpen}
-                        className={`${FILTER_BTN_BASE} ${selectedPeriod !== "All History" ? FILTER_BTN_ACTIVE : ""
-                            }`}
+                    {/* Period Dropdown */}
+                    <div
+                        className="relative"
+                        onClick={(e) => e.stopPropagation()}
                     >
-                        <span className="truncate max-w-[120px] sm:max-w-none">
-                            {selectedPeriod}
-                        </span>
-                        <ChevronDown
-                            className={`w-4 h-4 shrink-0 transition-transform duration-200 ${periodDropdownOpen ? "rotate-180" : ""}`}
-                        />
-                    </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setPeriodDropdownOpen(!periodDropdownOpen);
+                                setTypeDropdownOpen(false);
+                            }}
+                            aria-expanded={periodDropdownOpen}
+                            className={`inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004C8F]/20 ${selectedPeriod !== "All History" ? "border-[#004C8F]/20 bg-[#004C8F]/5 text-[#004C8F]" : ""
+                                }`}
+                        >
+                            <span className="truncate max-w-[120px] sm:max-w-none">
+                                {selectedPeriod}
+                            </span>
+                            <ChevronDown
+                                className={`w-4 h-4 shrink-0 transition-transform duration-200 ${periodDropdownOpen ? "rotate-180" : ""}`}
+                            />
+                        </button>
 
-                    {periodDropdownOpen && (
-                        <div className={DROPDOWN_MENU}>
-                            {periodOptions.map((option) => (
-                                <button
-                                    key={option}
-                                    onClick={() => {
-                                        setSelectedPeriod(option);
-                                        setPeriodDropdownOpen(false);
-                                    }}
-                                    className={`${DROPDOWN_ITEM} ${selectedPeriod === option
-                                        ? DROPDOWN_ITEM_ACTIVE
-                                        : DROPDOWN_ITEM_INACTIVE
-                                        }`}
-                                >
-                                    {option}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                        {periodDropdownOpen && (
+                            <div className="absolute top-full left-0 mt-2 w-56 overflow-hidden rounded-2xl border border-slate-200/80 bg-white py-1 shadow-[0_18px_50px_rgba(15,23,42,0.14)] z-20 animate-in fade-in zoom-in-95 duration-150">
+                                {periodOptions.map((option) => (
+                                    <button
+                                        key={option}
+                                        onClick={() => {
+                                            setSelectedPeriod(option);
+                                            setPeriodDropdownOpen(false);
+                                        }}
+                                        className={`w-full text-left px-5 py-2.5 text-sm transition-colors ${selectedPeriod === option
+                                            ? "bg-[#004C8F]/5 text-[#003867] font-semibold"
+                                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                                            }`}
+                                    >
+                                        {option}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
-                <div
-                    className={`relative ${disableTypeFilter ? "opacity-50" : ""}`}
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <button
-                        type="button"
-                        onClick={() => {
-                            if (disableTypeFilter) return;
-                            setTypeDropdownOpen(!typeDropdownOpen);
-                            setPeriodDropdownOpen(false);
-                        }}
-                        aria-expanded={typeDropdownOpen}
-                        disabled={disableTypeFilter}
-                        className={`${FILTER_BTN_BASE} ${selectedType !== "All" ? FILTER_BTN_ACTIVE : ""
-                            }`}
+                    <div
+                        className={`relative ${disableTypeFilter ? "opacity-50" : ""}`}
+                        onClick={(e) => e.stopPropagation()}
                     >
-                        <span className="truncate max-w-[120px] sm:max-w-none">
-                            {selectedTypeLabel}
-                        </span>
-                        <ChevronDown
-                            className={`w-4 h-4 shrink-0 transition-transform duration-200 ${typeDropdownOpen ? "rotate-180" : ""}`}
-                        />
-                    </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (disableTypeFilter) return;
+                                setTypeDropdownOpen(!typeDropdownOpen);
+                                setPeriodDropdownOpen(false);
+                            }}
+                            aria-expanded={typeDropdownOpen}
+                            disabled={disableTypeFilter}
+                            className={`inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004C8F]/20 ${selectedType !== "All" ? "border-[#004C8F]/20 bg-[#004C8F]/5 text-[#004C8F]" : ""
+                                }`}
+                        >
+                            <span className="truncate max-w-[120px] sm:max-w-none">
+                                {selectedTypeLabel}
+                            </span>
+                            <ChevronDown
+                                className={`w-4 h-4 shrink-0 transition-transform duration-200 ${typeDropdownOpen ? "rotate-180" : ""}`}
+                            />
+                        </button>
 
-                    {typeDropdownOpen && (
-                        <div className={DROPDOWN_MENU}>
-                            <button
-                                onClick={() => {
-                                    setSelectedType("All");
-                                    setTypeDropdownOpen(false);
-                                }}
-                                className={`${DROPDOWN_ITEM} ${selectedType === "All"
-                                    ? DROPDOWN_ITEM_ACTIVE
-                                    : DROPDOWN_ITEM_INACTIVE
-                                    }`}
-                            >
-                                All
-                            </button>
-                            {typeOptions.map((option) => (
+                        {typeDropdownOpen && (
+                            <div className="absolute top-full left-0 mt-2 w-56 overflow-hidden rounded-2xl border border-slate-200/80 bg-white py-1 shadow-[0_18px_50px_rgba(15,23,42,0.14)] z-20 animate-in fade-in zoom-in-95 duration-150">
                                 <button
-                                    key={option.value}
                                     onClick={() => {
-                                        setSelectedType(option.value);
+                                        setSelectedType("All");
                                         setTypeDropdownOpen(false);
                                     }}
-                                    className={`${DROPDOWN_ITEM} ${selectedType === option.value
-                                        ? DROPDOWN_ITEM_ACTIVE
-                                        : DROPDOWN_ITEM_INACTIVE
+                                    className={`w-full text-left px-5 py-2.5 text-sm transition-colors ${selectedType === "All"
+                                        ? "bg-[#004C8F]/5 text-[#003867] font-semibold"
+                                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
                                         }`}
                                 >
-                                    {option.label}
+                                    All
                                 </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                                {typeOptions.map((option) => (
+                                    <button
+                                        key={option.value}
+                                        onClick={() => {
+                                            setSelectedType(option.value);
+                                            setTypeDropdownOpen(false);
+                                        }}
+                                        className={`w-full text-left px-5 py-2.5 text-sm transition-colors ${selectedType === option.value
+                                            ? "bg-[#004C8F]/5 text-[#003867] font-semibold"
+                                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                                            }`}
+                                    >
+                                        {option.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
-                {/* Clear filters button */}
-                {hasActiveFilter && (
-                    <button
-                        type="button"
-                        onClick={clearFilters}
-                        className={CLEAR_BTN}
-                    >
-                        Clear filters
-                    </button>
-                )}
+                    {/* Clear filters button */}
+                    {hasActiveFilter && (
+                        <button
+                            type="button"
+                            onClick={clearFilters}
+                            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-600 transition-all duration-200 hover:border-[#004C8F]/20 hover:bg-[#004C8F]/5 hover:text-[#004C8F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004C8F]/20"
+                        >
+                            Clear filters
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

@@ -3,11 +3,6 @@ import { getMessage } from "@/lib/history-utils";
 import type { HistoryItem } from "@/types/history-types";
 import { cn } from "@/lib/utils";
 
-import {
-    CARD_CONTAINER,
-    SUCCESS_GREEN,
-} from "./history-styles";
-
 interface HistoryCardProps {
     item: HistoryItem;
     onClick?: (item: HistoryItem) => void;
@@ -24,15 +19,15 @@ export default React.memo(function HistoryCard({ item, onClick }: HistoryCardPro
     const iconWrap = isRedemption
         ? "bg-[#004C8F]/5 text-[#004C8F] border-[#004C8F]/10"
         : "bg-emerald-50 text-emerald-700 border-emerald-100";
-    const amountColor = isRedemption ? "#004C8F" : SUCCESS_GREEN;
+    const amountColor = isRedemption ? "#004C8F" : "#10b981";
 
     return (
         <button
             type="button"
             onClick={() => onClick?.(item)}
-            className={CARD_CONTAINER}
+            className="group relative block w-full cursor-pointer overflow-hidden rounded-[22px] border border-slate-200/80 bg-white text-left shadow-[0_10px_30px_rgba(15,23,42,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#004C8F]/20 hover:shadow-[0_20px_45px_rgba(15,23,42,0.10)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004C8F]/20"
         >
-            <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#004C8F]/30 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+            <div className="absolute inset-x-8 top-0 h-px bg-linear-to-r from-transparent via-[#004C8F]/30 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
             <div className="p-3 sm:p-4 flex items-center justify-between gap-4 sm:gap-5">
                 <div className={cn(
                     "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border",

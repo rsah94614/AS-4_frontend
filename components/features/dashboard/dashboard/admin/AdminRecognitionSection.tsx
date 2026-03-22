@@ -24,7 +24,7 @@ const DATE_RANGES: { value: Range; label: string }[] = [
 
 function AggSkeleton() {
     return (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 px-8 md:px-10 py-8">
             {[1, 2, 3, 4].map(i => (
                 <div key={i} className="flex items-center gap-3 p-3 rounded-xl border bg-muted/30">
                     <Skeleton className="w-8 h-8 rounded-lg flex-shrink-0" />
@@ -40,7 +40,7 @@ function AggSkeleton() {
 
 function TableSkeleton() {
     return (
-        <div className="space-y-2 mt-2">
+        <div className="space-y-2 mt-2 px-8 md:px-10 py-8">
             {[1, 2, 3, 4, 5, 6].map(i => (
                 <div key={i} className="grid grid-cols-12 gap-2 items-center px-3 py-2 rounded-xl">
                     <div className="col-span-5 flex items-center gap-2">

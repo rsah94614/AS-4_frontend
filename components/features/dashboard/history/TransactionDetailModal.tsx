@@ -17,9 +17,6 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { HistoryItem } from "@/types/history-types";
 import { getMessage } from "@/lib/history-utils";
-import {
-    SUCCESS_GREEN,
-} from "./history-styles";
 
 interface TransactionDetailModalProps {
     item: HistoryItem | null;
@@ -79,7 +76,7 @@ export default function TransactionDetailModal({
     if (!item) return null;
 
     const isRedemption = !!item.reward_catalog;
-    const accentColor = isRedemption ? "#004C8F" : SUCCESS_GREEN;
+    const accentColor = isRedemption ? "#004C8F" : "#10b981";
     const accentBg = isRedemption ? "#ffffff" : "#f0fdf4";
     const accentBorder = isRedemption ? "#dbeafe" : "#bbf7d0";
 

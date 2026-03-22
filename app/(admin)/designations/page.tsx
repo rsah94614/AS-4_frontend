@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { DesignationStats } from "@/components/features/admin/designations/DesignationStats";
 import { DesignationTable } from "@/components/features/admin/designations/DesignationTable";
 import { DesignationModal } from "@/components/features/admin/designations/DesignationModal";
-import { AdminPageHeader } from "@/components/features/admin/AdminControlPanelPageHeader";
+import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 
 export default function DesignationsPage() {
     const {
@@ -53,7 +53,7 @@ export default function DesignationsPage() {
                     subtitle="Create and manage employee designations"
                 />
                 <div className="px-8 md:px-10 py-8 space-y-6">
-                    <DesignationStats total={totalCount} active={activeCount} avgLevel={avgLevel}  loading={showStatsSkeleton}/>
+                    <DesignationStats total={totalCount} active={activeCount} avgLevel={avgLevel} loading={showStatsSkeleton} />
 
                     <div className={`bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-5 ${sectionSpacing}`}>
                         <div className="flex flex-col sm:flex-row sm:items-center gap-3">

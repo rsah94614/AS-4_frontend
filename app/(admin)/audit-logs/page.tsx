@@ -11,7 +11,7 @@ import { extractErrorMessage } from "@/lib/error-utils";
 import { AuditTable } from "@/components/features/admin/audit-logs/AuditTable";
 import { AuditDetailModal } from "@/components/features/admin/audit-logs/AuditDetailModal";
 import { AuditFilterPanel } from "@/components/features/admin/audit-logs/AuditFilters";
-import { AdminPageHeader } from "@/components/features/admin/AdminControlPanelPageHeader";
+import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 
 export default function AuditLogsPage() {
     const [logs, setLogs] = useState<AuditLog[]>([]);

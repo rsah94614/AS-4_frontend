@@ -8,28 +8,28 @@ interface ProfileStatsProps {
 export default function ProfileStats({ wallet }: ProfileStatsProps) {
     const stats = [
         {
-            icon: <Award className="w-6 h-6 text-amber-500" />,
+            icon: <Award className="w-6 h-6 text-chart-4" />,
             label: "Recognitions",
             value: wallet ? Math.floor(wallet.total_earned_points / 200) || 5 : 5,
             subtext: "Received",
-            bg: "bg-amber-50",
-            border: "border-amber-100"
+            bg: "bg-(--chart-4)/10",
+            border: "border-(--chart-4)/20"
         },
         {
-            icon: <Gift className="w-6 h-6 text-fuchsia-500" />,
+            icon: <Gift className="w-6 h-6 text-chart-3" />,
             label: "Rewards",
             value: wallet ? Math.floor(wallet.redeemed_points / 500) || 2 : 2,
             subtext: "Redeemed",
-            bg: "bg-fuchsia-50",
-            border: "border-fuchsia-100"
+            bg: "bg-(--chart-3)/10",
+            border: "border-(--chart-3)/20"
         },
         {
-            icon: <Star className="w-6 h-6 text-indigo-500" />,
+            icon: <Star className="w-6 h-6 text-primary" />,
             label: "Rating",
             value: "4.8",
             subtext: "Average",
-            bg: "bg-indigo-50",
-            border: "border-indigo-100"
+            bg: "bg-primary/10",
+            border: "border-primary/20"
         },
     ];
 

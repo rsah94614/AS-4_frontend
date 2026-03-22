@@ -11,8 +11,8 @@ import { extractErrorMessage } from "@/lib/error-utils";
 import { ReviewCategoryTable } from "@/components/features/admin/review-categories/ReviewCategoryTable";
 import { ReviewCategoryModals } from "@/components/features/admin/review-categories/ReviewCategoryModal";
 import { ReviewCategoryFilters } from "@/components/features/admin/review-categories/ReviewCategoryFilters";
-import { HowItWorks } from "@/components/features/admin/HowItWorks";
-import { AdminPageHeader } from "@/components/features/admin/AdminControlPanelPageHeader";
+import { HowItWorks } from "@/components/features/admin/shared/HowItWorks";
+import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 
 const REVIEW_CAT_STEPS = [
   { n: "01", title: "Create Category", desc: "Add a category with a unique code, name, and multiplier value greater than 0." },

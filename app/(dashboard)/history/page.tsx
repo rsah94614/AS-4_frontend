@@ -13,14 +13,7 @@ const TransactionDetailModal = dynamic(() => import("@/components/features/dashb
     ssr: false
 });
 
-import {
-    PAGE_WRAPPER,
-    PAGE_CONTENT,
-    PAGE_HEADER,
-    PAGE_HEADER_INNER,
-    HDFC_RED,
-    HDFC_BLUE
-} from "@/components/features/dashboard/history/history-styles";
+// removed imports
 
 export default function HistoryPage() {
     const {
@@ -44,14 +37,14 @@ export default function HistoryPage() {
 
     return (
         <div
-            className={PAGE_WRAPPER}
+            className="flex-1 w-full min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_45%,#ffffff_100%)] mx-auto shadow-[0_10px_50px_rgba(15,23,42,0.05)]"
             onClick={closeDropdowns}
         >
             {/* ── Page Header ── */}
-            <div className={PAGE_HEADER}>
-                <div className={PAGE_HEADER_INNER}>
+            <div className="border-b border-slate-200/80 bg-[radial-gradient(circle_at_top_left,rgba(0,76,143,0.08),transparent_32%),linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] px-6 md:px-10 py-7 rounded-t-[24px]">
+                <div className="mx-auto flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                     <div>
-                        <h1 className="text-3xl font-semibold tracking-tight" style={{ color: HDFC_BLUE }}>
+                        <h1 className="text-3xl font-semibold tracking-tight" style={{ color: "#004C8F" }}>
                             History
                         </h1>
                         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
@@ -59,8 +52,8 @@ export default function HistoryPage() {
                         </p>
                     </div>
                     <span className="hidden md:flex items-center text-2xl font-black tracking-tight select-none">
-                        <span style={{ color: HDFC_RED }}>A</span>
-                        <span style={{ color: HDFC_BLUE }}>abhar</span>
+                        <span style={{ color: "#E31837" }}>A</span>
+                        <span style={{ color: "#004C8F" }}>abhar</span>
                     </span>
                 </div>
             </div>
@@ -68,7 +61,7 @@ export default function HistoryPage() {
             <div className="h-0.5 shrink-0" />
 
             {/* ── Main content ── */}
-            <div className={PAGE_CONTENT}>
+            <div className="px-6 md:px-10 py-8 md:py-10 mx-auto rounded-b-[24px]">
                 <HistoryFilterBar
                     selectedPeriod={selectedPeriod}
                     setSelectedPeriod={setSelectedPeriod}
