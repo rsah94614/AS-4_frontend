@@ -12,7 +12,6 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogDescription,
 } from "@/components/ui/dialog";
 import { rolesApi, type Role } from "@/services/roles-service";
 import { extractErrorMessage } from "@/lib/error-utils";
@@ -75,9 +74,9 @@ export function RolesSection({ toast }: RolesSectionProps) {
         <div className="w-full">
             <HowItWorks steps={ROLES_STEPS} />
 
-            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                {/* Card header */}
-                <div className="px-4 sm:px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="mt-8">
+                {/* Section header */}
+                <div className="pb-4 mb-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex items-center gap-2">
                         <Shield size={14} className="text-[#004C8F]" />
                         <h2 className="text-sm font-bold text-[#004C8F]">System Roles</h2>
@@ -96,7 +95,7 @@ export function RolesSection({ toast }: RolesSectionProps) {
                     </button>
                 </div>
 
-                <div className="p-4 sm:p-6">
+                <div>
                     {loading ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {[0, 1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-28 rounded-xl" />)}
@@ -156,59 +155,79 @@ export function RolesSection({ toast }: RolesSectionProps) {
 
             {/* Create Role Dialog */}
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-xl border-0">
-                    <div className="px-6 py-4" style={{ background: "#004C8F" }}>
-                        <DialogHeader>
-                            <DialogTitle className="text-white font-bold text-sm">Create New Role</DialogTitle>
-                            <DialogDescription className="text-blue-200 text-xs mt-0.5">
-                                Add a new role to your organisation
-                            </DialogDescription>
-                        </DialogHeader>
-                    </div>
+                <DialogContent
+                    className="max-w-md p-0 border-none bg-white rounded-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh] selection:bg-[#004C8F] selection:text-white"
+                >
+                    <DialogHeader className="flex flex-row items-center justify-between px-8 py-6 border-b border-slate-50 bg-slate-50/50 shrink-0">
+                        <div className="flex items-center gap-3 text-left">
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-100 text-[#004C8F] shadow-inner">
+                                <Shield className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-xl font-semibold text-slate-800 tracking-tight leading-none mb-1">
+                                    Create New Role
+                                </DialogTitle>
+                                <p className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
+                                    SYSTEM ACCESS
+                                </p>
+                            </div>
+                        </div>
+                    </DialogHeader>
 
-                    <div className="p-4 sm:p-6 space-y-4 bg-white">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="role_name" className="text-[11px] font-bold text-[#004C8F] uppercase tracking-widest">
-                                Role Name <span style={{ color: "#E31837" }}>*</span>
+                    <div className="px-8 py-8 space-y-6 overflow-y-auto flex-1">
+                        <div className="space-y-2">
+                            <Label htmlFor="role_name" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">
+                                ROLE NAME <span style={{ color: "#E31837" }}>*</span>
                             </Label>
                             <Input id="role_name" placeholder="e.g. HR Manager" value={form.role_name}
                                 onChange={(e) => setForm((f) => ({ ...f, role_name: e.target.value }))}
-                                className="border-gray-200 focus-visible:ring-0 focus-visible:border-[#004C8F]" />
+                                className="w-full h-12 px-5 rounded-xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white placeholder:text-slate-300 transition-all" />
                         </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="role_code" className="text-[11px] font-bold text-[#004C8F] uppercase tracking-widest">
-                                Role Code <span style={{ color: "#E31837" }}>*</span>
+                        <div className="space-y-2">
+                            <Label htmlFor="role_code" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">
+                                ROLE CODE <span style={{ color: "#E31837" }}>*</span>
                             </Label>
                             <div className="relative">
-                                <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                                 <Input id="role_code" placeholder="HR_MANAGER" value={form.role_code}
-                                    className="pl-9 font-mono border-gray-200 focus-visible:ring-0 focus-visible:border-[#004C8F]"
+                                    className="w-full h-12 pl-10 pr-5 rounded-xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white placeholder:text-slate-300 transition-all font-mono uppercase"
                                     onChange={(e) => setForm((f) => ({ ...f, role_code: e.target.value.toUpperCase() }))} />
                             </div>
-                            <p className="text-[11px] text-gray-400">Stored in UPPERCASE</p>
+                            <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-wider pl-1">Stored in UPPERCASE</p>
                         </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="description" className="text-[11px] font-bold text-[#004C8F] uppercase tracking-widest">
-                                Description
+                        <div className="space-y-2">
+                            <Label htmlFor="description" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">
+                                DESCRIPTION
                             </Label>
-                            <Textarea id="description" placeholder="Describe this role's responsibilities…" rows={3}
+                            <Textarea id="description" placeholder="Describe this role's responsibilities…"
                                 value={form.description}
                                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                                className="border-gray-200 focus-visible:ring-0 focus-visible:border-[#004C8F] resize-none" />
+                                className="w-full px-5 py-3.5 rounded-xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white placeholder:text-slate-300 transition-all min-h-[100px] resize-none" />
                         </div>
-                    </div>
 
-                    <div className="px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-100 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3">
-                        <Button variant="outline" onClick={() => setOpen(false)} disabled={submitting}
-                            className="border-gray-200 text-xs font-semibold w-full sm:w-auto">
-                            Cancel
-                        </Button>
-                        <button onClick={handleCreate} disabled={submitting}
-                            className="flex items-center justify-center gap-2 px-5 py-2 rounded-lg text-xs font-bold text-white transition-all hover:opacity-90 disabled:opacity-50 w-full sm:w-auto"
-                            style={{ background: "#004C8F" }}>
-                            {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                            Create Role
-                        </button>
+                        <div className="flex gap-4 pt-4 border-t border-slate-50">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() => setOpen(false)}
+                                disabled={submitting}
+                                className="flex-1 h-14 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all tracking-wider uppercase"
+                            >
+                                Cancel
+                            </Button>
+                            <Button 
+                                type="button"
+                                onClick={handleCreate} 
+                                disabled={submitting}
+                                className="flex-1 h-14 rounded-xl text-xs font-semibold text-white bg-[#004C8F] hover:bg-[#003d73] transition-all tracking-wider uppercase flex items-center justify-center gap-3 shadow-xl active:scale-95 disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none"
+                            >
+                                {submitting ? (
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                ) : (
+                                    <>Create Role</>
+                                )}
+                            </Button>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>

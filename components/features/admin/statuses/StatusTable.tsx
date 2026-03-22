@@ -65,11 +65,11 @@ export function StatusTable({
                 return (
                     <div
                         key={type}
-                        className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
+                        className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-8 last:mb-0"
                     >
                         {/* Section header */}
                         <div
-                            className={`flex items-center px-5 py-3.5 border-b ${meta.header}`}
+                            className={`flex items-center px-5 py-3.5 border-b border-gray-100 ${meta.header}`}
                         >
                             <div>
                                 <span className="text-sm font-bold text-gray-800">
@@ -99,7 +99,7 @@ export function StatusTable({
                                     No {meta.label.toLowerCase()} statuses yet
                                 </p>
                                 <p className="text-xs text-gray-300 mt-1">
-                                    Click &ldquo;Add New Status&rdquo; to create one
+                                    Click &ldquo;Add Status&rdquo; to create one
                                 </p>
                             </div>
                         ) : (

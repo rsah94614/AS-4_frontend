@@ -409,20 +409,26 @@ export default function Wallet() {
 
           {/* Hero Balance Banner */}
           <div
-            className="rounded-2xl border border-white/10 overflow-hidden shadow-sm relative px-5 py-5 lg:px-6 lg:py-6 bg-[#004C8F]"
+            className="rounded-2xl border border-[#E2E8F0] overflow-hidden shadow-lg shadow-slate-200/60 relative px-6 py-5 bg-white"
           >
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] items-center gap-6">
-              <div>
-                <p className="text-sm text-white/80 font-semibold uppercase tracking-[0.14em]">Points Balance</p>
-                <p className="text-2xl font-bold text-white leading-tight mt-1.5 tabular-nums">
-                  {displayBalance.toLocaleString()}
-                </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                  <Gift size={20} className="text-[#1E293B]" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 font-medium">Points Balance</p>
+                  <p className="text-2xl font-bold text-[#1E293B] leading-none mt-0.5 tabular-nums">
+                    {displayBalance.toLocaleString()}
+                    <span className="text-sm font-normal text-slate-400 ml-1.5">pts</span>
+                  </p>
+                </div>
               </div>
 
               <div className="justify-self-start lg:justify-self-end">
                 <Link href="/redeem">
                   <button
-                    className="px-7 py-2.5 rounded-xl font-semibold text-[#004C8F] bg-white text-sm leading-none shadow-md transition-all duration-200 active:scale-95 hover:bg-slate-100"
+                    className="px-7 py-2.5 rounded-xl font-semibold text-white bg-[#004C8F] text-sm leading-none shadow-md transition-all duration-200 active:scale-95 hover:bg-[#003d73]"
                   >
                     Redeem Reward
                   </button>

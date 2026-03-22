@@ -9,7 +9,7 @@ import {
 
 const BASE_URL = "/review-categories";
 
-export function useReviewCategories(activeOnly: boolean | null = null) {
+export function useReviewCategories(activeOnly: boolean | null = null, search: string = "") {
   const [categories, setCategories] = useState<ReviewCategory[]>([]);
   const [loading, setLoading]       = useState(false);
   const [error, setError]           = useState<string | null>(null);
@@ -65,9 +65,32 @@ export function useReviewCategories(activeOnly: boolean | null = null) {
   );
 
   const filteredCategories = useMemo(() => {
-    if (activeOnly === null) return categories;
-    return categories.filter((c) => c.is_active === activeOnly);
-  }, [categories, activeOnly]);
+    let result = categories;
+    if (activeOnly !== null) {
+      result = result.filter((c) => c.is_active === activeOnly);
+    }
+    if (search.trim()) {
+      const lowerSearch = search.trim().toLowerCase();
+      result = result.filter(
+        (s) =>
+          s.category_name.toLowerCase().split(/\s+/).some(w => w.startsWith(lowerSearch)) ||
+          s.category_code.toLowerCase().startsWith(lowerSearch)
+      );
+
+      result = [...result].sort((a, b) => {
+        const aName = a.category_name.toLowerCase();
+        const bName = b.category_name.toLowerCase();
+        const aStarts = aName.startsWith(lowerSearch) ? 0 : 1;
+        const bStarts = bName.startsWith(lowerSearch) ? 0 : 1;
+        if (aStarts !== bStarts) return aStarts - bStarts;
+
+        const aWord = aName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
+        const bWord = bName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
+        return aWord - bWord;
+      });
+    }
+    return result;
+  }, [categories, activeOnly, search]);
 
   return {
     categories: filteredCategories,
