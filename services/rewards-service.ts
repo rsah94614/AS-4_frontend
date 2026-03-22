@@ -53,6 +53,17 @@ export async function fetchCatalog(page = 1, size = 20): Promise<PaginatedCatalo
     }
 }
 
+export async function fetchAllActiveCatalog(): Promise<RedeemRewardItem[]> {
+    try {
+        const res = await rewardsClient.get<PaginatedCatalogResponse>(
+            `/catalog?active_only=false&page=1&size=100`
+        );
+        return res.data.data.filter((item: RedeemRewardItem) => item.is_active === true);
+    } catch (error) {
+        throw new Error(extractErrorMessage(error, "Failed to load total catalog"));
+    }
+}
+
 export async function fetchCategories(): Promise<CategoryInfo[]> {
     try {
         const res = await rewardsClient.get<CategoryInfo[]>(`/categories?active_only=true`);

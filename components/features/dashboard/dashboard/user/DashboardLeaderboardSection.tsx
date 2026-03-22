@@ -102,7 +102,7 @@ function PodiumSlot({ entry }: { entry: PodiumEntry }) {
 
 function LeaderboardSkeleton() {
     return (
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="bg-white shadow-md rounded-2xl border border-gray-100 overflow-hidden">
             {/* Podium skeleton — mirrors [rank2 | rank1 | rank3] layout exactly */}
             <div className="bg-linear-to-b from-gray-50 to-white px-4 pt-6 pb-0">
                 <div className="flex items-end justify-center gap-2">
@@ -188,14 +188,14 @@ const DashboardLeaderboardSection = () => {
             {loading && <LeaderboardSkeleton />}
 
             {!loading && mapped.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-gray-100 text-center">
+                <div className="flex flex-col items-center justify-center py-16 bg-white shadow-md rounded-2xl border border-gray-100 text-center">
                     <div className="text-4xl mb-3">🏆</div>
                     <p className="text-sm font-semibold text-gray-700">No data yet</p>
                 </div>
             )}
 
             {!loading && mapped.length > 0 && (
-                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                <div className="bg-white shadow-md rounded-2xl border border-gray-100 overflow-hidden">
                     {/* Podium */}
                     {top3.length > 0 && (
                         <div className="bg-linear-to-b from-gray-50 to-white px-4 pt-6 pb-0">
