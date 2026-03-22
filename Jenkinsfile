@@ -93,9 +93,9 @@ pipeline {
         // 2. Build Stage (Injects Environment Variables)
         stage('Build Docker Image') {
             steps {
-                echo 'Building Next.js Production Image...'
+                echo 'Building Next.js Production Image (No Cache)...'
                 sh """
-                docker build \\
+                docker build --no-cache --pull \\
                   --build-arg NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \\
                   --build-arg NEXT_PUBLIC_RECOGNITION_API_URL=${NEXT_PUBLIC_RECOGNITION_API_URL} \\
                   --build-arg NEXT_PUBLIC_EMPLOYEE_API_URL=${NEXT_PUBLIC_EMPLOYEE_API_URL} \\
