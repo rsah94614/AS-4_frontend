@@ -104,7 +104,7 @@ function LeaderboardSkeleton() {
     return (
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
             {/* Podium skeleton — mirrors [rank2 | rank1 | rank3] layout exactly */}
-            <div className="bg-gradient-to-b from-gray-50 to-white px-4 pt-6 pb-0">
+            <div className="bg-linear-to-b from-gray-50 to-white px-4 pt-6 pb-0">
                 <div className="flex items-end justify-center gap-2">
 
                     {/* Rank 2 — order-1, h-11 avatar, h-14 platform, no crown */}

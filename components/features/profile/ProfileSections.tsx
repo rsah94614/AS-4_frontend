@@ -30,11 +30,11 @@ export default function ProfileSections({ profile }: ProfileSectionsProps) {
             {/* Left Column: Info & Org */}
             <div className="space-y-6 lg:col-span-1">
                 {/* Basic Information */}
-                <section className="bg-white rounded-2xl border border-gray-100 p-6 shadow-xs relative overflow-hidden group hover:border-indigo-100 hover:shadow-md transition-all">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -mr-10 -mt-10 opacity-50 group-hover:opacity-100 transition-opacity" />
+                <section className="bg-white rounded-2xl border border-border p-6 shadow-xs relative overflow-hidden group hover:border-primary/30 hover:shadow-md transition-all">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10 opacity-50 group-hover:opacity-100 transition-opacity" />
 
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2 relative z-10">
-                        <User className="w-4 h-4 text-indigo-500" />
+                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-6 flex items-center gap-2 relative z-10">
+                        <User className="w-4 h-4 text-primary" />
                         Basic Information
                     </h3>
 
@@ -47,11 +47,11 @@ export default function ProfileSections({ profile }: ProfileSectionsProps) {
                 </section>
 
                 {/* Organization */}
-                <section className="bg-white rounded-2xl border border-gray-100 p-6 shadow-xs relative overflow-hidden group hover:border-purple-100 hover:shadow-md transition-all">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-50 rounded-full blur-3xl -mr-10 -mt-10 opacity-50 group-hover:opacity-100 transition-opacity" />
+                <section className="bg-white rounded-2xl border border-border p-6 shadow-xs relative overflow-hidden group hover:border-secondary-foreground/30 hover:shadow-md transition-all">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-secondary rounded-full blur-3xl -mr-10 -mt-10 opacity-50 group-hover:opacity-100 transition-opacity" />
 
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2 relative z-10">
-                        <Building2 className="w-4 h-4 text-purple-500" />
+                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-6 flex items-center gap-2 relative z-10">
+                        <Building2 className="w-4 h-4 text-secondary-foreground" />
                         Organization
                     </h3>
 
@@ -81,21 +81,21 @@ export default function ProfileSections({ profile }: ProfileSectionsProps) {
             {/* Right Column: Activity & Highlights */}
             <div className="space-y-6 lg:col-span-2">
                 {/* Leaderboard Highlight */}
-                <section className="bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 rounded-3xl border border-amber-100 p-6 sm:p-8 shadow-sm relative overflow-hidden text-gray-900 group transition-all hover:shadow-md hover:border-amber-200">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 text-amber-500 transition-transform group-hover:scale-110 duration-500">
+                <section className="bg-linear-to-br from-(--chart-4)/10 via-background to-(--chart-4)/5 rounded-3xl border border-(--chart-4)/20 p-6 sm:p-8 shadow-sm relative overflow-hidden text-foreground group transition-all hover:shadow-md hover:border-(--chart-4)/40">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 text-chart-4 transition-transform group-hover:scale-110 duration-500">
                         <Trophy className="w-56 h-56 -mr-16 -mt-16 transform rotate-12" />
                     </div>
 
-                    <h3 className="text-xs font-bold text-amber-500 uppercase tracking-widest mb-6 flex items-center gap-2 relative z-10">
-                        <Trophy className="w-4 h-4 text-amber-500" />
+                    <h3 className="text-xs font-bold text-chart-4 uppercase tracking-widest mb-6 flex items-center gap-2 relative z-10">
+                        <Trophy className="w-4 h-4 text-chart-4" />
                         Leaderboard Status
                     </h3>
 
                     <div className="relative z-10 flex flex-col md:flex-row gap-8 md:items-end justify-between bg-white/60 backdrop-blur-md rounded-2xl p-6 border border-white shadow-sm hover:shadow-md transition-all duration-300">
                         <div>
-                            <p className="text-gray-500 text-sm font-medium mb-1 tracking-wide">Current Rank</p>
+                            <p className="text-muted-foreground text-sm font-medium mb-1 tracking-wide">Current Rank</p>
                             <div className="flex items-baseline gap-2">
-                                <span className="text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-500 drop-shadow-sm">
+                                <span className="text-6xl font-extrabold tracking-tight text-chart-4 drop-shadow-sm">
                                     {rank !== null ? `#${rank}` : "—"}
                                 </span>
                             </div>
@@ -103,47 +103,47 @@ export default function ProfileSections({ profile }: ProfileSectionsProps) {
 
                         <div className="flex gap-8 pb-1">
                             <div className="flex flex-col gap-1">
-                                <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
-                                    <Target className="w-3.5 h-3.5 text-amber-500" /> Total Points
+                                <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                                    <Target className="w-3.5 h-3.5 text-chart-4" /> Total Points
                                 </p>
-                                <p className="text-2xl font-bold text-gray-900 drop-shadow-sm">{profile.wallet?.total_earned_points?.toLocaleString() ?? 0}</p>
+                                <p className="text-2xl font-bold text-foreground drop-shadow-sm">{profile.wallet?.total_earned_points?.toLocaleString() ?? 0}</p>
                             </div>
                         </div>
                     </div>
                 </section>
 
                 {/* Recent Activity */}
-                <section className="bg-white rounded-2xl border border-gray-100 p-6 shadow-xs">
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-8 flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-emerald-500" />
+                <section className="bg-white rounded-2xl border border-border p-6 shadow-xs">
+                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-8 flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-chart-5" />
                         Recent Activity
                     </h3>
 
                     <div className="space-y-4">
                         <ActivityRow
                             icon={<Award className="w-4 h-4" />}
-                            iconColor="text-emerald-600"
-                            iconBg="bg-emerald-100"
+                            iconColor="text-chart-5"
+                            iconBg="bg-(--chart-5)/10"
                             title="Recognized a Colleague"
                             time="2 days ago"
                             desc={
-                                <>You gave +500 points to <span className="font-medium text-gray-800">john.doe</span> for &quot;Excellent teamwork on the migration project.&quot;</>
+                                <>You gave +500 points to <span className="font-medium text-foreground">john.doe</span> for &quot;Excellent teamwork on the migration project.&quot;</>
                             }
                         />
                         <ActivityRow
                             icon={<Gift className="w-4 h-4" />}
-                            iconColor="text-fuchsia-600"
-                            iconBg="bg-fuchsia-100"
+                            iconColor="text-chart-3"
+                            iconBg="bg-(--chart-3)/10"
                             title="Reward Redeemed"
                             time="Last Week"
                             desc={
-                                <>Redeemed a <span className="font-medium text-gray-800">$50 Amazon Voucher</span>.</>
+                                <>Redeemed a <span className="font-medium text-foreground">$50 Amazon Voucher</span>.</>
                             }
                         />
                         <ActivityRow
                             icon={<User className="w-4 h-4" />}
-                            iconColor="text-indigo-600"
-                            iconBg="bg-indigo-100"
+                            iconColor="text-primary"
+                            iconBg="bg-primary/10"
                             title="Profile Updated"
                             time="1 month ago"
                             desc="Updated your designation and contact information."
@@ -166,7 +166,7 @@ function InfoRow({ icon, label, value, subValue }: { icon: React.ReactNode, labe
                 <span>{label}</span>
             </div>
             <div className="pl-6">
-                <p className="text-sm font-medium text-gray-900 break-words">{value}</p>
+                <p className="text-sm font-medium text-gray-900 wrap-break-word">{value}</p>
                 {subValue && <p className="text-xs text-gray-500 mt-1">{subValue}</p>}
             </div>
         </div>

@@ -8,7 +8,7 @@ import { useRewardCategories } from "@/hooks/useRewardCategories";
 import { RewardStats } from "@/components/features/admin/rewards/UIHelpers";
 import { CategoryModal } from "@/components/features/admin/rewards/CategoryModal";
 import { CategoryTable } from "@/components/features/admin/rewards/CategoryTable";
-import { AdminPageHeader } from "@/components/features/admin/AdminControlPanelPageHeader";
+import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 
 export default function CategoriesPage() {
   const {

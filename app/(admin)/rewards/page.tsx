@@ -12,7 +12,7 @@ import { RewardGrid } from "@/components/features/admin/rewards/RewardGrid";
 import { RewardModal } from "@/components/features/admin/rewards/RewardModal";
 import { RestockModal } from "@/components/features/admin/rewards/RestockModal";
 import { RewardStats } from "@/components/features/admin/rewards/UIHelpers";
-import { AdminPageHeader } from "@/components/features/admin/AdminControlPanelPageHeader";
+import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 
 export default function RewardsPage() {
   const [items, setItems] = useState<RewardItem[]>([]);
@@ -71,7 +71,7 @@ export default function RewardsPage() {
           i.reward_code.toLowerCase().includes(lowerSearch)
       );
     }
-    
+
     // Local pagination for ALL tabs to ensure fully packed pages
     return result.slice((page - 1) * 12, page * 12);
   }, [items, search, filterState, page]);
@@ -89,10 +89,10 @@ export default function RewardsPage() {
           i.reward_code.toLowerCase().includes(lowerSearch)
       );
     }
-    
+
     const total = result.length;
     const total_pages = Math.ceil(total / 12) || 1;
-    
+
     return {
       current_page: page,
       per_page: 12,

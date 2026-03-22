@@ -19,7 +19,7 @@ import {
 } from "@/components/features/admin/statuses/UIHelpers";
 import { StatusTable, type EditForm } from "@/components/features/admin/statuses/StatusTable";
 import { StatusModal } from "@/components/features/admin/statuses/StatusModal";
-import { HowItWorks } from "@/components/features/admin/HowItWorks";
+import { HowItWorks } from "@/components/features/admin/shared/HowItWorks";
 
 const STATUS_STEPS = [
   { n: "01", title: "Create Status", desc: "Add a status with a unique code, name, entity type, and optional description." },

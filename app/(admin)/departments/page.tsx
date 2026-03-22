@@ -7,7 +7,7 @@ import { Department } from "@/types/department-types";
 import { DepartmentStats } from "@/components/features/admin/departments/DepartmentStats";
 import { DepartmentTable } from "@/components/features/admin/departments/DepartmentTable";
 import { DepartmentModal } from "@/components/features/admin/departments/DepartmentModal";
-import { AdminPageHeader } from "@/components/features/admin/AdminControlPanelPageHeader";
+import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 
 export default function DepartmentsPage() {
     const {

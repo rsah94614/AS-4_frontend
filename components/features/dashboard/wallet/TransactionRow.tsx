@@ -1,6 +1,6 @@
 import { TrendingUp, Ticket } from "lucide-react";
-import { Transaction } from "./types";
-import { formatDate, formatTime } from "./utils";
+import { Transaction } from "@/types/wallet-types";
+import { formatDate, formatTime } from "@/lib/wallet-utils";
 
 export function TransactionRow({ txn }: { txn: Transaction }) {
     const isCredit = txn.transaction_type.is_credit;
@@ -9,7 +9,7 @@ export function TransactionRow({ txn }: { txn: Transaction }) {
         <div className="flex flex-col sm:flex-row justify-between sm:items-center bg-white border border-gray-100 rounded-2xl p-5 group hover:border-indigo-100 hover:shadow-md hover:bg-indigo-50/30 transition-all duration-200 cursor-default">
             <div className="flex items-center gap-4 min-w-0">
                 <div
-                    className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform
+                    className={`shrink-0 w-12 h-12 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform
             ${isCredit ? "bg-emerald-100" : "bg-fuchsia-100"}`}
                 >
                     {isCredit ? (
@@ -34,7 +34,7 @@ export function TransactionRow({ txn }: { txn: Transaction }) {
                 </div>
             </div>
 
-            <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center w-full sm:w-auto mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-0 border-gray-50 flex-shrink-0 sm:ml-4">
+            <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center w-full sm:w-auto mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-0 border-gray-50 shrink-0 sm:ml-4">
                 <p
                     className={`text-lg font-bold tracking-tight ${isCredit ? "text-emerald-600" : "text-gray-900"
                         }`}

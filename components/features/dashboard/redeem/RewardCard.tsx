@@ -3,14 +3,7 @@
 import { TicketPercent, Package } from "lucide-react";
 import StockBadge from "@/components/features/dashboard/redeem/StockBadge";
 import { RewardItem } from "@/types/redeem-types";
-import {
-  CARD_CONTAINER,
-  CARD_ENABLED,
-  CARD_DISABLED,
-  CARD_BODY,
-  ICON_BOX,
-  ANIMATE_FADE_IN_UP,
-} from "@/components/features/dashboard/redeem/redeem-styles";
+// removed imports
 
 interface Props {
   item: RewardItem;
@@ -32,14 +25,14 @@ export default function RewardCard({ item, canAfford, onRedeem, staggerIndex = 0
 
   return (
     <div
-      className={`${CARD_CONTAINER} ${disabled ? CARD_DISABLED : CARD_ENABLED} ${ANIMATE_FADE_IN_UP} ${staggerDelay}`}
+      className={`group relative rounded-xl border border-slate-300 bg-white flex flex-col overflow-hidden transition-all duration-300 shadow-md shadow-slate-400 ${disabled ? "opacity-60 cursor-not-allowed border-slate-100" : "cursor-pointer hover:shadow-xl hover:shadow-slate-300 hover:-translate-y-0.5"} animate-fade-in-up ${staggerDelay}`}
     >
 
 
-      <div className={CARD_BODY}>
+      <div className="flex flex-col flex-1 p-5">
         <div className="flex items-start justify-between mb-3">
           <div
-            className={`${ICON_BOX} transition-transform duration-200 group-hover:scale-110 ${isVoucher ? "bg-fuchsia-50" : "bg-blue-50"
+            className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110 ${isVoucher ? "bg-fuchsia-50" : "bg-blue-50"
               }`}
           >
             {isVoucher ? (

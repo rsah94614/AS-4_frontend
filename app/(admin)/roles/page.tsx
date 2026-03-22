@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Shield, UserPlus, Lock } from "lucide-react";
-import { AdminPageHeader } from "@/components/features/admin/AdminControlPanelPageHeader";
+import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 
 
 import { useToast, ToastContainer } from "@/components/features/admin/roles/UIHelpers";
