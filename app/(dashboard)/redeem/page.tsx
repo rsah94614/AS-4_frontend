@@ -214,7 +214,7 @@ export default function RedeemPage() {
                         variant={p === current ? "default" : "outline"}
                         size="sm"
                         onClick={() => redeem.goToPage(p)}
-                        className={`rounded-lg min-w-[36px] px-2 py-1.5 text-sm font-medium transition-all ${p === current ? "bg-[#1E293B] text-white shadow-sm hover:bg-[#0F172A]" : "text-slate-800 font-bold hover:bg-slate-100 border-slate-200"
+                        className={`rounded-lg min-w-[36px] px-2 py-1.5 text-sm font-medium transition-all ${p === current ? "bg-[#004C8F] text-white shadow-sm hover:bg-[#003d73]" : "text-slate-800 font-bold hover:bg-slate-100 border-slate-200"
                           }`}
                       >
                         {p}

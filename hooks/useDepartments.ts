@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { departmentService } from "@/services/department-service";
 import { extractErrorMessage } from "@/lib/error-utils";
 import {
@@ -8,11 +8,8 @@ import {
     DepartmentType,
     DepartmentListResponse
 } from "@/types/department-types";
-import { PaginationMeta } from "@/types/pagination";
-
 export function useDepartments() {
-    const [departments, setDepartments] = useState<Department[]>([]);
-    const [pagination, setPagination] = useState<PaginationMeta | null>(null);
+    const [allItems, setAllItems] = useState<Department[]>([]);
     const [departmentTypes, setDepartmentTypes] = useState<DepartmentType[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -33,18 +30,65 @@ export function useDepartments() {
         setError(null);
         try {
             const res: DepartmentListResponse = await departmentService.list({
-                page,
-                limit: 5,
-                search: search || undefined,
+                page: 1,
+                limit: 100, // Fetch up to 100 for client-side search/sort
             });
-            setDepartments(res.data);
-            setPagination(res.pagination);
+            setAllItems(res.data);
         } catch (err) {
             setError(extractErrorMessage(err, "Failed to load departments."));
         } finally {
             setLoading(false);
         }
-    }, [page, search]);
+    }, []);
+
+    // Filter and sort client-side
+    const filteredAndSorted = useMemo(() => {
+        let result = allItems;
+        if (search) {
+            const lowerSearch = search.toLowerCase();
+            result = result.filter(
+                (d) =>
+                    d.department_name.toLowerCase().split(/\s+/).some(word => word.startsWith(lowerSearch)) ||
+                    d.department_code.toLowerCase().startsWith(lowerSearch)
+            );
+            
+            result = [...result].sort((a, b) => {
+                const aName = a.department_name.toLowerCase();
+                const bName = b.department_name.toLowerCase();
+                const aStarts = aName.startsWith(lowerSearch) ? 0 : 1;
+                const bStarts = bName.startsWith(lowerSearch) ? 0 : 1;
+                if (aStarts !== bStarts) return aStarts - bStarts;
+                const aWord = aName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
+                const bWord = bName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
+                return aWord - bWord;
+            });
+        }
+        return result;
+    }, [allItems, search]);
+
+    // Reset pagination on search
+    useEffect(() => {
+        setPage(1);
+    }, [search]);
+
+    // Client pagination
+    const paginatedDepartments = useMemo(() => {
+        const start = (page - 1) * 5;
+        return filteredAndSorted.slice(start, start + 5);
+    }, [filteredAndSorted, page]);
+
+    const activePagination = useMemo(() => {
+        const total = filteredAndSorted.length;
+        const total_pages = Math.ceil(total / 5) || 1;
+        return {
+            current_page: page,
+            per_page: 5,
+            total,
+            total_pages,
+            has_next: page < total_pages,
+            has_previous: page > 1,
+        };
+    }, [filteredAndSorted.length, page]);
 
     useEffect(() => {
         loadDepartmentTypes();
@@ -57,8 +101,9 @@ export function useDepartments() {
     const refresh = () => loadDepartments();
 
     return {
-        departments,
-        pagination,
+        departments: paginatedDepartments,
+        allItems,
+        pagination: activePagination,
         departmentTypes,
         loading,
         error,

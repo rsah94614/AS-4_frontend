@@ -1,17 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { designationService } from "@/services/designation-service";
 import { extractErrorMessage } from "@/lib/error-utils";
 import {
     Designation,
     DesignationListResponse,
 } from "@/types/designation-types";
-import { PaginationMeta } from "@/types/pagination";
-
 export function useDesignations() {
-    const [designations, setDesignations] = useState<Designation[]>([]);
-    const [pagination, setPagination] = useState<PaginationMeta | null>(null);
+    const [allItems, setAllItems] = useState<Designation[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(1);
@@ -22,17 +19,65 @@ export function useDesignations() {
         setError(null);
         try {
             const res: DesignationListResponse = await designationService.list({
-                page,
-                limit: 5,
+                page: 1,
+                limit: 100, // Fetch up to 100 for client-side sort/filter
             });
-            setDesignations(res.data);
-            setPagination(res.pagination);
+            setAllItems(res.data);
         } catch (err) {
             setError(extractErrorMessage(err, "Failed to load designations."));
         } finally {
             setLoading(false);
         }
-    }, [page]);
+    }, []);
+
+    // Filter and sort client-side
+    const filteredAndSorted = useMemo(() => {
+        let result = allItems;
+        if (search) {
+            const lowerSearch = search.toLowerCase();
+            result = result.filter(
+                (d) =>
+                    d.designation_name.toLowerCase().split(/\s+/).some(word => word.startsWith(lowerSearch)) ||
+                    d.designation_code.toLowerCase().startsWith(lowerSearch)
+            );
+            
+            result = [...result].sort((a, b) => {
+                const aName = a.designation_name.toLowerCase();
+                const bName = b.designation_name.toLowerCase();
+                const aStarts = aName.startsWith(lowerSearch) ? 0 : 1;
+                const bStarts = bName.startsWith(lowerSearch) ? 0 : 1;
+                if (aStarts !== bStarts) return aStarts - bStarts;
+                const aWord = aName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
+                const bWord = bName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
+                return aWord - bWord;
+            });
+        }
+        return result;
+    }, [allItems, search]);
+
+    // Reset pagination on search
+    useEffect(() => {
+        setPage(1);
+    }, [search]);
+
+    // Client pagination
+    const paginatedDesignations = useMemo(() => {
+        const start = (page - 1) * 5;
+        return filteredAndSorted.slice(start, start + 5);
+    }, [filteredAndSorted, page]);
+
+    const activePagination = useMemo(() => {
+        const total = filteredAndSorted.length;
+        const total_pages = Math.ceil(total / 5) || 1;
+        return {
+            current_page: page,
+            per_page: 5,
+            total,
+            total_pages,
+            has_next: page < total_pages,
+            has_previous: page > 1,
+        };
+    }, [filteredAndSorted.length, page]);
 
     useEffect(() => {
         loadDesignations();
@@ -41,8 +86,9 @@ export function useDesignations() {
     const refresh = () => loadDesignations();
 
     return {
-        designations,
-        pagination,
+        designations: paginatedDesignations,
+        allItems,
+        pagination: activePagination,
         loading,
         error,
         page,

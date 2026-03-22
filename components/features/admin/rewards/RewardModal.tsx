@@ -142,7 +142,7 @@ export function RewardModal({ item, categories, isOpen, onClose, onSave }: Rewar
                 <form onSubmit={handleSubmit} className="px-8 py-8 space-y-6 overflow-y-auto flex-1">
                     {!isEdit && (
                         <>
-                            <RewardField label="CATEGORY">
+                            <RewardField label="CATEGORY" required>
                                 <Select
                                     value={form.category_id}
                                     onValueChange={(val) => setForm({ ...form, category_id: val })}
@@ -160,7 +160,7 @@ export function RewardModal({ item, categories, isOpen, onClose, onSave }: Rewar
                                 </Select>
                             </RewardField>
 
-                            <RewardField label="REWARD CODE">
+                            <RewardField label="REWARD CODE" required>
                                 <Input
                                     className="w-full h-12 px-5 rounded-2xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white placeholder:text-slate-300 transition-all uppercase"
                                     value={form.reward_code}
@@ -172,7 +172,7 @@ export function RewardModal({ item, categories, isOpen, onClose, onSave }: Rewar
                         </>
                     )}
 
-                    <RewardField label="REWARD NAME">
+                    <RewardField label="REWARD NAME" required>
                         <Input
                             className="w-full h-12 px-5 rounded-xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white placeholder:text-slate-300 transition-all"
                             value={form.reward_name}
@@ -192,7 +192,7 @@ export function RewardModal({ item, categories, isOpen, onClose, onSave }: Rewar
                     </RewardField>
 
                     <div className="max-w-xs">
-                        <RewardField label="POINTS">
+                        <RewardField label="POINTS" required>
                             <Input
                                 type="number"
                                 className="w-full h-12 px-5 rounded-2xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white transition-all"
@@ -211,7 +211,7 @@ export function RewardModal({ item, categories, isOpen, onClose, onSave }: Rewar
                     </div>
 
                     {!isEdit && (
-                        <RewardField label="INITIAL STOCK">
+                        <RewardField label="INITIAL STOCK" required>
                             <Input
                                 type="number"
                                 className="w-full h-12 px-5 rounded-2xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white transition-all"
@@ -235,7 +235,7 @@ export function RewardModal({ item, categories, isOpen, onClose, onSave }: Rewar
                                     <div className="absolute left-1 h-4 w-4 transform rounded-full bg-white transition-transform peer-checked:translate-x-5" />
                                 </div>
                                 <span className={`text-sm font-semibold transition-colors ${form.is_active ? "text-[#004C8F]" : "text-slate-400"}`}>
-                                    {form.is_active ? "REWARD IS ACTIVE" : "REWARD IS HIDDEN"}
+                                    {form.is_active ? "ACTIVE" : "DEACTIVE"}
                                 </span>
                                 {form.is_active && (
                                     <CheckCircle2 className="w-5 h-5 text-[#004C8F] ml-auto animate-in zoom-in" />

@@ -12,6 +12,7 @@ import { AdminPageHeader } from "@/components/features/admin/shared/AdminControl
 export default function DepartmentsPage() {
     const {
         departments,
+        allItems,
         pagination,
         departmentTypes,
         loading,
@@ -24,8 +25,6 @@ export default function DepartmentsPage() {
 
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
-    const [searchInput, setSearchInput] = useState("");
-
     const openCreate = () => {
         setSelectedDepartment(null);
         setModalOpen(true);
@@ -36,66 +35,41 @@ export default function DepartmentsPage() {
         setModalOpen(true);
     };
 
-    const handleSearch = () => {
-        setSearch(searchInput);
-        setPage(1);
-    };
-
-    const clearSearch = () => {
-        setSearch("");
-        setSearchInput("");
-        setPage(1);
-    };
-
-    const totalCount = pagination?.total ?? departments.length;
-    const activeCount = departments.filter(d => d.is_active).length;
-    const typeCount = new Set(departments.map(d => d.department_type?.type_code).filter(Boolean)).size;
+    const totalCount = allItems.length;
+    const activeCount = allItems.filter(d => d.is_active).length;
+    const typeCount = new Set(allItems.map(d => d.department_type?.type_code).filter(Boolean)).size;
     const showStatsSkeleton = loading && departments.length === 0 && !pagination;
     const sectionSpacing = "space-y-4 sm:space-y-5";
 
     return (
         <>
-            <main className="flex-1 overflow-y-auto overflow-x-hidden space-y-4 sm:space-y-5">
+            <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
                 {/* ─── Page Header ─── */}
                 <AdminPageHeader
                     title="Departments"
                     subtitle="Create and manage your organization's departments"
                 />
 
-                <div className={`px-3 py-4 sm:px-4 sm:py-5 lg:px-6 lg:py-6 ${sectionSpacing}`}>
+                <div className="px-8 md:px-10 py-8 space-y-6">
                     <DepartmentStats total={totalCount} active={activeCount} types={typeCount} loading={showStatsSkeleton} />
 
-                    <div className={`bg-white rounded-xl shadow-sm px-3 py-4 sm:px-4 sm:py-5 lg:px-6 ${sectionSpacing}`}>
+                    <div className={`bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-5 ${sectionSpacing}`}>
                         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                            <div className="relative w-full sm:flex-1 sm:max-w-sm">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#9ca3af" }} />
+                            {/* Search */}
+                            <div className="relative flex-1 min-w-[200px] max-w-sm">
+                                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                                 <input
-                                    value={searchInput}
-                                    onChange={e => setSearchInput(e.target.value)}
-                                    onKeyDown={e => e.key === "Enter" && handleSearch()}
-                                    placeholder="Search by name or code..."
-                                    className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg outline-none transition-all"
-                                    style={{ border: "1.5px solid #d1d5db", color: "#374151" }}
-                                    onFocus={e => (e.currentTarget.style.borderColor = "#1a4ab5")}
-                                    onBlur={e => (e.currentTarget.style.borderColor = "#d1d5db")}
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value.trimStart())}
+                                    placeholder="Search by name or code…"
+                                    className="w-full pl-9 pr-8 py-2 rounded-lg border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/10 focus:border-primary/40 transition-all"
                                 />
+                                {search && (
+                                    <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                                        <X size={13} />
+                                    </button>
+                                )}
                             </div>
-                            <button
-                                onClick={handleSearch}
-                                className="w-full sm:w-auto px-5 py-2.5 text-sm font-semibold text-white rounded-lg transition-all hover:opacity-90 active:scale-95"
-                                style={{ backgroundColor: "#1a4ab5" }}
-                            >
-                                Search
-                            </button>
-                            {search && (
-                                <button
-                                    onClick={clearSearch}
-                                    className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-medium rounded-lg transition-all hover:bg-muted"
-                                    style={{ border: "1.5px solid #d1d5db", color: "#6b7280" }}
-                                >
-                                    <X className="w-3 h-3" /> Clear
-                                </button>
-                            )}
                             <button
                                 onClick={openCreate}
                                 className="w-full sm:w-auto flex items-center justify-center gap-2 font-semibold text-white px-5 py-2.5 text-sm rounded-lg transition-all hover:opacity-90 active:scale-95"

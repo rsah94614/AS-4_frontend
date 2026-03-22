@@ -28,7 +28,7 @@ export default function EmployeesPage() {
 
     return (
         <>
-            <main className="flex-1 overflow-y-auto bg-muted">
+            <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 
                 {/* Page Header */}
                 <AdminPageHeader
@@ -55,7 +55,7 @@ export default function EmployeesPage() {
                 </div>
 
                 {/* Content */}
-                <div className="px-8 md:px-10 py-6">
+                <div className="px-8 md:px-10 py-8 space-y-6">
                     <div className="mx-auto">
                         {tab === "list" && <EmployeeListSection toast={toast} />}
                         {tab === "bulk" && <BulkImportSection toast={toast} />}

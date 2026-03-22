@@ -76,7 +76,7 @@ export function ReviewCategoryModals({
           {/* Code */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
-              Category Code <span className="text-red-400">*</span>
+              Category Code <span style={{ color: "#E31837" }}>*</span>
             </label>
             <input
               className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 uppercase font-mono"
@@ -91,7 +91,7 @@ export function ReviewCategoryModals({
           {/* Name */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
-              Category Name <span className="text-red-400">*</span>
+              Category Name <span style={{ color: "#E31837" }}>*</span>
             </label>
             <input
               className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
@@ -105,7 +105,7 @@ export function ReviewCategoryModals({
           {/* Multiplier */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
-              Multiplier <span className="text-red-400">*</span>
+              Multiplier <span style={{ color: "#E31837" }}>*</span>
             </label>
             <input
               type="number"

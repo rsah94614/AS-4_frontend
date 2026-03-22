@@ -29,23 +29,6 @@ export function OperationBadge({ op }: { op: string }) {
     );
 }
 
-function UserAvatar({ name }: { name: string }) {
-    const initials = name
-        .split(" ")
-        .map(w => w[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase();
-    return (
-        <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-            style={{ backgroundColor: "#1a4ab5" }}
-        >
-            {initials}
-        </div>
-    );
-}
-
 function shortId(id: string) {
     return "LOG" + id.slice(0, 4).toUpperCase();
 }
@@ -83,7 +66,6 @@ function AuditTableSkeleton() {
                         </div>
 
                         <div className="flex items-center gap-2.5 min-w-0">
-                            <Skeleton className="w-8 h-8 rounded-full flex-shrink-0" />
                             <Skeleton className="h-4 w-32" />
                         </div>
 
@@ -140,7 +122,6 @@ function AuditTableSkeleton() {
                                 </td>
                                 <td className="py-3.5 px-3 lg:px-4">
                                     <div className="flex items-center gap-2">
-                                        <Skeleton className="w-8 h-8 rounded-full" />
                                         <Skeleton className="h-4 w-28" />
                                     </div>
                                 </td>
@@ -203,7 +184,6 @@ export function AuditTable({
                                     </div>
 
                                     <div className="flex items-center gap-2.5 min-w-0">
-                                        <UserAvatar name={employeeName} />
                                         <span className="min-w-0 break-words font-medium text-sm sm:text-[15px]" style={{ color: "#111827" }}>
                                             {employeeName}
                                         </span>
@@ -298,7 +278,6 @@ export function AuditTable({
 
                                             <td className="py-3.5 px-3 lg:px-4">
                                                 <div className="flex items-center gap-2">
-                                                    <UserAvatar name={employeeName} />
                                                     <span className="font-medium text-sm" style={{ color: "#111827" }}>
                                                         {employeeName}
                                                     </span>

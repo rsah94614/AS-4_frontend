@@ -24,7 +24,7 @@ export default function RolesPage() {
 
     return (
         <>
-            <main className="flex-1 overflow-y-auto bg-white">
+            <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 
                 {/* ─── Page Header ─── */}
                 <AdminPageHeader
@@ -33,7 +33,7 @@ export default function RolesPage() {
                 />
 
                 {/* ── Tab bar ── */}
-                <div className="bg-white border-b border-border px-3 sm:px-5 lg:px-8">
+                <div className="bg-white px-3 sm:px-5 lg:px-8">
                     <div className="mx-auto flex overflow-x-auto overflow-y-hidden scrollbar-thin">
                         {TABS.map((t) => {
                             const active = tab === t.id;
@@ -57,13 +57,11 @@ export default function RolesPage() {
                 </div>
 
                 {/* ── Main content ── */}
-                <div className="px-3 sm:px-5 lg:px-8 py-4 sm:py-6 lg:py-8" style={{ background: "#F7F9FC" }}>
+                <div className="px-8 md:px-10 py-8 space-y-6">
                     <div className="mx-auto">
-                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-3 sm:p-5 lg:p-8">
-                            {tab === "roles" && <RolesSection toast={toast} />}
-                            {tab === "assignments" && <AssignmentsSection toast={toast} />}
-                            {tab === "permissions" && <RoutePermissionsSection toast={toast} />}
-                        </div>
+                        {tab === "roles" && <RolesSection toast={toast} />}
+                        {tab === "assignments" && <AssignmentsSection toast={toast} />}
+                        {tab === "permissions" && <RoutePermissionsSection toast={toast} />}
                     </div>
                 </div>
 

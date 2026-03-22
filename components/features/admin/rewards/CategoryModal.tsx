@@ -89,7 +89,7 @@ export function CategoryModal({ category, isOpen, onClose, onSave }: CategoryMod
 
                 <form onSubmit={handleSubmit} className="px-8 py-8 space-y-6">
                     {!isEdit && (
-                        <RewardField label="CATEGORY CODE">
+                        <RewardField label="CATEGORY CODE" required>
                             <Input
                                 className="w-full h-12 px-5 rounded-xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white placeholder:text-slate-300 transition-all uppercase"
                                 value={form.category_code}
@@ -100,7 +100,7 @@ export function CategoryModal({ category, isOpen, onClose, onSave }: CategoryMod
                         </RewardField>
                     )}
 
-                    <RewardField label="CATEGORY NAME">
+                    <RewardField label="CATEGORY NAME" required>
                         <Input
                             className="w-full h-12 px-5 rounded-xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white placeholder:text-slate-300 transition-all"
                             value={form.category_name}
@@ -132,7 +132,7 @@ export function CategoryModal({ category, isOpen, onClose, onSave }: CategoryMod
                                     <div className="absolute left-1 h-4 w-4 transform rounded-full bg-white transition-transform peer-checked:translate-x-5" />
                                 </div>
                                 <span className={`text-sm font-semibold transition-colors ${form.is_active ? "text-[#004C8F]" : "text-slate-400"}`}>
-                                    {form.is_active ? "CATEGORY IS ACTIVE" : "CATEGORY IS HIDDEN"}
+                                    {form.is_active ? "ACTIVE" : "DEACTIVE"}
                                 </span>
                                 {form.is_active && (
                                     <CheckCircle2 className="w-5 h-5 text-[#004C8F] ml-auto animate-in zoom-in" />
