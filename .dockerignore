@@ -1,0 +1,61 @@
+# Dependency directories
+node_modules/
+jspm_packages/
+.npm
+.yarn
+
+# Next.js build output
+.next/
+out/
+build/
+dist/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Environment files (Prevents baking local secrets into the image)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# Editor/IDE configurations
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker files
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# CI/CD and Testing
+.github/
+coverage/
+.jest/
+Jenkinsfile
+jest.config.ts
+jest.setup.ts
+eslint.config.mjs
+
+# Miscellaneous
+README.md
+LICENSE
+temp/
