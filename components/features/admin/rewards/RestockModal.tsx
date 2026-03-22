@@ -75,7 +75,7 @@ export function RestockModal({ item, isOpen, onClose, onSave }: RestockModalProp
                         <strong className="text-[#004C8F]">{item.available_stock}</strong> units.
                     </p>
 
-                    <RewardField label="UNITS TO ADD">
+                    <RewardField label="UNITS TO ADD" required>
                         <Input
                             type="number"
                             className="w-full h-12 px-5 rounded-xl border-2 border-slate-100 text-sm font-bold text-black focus-visible:ring-blue-50 focus-visible:border-blue-300 bg-white transition-all"

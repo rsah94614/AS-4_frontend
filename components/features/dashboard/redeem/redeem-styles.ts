@@ -49,7 +49,7 @@ export const PAG_NUM_BASE =
     "rounded-lg min-w-[36px] px-2 py-1.5 text-sm font-medium transition-all";
 
 export const PAG_NUM_ACTIVE =
-    "bg-[#1E293B] text-white shadow-sm hover:bg-[#0F172A]";
+    "bg-[#004C8F] text-white shadow-sm hover:bg-[#003d73]";
 
 export const PAG_NUM_INACTIVE =
     "text-slate-800 font-bold hover:bg-slate-100 border-slate-200";
