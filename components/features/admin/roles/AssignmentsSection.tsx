@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { UserPlus, UserMinus, Loader2, ChevronDown, Search, Users } from "lucide-react";
+import { UserPlus, UserMinus, Loader2, ChevronDown, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,7 @@ import { extractErrorMessage } from "@/lib/error-utils";
 import type { ToastType } from "./UIHelpers";
 import { HowItWorks } from "@/components/features/admin/shared/HowItWorks";
 import PaginationControls from "@/components/shared/PaginationControls";
+import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
 
 interface AssignmentsSectionProps {
     toast: (msg: string, t?: ToastType) => void;
@@ -149,19 +150,12 @@ export function AssignmentsSection({ toast }: AssignmentsSectionProps) {
                     </button>
                 </div>
 
-                {/* Search bar */}
                 <div className="px-4 sm:px-6 py-3 border-b border-gray-100">
-                    <div className="relative w-full sm:max-w-sm">
-                        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input
-                            placeholder="Search by name, email or role…"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm
-                                placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#004C8F]/10
-                                focus:border-[#004C8F]/40 transition-all"
-                        />
-                    </div>
+                    <AdminSearchBar
+                        value={search}
+                        onChange={setSearch}
+                        placeholder="Search by name, email or role…"
+                    />
                 </div>
 
                 {/* Body */}

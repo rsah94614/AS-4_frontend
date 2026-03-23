@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, RefreshCw, Plus, X } from "lucide-react";
+import { RefreshCw, Plus } from "lucide-react";
 
 import { useDesignations } from "@/hooks/useDesignations";
 import { Designation } from "@/types/designation-types";
@@ -10,6 +10,7 @@ import { DesignationStats } from "@/components/features/admin/designations/Desig
 import { DesignationTable } from "@/components/features/admin/designations/DesignationTable";
 import { DesignationModal } from "@/components/features/admin/designations/DesignationModal";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
+import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
 
 export default function DesignationsPage() {
     const {
@@ -57,20 +58,7 @@ export default function DesignationsPage() {
 
                     <div className={`bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-5 ${sectionSpacing}`}>
                         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                            <div className="relative flex-1 min-w-[200px] max-w-sm">
-                                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                                <input
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value.trimStart())}
-                                    placeholder="Search by name or code…"
-                                    className="w-full pl-9 pr-8 py-2 rounded-lg border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/10 focus:border-primary/40 transition-all"
-                                />
-                                {search && (
-                                    <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                                        <X size={13} />
-                                    </button>
-                                )}
-                            </div>
+                            <AdminSearchBar value={search} onChange={setSearch} />
                             <Button
                                 onClick={openCreate}
                                 className="h-10 w-full sm:w-auto px-5 rounded-lg font-semibold text-white hover:opacity-90"

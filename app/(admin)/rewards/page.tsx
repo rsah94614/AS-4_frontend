@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Plus, Search, X } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { extractErrorMessage } from "@/lib/error-utils";
 import { Category, RewardItem } from "@/types/reward-types";
@@ -13,6 +13,7 @@ import { RewardModal } from "@/components/features/admin/rewards/RewardModal";
 import { RestockModal } from "@/components/features/admin/rewards/RestockModal";
 import { RewardStats } from "@/components/features/admin/rewards/UIHelpers";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
+import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
 
 export default function RewardsPage() {
   const [items, setItems] = useState<RewardItem[]>([]);
@@ -57,51 +58,48 @@ export default function RewardsPage() {
     inactive: items.filter(i => !i.is_active).length,
   }), [items]);
 
-  // ─── Filtering ────────────────────────────────────────────────────────────
-  const displayItems = useMemo(() => {
+  // Reset page to 1 whenever the search term changes
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  // ─── Shared Filtering (single source of truth) ────────────────────────────
+  const filteredItems = useMemo(() => {
     let result = items;
     if (filterState === "inactive") result = result.filter((i) => !i.is_active);
     else if (filterState === "active") result = result.filter((i) => i.is_active);
 
     if (search) {
-      const lowerSearch = search.toLowerCase();
-      result = result.filter(
-        (i) =>
-          i.reward_name.toLowerCase().split(/\s+/).some(word => word.startsWith(lowerSearch)) ||
-          i.reward_code.toLowerCase().startsWith(lowerSearch)
-      );
-      // Sort: name starts with search first, then word-match, then code-match
+      const normalizedSearch = search.toLowerCase().replace(/\s+/g, " ").trim();
+      result = result.filter((i) => {
+        const normalizedName = i.reward_name.toLowerCase().replace(/\s+/g, " ").trim();
+        const normalizedCode = i.reward_code.toLowerCase().replace(/\s+/g, " ").trim();
+        return normalizedName.includes(normalizedSearch) || normalizedCode.startsWith(normalizedSearch);
+      });
+      // Sort: name starts with search first, then includes-match, then code-match
       result = [...result].sort((a, b) => {
-        const aName = a.reward_name.toLowerCase();
-        const bName = b.reward_name.toLowerCase();
-        const aStartsName = aName.startsWith(lowerSearch) ? 0 : 1;
-        const bStartsName = bName.startsWith(lowerSearch) ? 0 : 1;
+        const normalizedSearch2 = normalizedSearch;
+        const aName = a.reward_name.toLowerCase().replace(/\s+/g, " ").trim();
+        const bName = b.reward_name.toLowerCase().replace(/\s+/g, " ").trim();
+        const aStartsName = aName.startsWith(normalizedSearch2) ? 0 : 1;
+        const bStartsName = bName.startsWith(normalizedSearch2) ? 0 : 1;
         if (aStartsName !== bStartsName) return aStartsName - bStartsName;
-        const aWordMatch = aName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
-        const bWordMatch = bName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
-        return aWordMatch - bWordMatch;
+        const aIncludes = aName.includes(normalizedSearch2) ? 0 : 1;
+        const bIncludes = bName.includes(normalizedSearch2) ? 0 : 1;
+        return aIncludes - bIncludes;
       });
     }
 
-    // Local pagination for ALL tabs to ensure fully packed pages
-    return result.slice((page - 1) * 12, page * 12);
-  }, [items, search, filterState, page]);
+    return result;
+  }, [items, search, filterState]);
+
+  // ─── Paginated Display Items ───────────────────────────────────────────────
+  const displayItems = useMemo(() => {
+    return filteredItems.slice((page - 1) * 12, page * 12);
+  }, [filteredItems, page]);
 
   const displayPagination = useMemo(() => {
-    let result = items;
-    if (filterState === "inactive") result = result.filter((i) => !i.is_active);
-    else if (filterState === "active") result = result.filter((i) => i.is_active);
-
-    if (search) {
-      const lowerSearch = search.toLowerCase();
-      result = result.filter(
-        (i) =>
-          i.reward_name.toLowerCase().split(/\s+/).some(word => word.startsWith(lowerSearch)) ||
-          i.reward_code.toLowerCase().startsWith(lowerSearch)
-      );
-    }
-
-    const total = result.length;
+    const total = filteredItems.length;
     const total_pages = Math.ceil(total / 12) || 1;
 
     return {
@@ -112,7 +110,7 @@ export default function RewardsPage() {
       has_next: page < total_pages,
       has_previous: page > 1,
     };
-  }, [items, search, filterState, page]);
+  }, [filteredItems, page]);
 
   // ─── Modal Helpers ────────────────────────────────────────────────────────
   const close = () => {
@@ -139,20 +137,7 @@ export default function RewardsPage() {
         {/* ─── Toolbar ─── */}
         <div className="flex flex-wrap items-center gap-3 mb-6">
           {/* Search */}
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value.trimStart())}
-              placeholder="Search by name or code…"
-              className="w-full pl-9 pr-8 py-2 rounded-lg border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/10 focus:border-primary/40 transition-all"
-            />
-            {search && (
-              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                <X size={13} />
-              </button>
-            )}
-          </div>
+          <AdminSearchBar value={search} onChange={setSearch} />
 
           {/* Filter tabs */}
           <RewardStats

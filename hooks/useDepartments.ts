@@ -45,22 +45,22 @@ export function useDepartments() {
     const filteredAndSorted = useMemo(() => {
         let result = allItems;
         if (search) {
-            const lowerSearch = search.toLowerCase();
-            result = result.filter(
-                (d) =>
-                    d.department_name.toLowerCase().split(/\s+/).some(word => word.startsWith(lowerSearch)) ||
-                    d.department_code.toLowerCase().startsWith(lowerSearch)
-            );
+            const normalizedSearch = search.toLowerCase().replace(/\s+/g, " ").trim();
+            result = result.filter((d) => {
+                const normalizedName = d.department_name.toLowerCase().replace(/\s+/g, " ").trim();
+                const normalizedCode = d.department_code.toLowerCase().replace(/\s+/g, " ").trim();
+                return normalizedName.includes(normalizedSearch) || normalizedCode.startsWith(normalizedSearch);
+            });
             
             result = [...result].sort((a, b) => {
-                const aName = a.department_name.toLowerCase();
-                const bName = b.department_name.toLowerCase();
-                const aStarts = aName.startsWith(lowerSearch) ? 0 : 1;
-                const bStarts = bName.startsWith(lowerSearch) ? 0 : 1;
+                const aName = a.department_name.toLowerCase().replace(/\s+/g, " ").trim();
+                const bName = b.department_name.toLowerCase().replace(/\s+/g, " ").trim();
+                const aStarts = aName.startsWith(normalizedSearch) ? 0 : 1;
+                const bStarts = bName.startsWith(normalizedSearch) ? 0 : 1;
                 if (aStarts !== bStarts) return aStarts - bStarts;
-                const aWord = aName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
-                const bWord = bName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
-                return aWord - bWord;
+                const aIncludes = aName.includes(normalizedSearch) ? 0 : 1;
+                const bIncludes = bName.includes(normalizedSearch) ? 0 : 1;
+                return aIncludes - bIncludes;
             });
         }
         return result;

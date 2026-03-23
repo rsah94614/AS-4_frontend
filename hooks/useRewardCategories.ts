@@ -42,30 +42,33 @@ export function useRewardCategories() {
     }, [load]);
 
     const filtered = useMemo(() => {
-        return categories
-            .filter(c => {
-                if (filterState === "active") return c.is_active;
-                if (filterState === "inactive") return !c.is_active;
-                return true;
-            })
-            .filter(c => {
-                const lowerSearch = search.toLowerCase();
-                if (!lowerSearch) return true;
-                return (
-                    c.category_name.toLowerCase().split(/\s+/).some(word => word.startsWith(lowerSearch)) ||
-                    c.category_code.toLowerCase().startsWith(lowerSearch)
-                );
-            })
-            .sort((a, b) => {
-                if (!search) return 0;
-                const lowerSearch = search.toLowerCase();
-                const aStarts = a.category_name.toLowerCase().startsWith(lowerSearch) ? 0 : 1;
-                const bStarts = b.category_name.toLowerCase().startsWith(lowerSearch) ? 0 : 1;
-                if (aStarts !== bStarts) return aStarts - bStarts;
-                const aWord = a.category_name.toLowerCase().split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
-                const bWord = b.category_name.toLowerCase().split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
-                return aWord - bWord;
+        let result = categories.filter(c => {
+            if (filterState === "active") return c.is_active;
+            if (filterState === "inactive") return !c.is_active;
+            return true;
+        });
+
+        if (search) {
+            const normalizedSearch = search.toLowerCase().replace(/\s+/g, " ").trim();
+            result = result.filter(c => {
+                const normalizedName = c.category_name.toLowerCase().replace(/\s+/g, " ").trim();
+                const normalizedCode = c.category_code.toLowerCase().replace(/\s+/g, " ").trim();
+                return normalizedName.includes(normalizedSearch) || normalizedCode.startsWith(normalizedSearch);
             });
+
+            result = [...result].sort((a, b) => {
+                const aName = a.category_name.toLowerCase().replace(/\s+/g, " ").trim();
+                const bName = b.category_name.toLowerCase().replace(/\s+/g, " ").trim();
+                const aStarts = aName.startsWith(normalizedSearch) ? 0 : 1;
+                const bStarts = bName.startsWith(normalizedSearch) ? 0 : 1;
+                if (aStarts !== bStarts) return aStarts - bStarts;
+                const aIncludes = aName.includes(normalizedSearch) ? 0 : 1;
+                const bIncludes = bName.includes(normalizedSearch) ? 0 : 1;
+                return aIncludes - bIncludes;
+            });
+        }
+
+        return result;
     }, [categories, search, filterState]);
 
     const activeCount = useMemo(() => categories.filter(c => c.is_active).length, [categories]);
