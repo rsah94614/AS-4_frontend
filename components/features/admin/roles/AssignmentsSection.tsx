@@ -23,11 +23,8 @@ import {
 import { extractErrorMessage } from "@/lib/error-utils";
 import type { ToastType } from "./UIHelpers";
 import { HowItWorks } from "@/components/features/admin/shared/HowItWorks";
-<<<<<<< Updated upstream
 import PaginationControls from "@/components/shared/PaginationControls";
-=======
 import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
->>>>>>> Stashed changes
 
 interface AssignmentsSectionProps {
     toast: (msg: string, t?: ToastType) => void;
