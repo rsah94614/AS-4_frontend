@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Search, X, Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { useRewardCategories } from "@/hooks/useRewardCategories";
 
 // Modular Components
@@ -9,6 +9,7 @@ import { RewardStats } from "@/components/features/admin/rewards/UIHelpers";
 import { CategoryModal } from "@/components/features/admin/rewards/CategoryModal";
 import { CategoryTable } from "@/components/features/admin/rewards/CategoryTable";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
+import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
 
 export default function CategoriesPage() {
   const {
@@ -65,6 +66,7 @@ export default function CategoriesPage() {
           </div>
         )}
 
+<<<<<<< Updated upstream
         {/* ─── Main Table Container ─── */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-5 space-y-4 sm:space-y-5">
           {/* ─── Toolbar ─── */}
@@ -105,6 +107,12 @@ export default function CategoriesPage() {
               Add Category
             </button>
           </div>
+=======
+        {/* ─── Toolbar ─── */}
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+          {/* Search */}
+          <AdminSearchBar value={search} onChange={setSearch} />
+>>>>>>> Stashed changes
 
           {/* ─── Category Table ─── */}
           <CategoryTable

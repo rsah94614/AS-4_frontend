@@ -72,23 +72,22 @@ export function useReviewCategories(activeOnly: boolean | null = null, search: s
       result = result.filter((c) => c.is_active === activeOnly);
     }
     if (search.trim()) {
-      const lowerSearch = search.trim().toLowerCase();
-      result = result.filter(
-        (s) =>
-          s.category_name.toLowerCase().split(/\s+/).some(w => w.startsWith(lowerSearch)) ||
-          s.category_code.toLowerCase().startsWith(lowerSearch)
-      );
+      const normalizedSearch = search.toLowerCase().replace(/\s+/g, " ").trim();
+      result = result.filter((s) => {
+        const normalizedName = s.category_name.toLowerCase().replace(/\s+/g, " ").trim();
+        const normalizedCode = s.category_code.toLowerCase().replace(/\s+/g, " ").trim();
+        return normalizedName.includes(normalizedSearch) || normalizedCode.startsWith(normalizedSearch);
+      });
 
       result = [...result].sort((a, b) => {
-        const aName = a.category_name.toLowerCase();
-        const bName = b.category_name.toLowerCase();
-        const aStarts = aName.startsWith(lowerSearch) ? 0 : 1;
-        const bStarts = bName.startsWith(lowerSearch) ? 0 : 1;
+        const aName = a.category_name.toLowerCase().replace(/\s+/g, " ").trim();
+        const bName = b.category_name.toLowerCase().replace(/\s+/g, " ").trim();
+        const aStarts = aName.startsWith(normalizedSearch) ? 0 : 1;
+        const bStarts = bName.startsWith(normalizedSearch) ? 0 : 1;
         if (aStarts !== bStarts) return aStarts - bStarts;
-
-        const aWord = aName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
-        const bWord = bName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
-        return aWord - bWord;
+        const aIncludes = aName.includes(normalizedSearch) ? 0 : 1;
+        const bIncludes = bName.includes(normalizedSearch) ? 0 : 1;
+        return aIncludes - bIncludes;
       });
     }
     return result;
