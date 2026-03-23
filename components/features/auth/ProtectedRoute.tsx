@@ -54,27 +54,42 @@ export default function ProtectedRoute({
   // ── Loading state ──
   if (isChecking) {
     return (
-      <div className="min-h-screen flex bg-gray-100">
-        <div className="hidden md:block w-64 bg-white border-r border-gray-200 p-4 space-y-4">
-          <Skeleton className="h-10 w-3/4" />
-          <div className="space-y-2 pt-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-9 w-full rounded-lg" />
-            ))}
-          </div>
-        </div>
-        <div className="flex-1 flex flex-col">
-          <div className="h-16 bg-white border-b border-gray-200 px-6 flex items-center gap-4">
-            <Skeleton className="h-8 w-8 rounded-lg md:hidden" />
-            <Skeleton className="h-5 w-40" />
+      <div className="flex h-screen overflow-hidden" style={{ backgroundColor: "#eef0f8" }}>
+        <div className="flex flex-col flex-1 min-w-0 min-h-0 overflow-hidden">
+          {/* ── Top navbar skeleton ── */}
+          <div className="h-14 bg-white border-b border-gray-200 px-6 flex items-center gap-4 shrink-0">
+            <Skeleton className="h-7 w-7 rounded-lg" />
+            <Skeleton className="h-5 w-28" />
             <div className="ml-auto flex items-center gap-3">
-              <Skeleton className="h-8 w-8 rounded-full" />
-              <Skeleton className="h-8 w-24 rounded-lg" />
+              <Skeleton className="h-7 w-7 rounded-full" />
+              <Skeleton className="h-8 w-28 rounded-lg" />
+              <Skeleton className="h-7 w-7 rounded-lg" />
             </div>
           </div>
-          <div className="flex-1 p-6">
-            <Skeleton className="h-8 w-48 mb-6" />
-            <Skeleton className="h-[60vh] w-full rounded-2xl" />
+
+          {/* ── Page content skeleton ── */}
+          <div className="flex-1 min-h-0 overflow-auto">
+            <div className="bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)] min-h-screen">
+              {/* Page header skeleton */}
+              <div className="px-8 md:px-10 py-6 border-b border-gray-100">
+                <Skeleton className="h-6 w-48 mb-2" />
+                <Skeleton className="h-3.5 w-72" />
+              </div>
+              {/* Content area skeleton */}
+              <div className="px-8 md:px-10 py-8 space-y-6">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-10 w-64 rounded-xl" />
+                  <Skeleton className="h-8 w-20 rounded-lg" />
+                  <Skeleton className="h-8 w-20 rounded-lg" />
+                  <Skeleton className="h-8 w-20 rounded-lg" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <Skeleton key={i} className="h-40 rounded-xl" />
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

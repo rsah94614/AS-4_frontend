@@ -71,17 +71,36 @@ export default function CategoriesPage() {
           {/* Search */}
           <AdminSearchBar value={search} onChange={setSearch} />
 
-          {/* ─── Category Table ─── */}
-          <CategoryTable
-            categories={filtered}
-            loading={loading}
-            onEdit={openEdit}
-            openCreate={openCreate}
-            filterState={filterState}
-            pagination={pagination}
-            onPageChange={setPage}
-          />
+          {/* Filter tabs */}
+          {!loading && categories.length > 0 && (
+            <RewardStats
+              total={categories.length}
+              active={activeCount}
+              inactive={categories.length - activeCount}
+              filterState={filterState}
+              setFilterState={setFilterState}
+            />
+          )}
+
+          <button
+            onClick={openCreate}
+            className="ml-auto flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-[10px] uppercase font-bold tracking-widest text-white whitespace-nowrap transition-all hover:opacity-90 active:scale-95 bg-primary"
+          >
+            <Plus size={13} />
+            Add Category
+          </button>
         </div>
+
+        {/* ─── Category Table ─── */}
+        <CategoryTable
+          categories={filtered}
+          loading={loading}
+          onEdit={openEdit}
+          openCreate={openCreate}
+          filterState={filterState}
+          pagination={pagination}
+          onPageChange={setPage}
+        />
       </div>
 
       {/* Modal Logic */}
