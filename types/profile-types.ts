@@ -25,6 +25,26 @@ export interface WalletInfo {
     total_earned_points: number;
 }
 
+export interface ProfileMetrics {
+    recognitions_received: number;
+    recognitions_given: number;
+    rewards_redeemed: number;
+}
+
+export type ProfileActivityType =
+    | "recognition_received"
+    | "recognition_sent"
+    | "reward_redeemed";
+
+export interface ProfileActivityItem {
+    id: string;
+    type: ProfileActivityType;
+    title: string;
+    description: string;
+    occurred_at: string;
+    points?: number | null;
+}
+
 export interface Role {
     role_id: string;
     role_name: string;
