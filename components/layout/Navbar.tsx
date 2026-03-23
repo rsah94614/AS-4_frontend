@@ -184,14 +184,14 @@ export default function Navbar() {
                                             {/* Pipe separator — not before first item */}
                                             {idx !== 0 && (
                                                 <span
-                                                    className="h-5 w-px mx-1 shrink-0"
+                                                    className="h-5 w-px mx-0.5 xl:mx-1 shrink-0"
                                                     style={{ background: 'rgba(255,255,255,0.25)' }}
                                                 />
                                             )}
                                             <Link
                                                 href={item.href}
                                                 className={`
-                                                    relative px-4 py-1.5 text-[15px] font-semibold tracking-wide transition-all whitespace-nowrap
+                                                    relative px-2 xl:px-4 py-1.5 text-[13px] xl:text-[15px] font-semibold tracking-wide transition-all whitespace-nowrap
                                                     ${isActive
                                                         ? 'text-white'
                                                         : 'text-white/70 hover:text-white'

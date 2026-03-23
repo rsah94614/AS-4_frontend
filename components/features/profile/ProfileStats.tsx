@@ -1,51 +1,51 @@
-import { Award, Gift, Star } from "lucide-react";
-import type { WalletInfo } from "@/types/profile-types";
+import { Award, Gift, Send } from "lucide-react";
+import type { ProfileMetrics } from "@/types/profile-types";
 
 interface ProfileStatsProps {
-    wallet?: WalletInfo;
+    metrics: ProfileMetrics;
 }
 
-export default function ProfileStats({ wallet }: ProfileStatsProps) {
+export default function ProfileStats({ metrics }: ProfileStatsProps) {
     const stats = [
         {
-            icon: <Award className="w-6 h-6 text-chart-4" />,
+            icon: <Award className="w-6 h-6 text-[#004C8F]" />,
             label: "Recognitions",
-            value: wallet ? Math.floor(wallet.total_earned_points / 200) || 5 : 5,
+            value: metrics.recognitions_received,
             subtext: "Received",
-            bg: "bg-(--chart-4)/10",
-            border: "border-(--chart-4)/20"
+            bg: "bg-[#EEF4FB]",
+            border: "border-[#D8E6F7]"
         },
         {
-            icon: <Gift className="w-6 h-6 text-chart-3" />,
+            icon: <Send className="w-6 h-6 text-[#004C8F]" />,
+            label: "Recognitions",
+            value: metrics.recognitions_given,
+            subtext: "Sent",
+            bg: "bg-emerald-50",
+            border: "border-emerald-100"
+        },
+        {
+            icon: <Gift className="w-6 h-6 text-[#004C8F]" />,
             label: "Rewards",
-            value: wallet ? Math.floor(wallet.redeemed_points / 500) || 2 : 2,
+            value: metrics.rewards_redeemed,
             subtext: "Redeemed",
-            bg: "bg-(--chart-3)/10",
-            border: "border-(--chart-3)/20"
-        },
-        {
-            icon: <Star className="w-6 h-6 text-primary" />,
-            label: "Rating",
-            value: "4.8",
-            subtext: "Average",
-            bg: "bg-primary/10",
-            border: "border-primary/20"
+            bg: "bg-[#FEF2F2]",
+            border: "border-[#FECACA]"
         },
     ];
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-8 border-b border-gray-100">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-8 border-b border-border">
             {stats.map((stat, i) => (
-                <div key={i} className="flex items-center gap-4 bg-white border border-gray-100 rounded-2xl p-5 shadow-xs transition-shadow hover:shadow-md group">
+                <div key={i} className="flex items-center gap-4 bg-white border border-border rounded-2xl p-5 shadow-xs transition-shadow hover:shadow-md group">
                     <div className={`w-14 h-14 rounded-xl flex items-center justify-center border ${stat.bg} ${stat.border} group-hover:scale-110 transition-transform duration-300`}>
                         {stat.icon}
                     </div>
                     <div>
                         <div className="flex items-baseline gap-1.5">
-                            <span className="text-2xl font-extrabold text-gray-900 tracking-tight">{stat.value}</span>
+                            <span className="text-2xl font-extrabold text-foreground tracking-tight">{stat.value}</span>
                         </div>
-                        <p className="text-sm font-semibold text-gray-700 mt-0.5">{stat.label}</p>
-                        <p className="text-xs font-medium text-gray-400 mt-0.5">{stat.subtext}</p>
+                        <p className="text-sm font-semibold text-foreground mt-0.5">{stat.label}</p>
+                        <p className="text-xs font-medium text-muted-foreground mt-0.5">{stat.subtext}</p>
                     </div>
                 </div>
             ))}
