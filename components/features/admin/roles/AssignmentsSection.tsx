@@ -23,6 +23,7 @@ import {
 import { extractErrorMessage } from "@/lib/error-utils";
 import type { ToastType } from "./UIHelpers";
 import { HowItWorks } from "@/components/features/admin/shared/HowItWorks";
+import PaginationControls from "@/components/shared/PaginationControls";
 
 interface AssignmentsSectionProps {
     toast: (msg: string, t?: ToastType) => void;
@@ -49,6 +50,8 @@ export function AssignmentsSection({ toast }: AssignmentsSectionProps) {
     const [form, setForm] = useState({ employee_id: "", role_id: "" });
     const [search, setSearch] = useState("");
     const [confirmRevoke, setConfirmRevoke] = useState<EmployeeRole | null>(null);
+    const [page, setPage] = useState(1);
+    const PAGE_SIZE = 10;
 
     const load = useCallback(async () => {
         try {
@@ -102,11 +105,22 @@ export function AssignmentsSection({ toast }: AssignmentsSectionProps) {
         }
     };
 
+    useEffect(() => {
+        setPage(1);
+    }, [search]);
+
     const filtered = records.filter(
         (r) =>
             r.employee.username.toLowerCase().includes(search.toLowerCase()) ||
             r.employee.email.toLowerCase().includes(search.toLowerCase()) ||
             r.role.name.toLowerCase().includes(search.toLowerCase())
+    );
+
+    const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
+
+    const paginatedRecords = filtered.slice(
+        (page - 1) * PAGE_SIZE,
+        page * PAGE_SIZE
     );
 
     return (
@@ -167,7 +181,7 @@ export function AssignmentsSection({ toast }: AssignmentsSectionProps) {
                 ) : (
                     <div>
                         <div className="md:hidden divide-y divide-gray-100">
-                            {filtered.map((r) => (
+                            {paginatedRecords.map((r) => (
                                 <div key={r.employee_role_id} className="px-4 py-3.5 space-y-3">
                                     <div className="flex items-center min-w-0">
                                         <div className="min-w-0">
@@ -213,10 +227,10 @@ export function AssignmentsSection({ toast }: AssignmentsSectionProps) {
 
                         {/* Rows */}
                         <div className="hidden md:block divide-y divide-gray-100">
-                            {filtered.map((r) => (
+                            {paginatedRecords.map((r) => (
                                 <div
                                     key={r.employee_role_id}
-                                    className="grid px-4 sm:px-6 py-3.5 items-center hover:bg-gray-50 transition-colors"
+                                    className="grid px-4 sm:px-6 py-3.5 items-center transition-colors"
                                     style={{ gridTemplateColumns: "2fr 1fr 120px 90px" }}
                                 >
                                     {/* Employee */}
@@ -259,6 +273,19 @@ export function AssignmentsSection({ toast }: AssignmentsSectionProps) {
                                 </div>
                             ))}
                         </div>
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="border-t border-gray-100 px-4 py-4 w-full">
+                                <PaginationControls
+                                    currentPage={page}
+                                    totalPages={totalPages}
+                                    hasPrevious={page > 1}
+                                    hasNext={page < totalPages}
+                                    onPageChange={setPage}
+                                    className="mt-0"
+                                />
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

@@ -75,7 +75,7 @@ export function EmployeeListSection({ toast }: { toast: (msg: string, t?: "succe
     const load = useCallback(async () => {
         try {
             setLoading(true);
-            const params: Record<string, string | number> = { page, limit: 20 };
+            const params: Record<string, string | number> = { page, limit: 10 };
             if (debouncedSearch) params.search = debouncedSearch;
             if (filterDept) params.department_id = filterDept;
             if (filterStatus) params.status_id = filterStatus;

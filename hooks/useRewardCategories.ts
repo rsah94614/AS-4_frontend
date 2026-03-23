@@ -13,6 +13,8 @@ export function useRewardCategories() {
     const [error, setError] = useState<string | null>(null);
     const [search, setSearch] = useState("");
     const [filterState, setFilterState] = useState<CategoryFilter>("all");
+    const [page, setPage] = useState(1);
+    const PAGE_SIZE = 10;
 
     // Modal states
     const [modal, setModal] = useState<null | "create" | "edit">(null);
@@ -68,6 +70,30 @@ export function useRewardCategories() {
 
     const activeCount = useMemo(() => categories.filter(c => c.is_active).length, [categories]);
 
+    // Reset page on filter/search change
+    useEffect(() => {
+        setPage(1);
+    }, [search, filterState]);
+
+    // Client-side pagination
+    const paginatedFiltered = useMemo(() => {
+        const start = (page - 1) * PAGE_SIZE;
+        return filtered.slice(start, start + PAGE_SIZE);
+    }, [filtered, page]);
+
+    const pagination = useMemo(() => {
+        const total = filtered.length;
+        const total_pages = Math.ceil(total / PAGE_SIZE) || 1;
+        return {
+            current_page: page,
+            per_page: PAGE_SIZE,
+            total,
+            total_pages,
+            has_next: page < total_pages,
+            has_previous: page > 1,
+        };
+    }, [filtered.length, page]);
+
     const openCreate = () => setModal("create");
     const openEdit = (cat: Category) => {
         setSelected(cat);
@@ -85,7 +111,8 @@ export function useRewardCategories() {
 
     return {
         categories,
-        filtered,
+        filtered: paginatedFiltered,
+        pagination,
         loading,
         error,
         search,
@@ -99,6 +126,8 @@ export function useRewardCategories() {
         openEdit,
         closeModal,
         handleSaved,
+        page,
+        setPage,
         refresh: load
     };
 }
