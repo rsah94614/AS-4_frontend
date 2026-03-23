@@ -3,14 +3,12 @@ import { maxDobStr, AVATAR_COLORS, initials, formatDate, normalizeId } from "@/l
 import { StatusBadge } from "@/components/features/admin/employees/StatusBadge";
 import { SearchableSelect } from "@/components/features/admin/employees/SearchableSelect";
 import { SelectField } from "@/components/features/admin/employees/SelectField";
-import { Button } from "@/components/ui/button";
-import { DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { extractErrorMessage } from "@/lib/error-utils";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { VisuallyHidden } from "radix-ui";
 import { useState, useEffect } from "react";
-import { Dialog } from "@/components/ui/dialog";
 import { employeesClient as empClient } from "@/services/api-clients";
 import { Label } from "@/components/ui/label";
 
@@ -112,29 +110,37 @@ export function EmployeeDetailDialog({ employee, open, onClose, onUpdated, toast
         <>
             <Dialog open={open} onOpenChange={onClose}>
                 <DialogContent
+                    showCloseButton={false}
                     onOpenAutoFocus={(e) => e.preventDefault()}
-                    className="w-full max-w-[95vw] sm:max-w-lg p-0 gap-0 rounded-2xl border border-border overflow-hidden [&>button]:hidden"
+                    className="max-w-lg p-0 border-none bg-white rounded-2xl overflow-hidden shadow-xl flex flex-col max-h-[85vh]"
                 >
                     <VisuallyHidden.Root><DialogTitle>Employee Details</DialogTitle></VisuallyHidden.Root>
 
                     {/* Header */}
-                    <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-white">
+                    <div className="flex items-center justify-between px-6 py-5 shrink-0">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-white shrink-0"
                                 style={{ background: AVATAR_COLORS[colorIdx] }}>
                                 {initials(employee.username)}
                             </div>
                             <div>
-                                <p className="text-[15px] font-bold text-primary">{employee.username}</p>
-                                <p className="text-[12px] text-muted-foreground">{employee.email}</p>
+                                <p className="text-lg font-bold text-gray-900">{employee.username}</p>
+                                <p className="text-xs text-gray-400">{employee.email}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                             <StatusBadge isActive={employee.is_active} />
+                            <button
+                                onClick={onClose}
+                                className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
                         </div>
                     </div>
 
-                    <div className="p-6 bg-white max-h-[60vh] overflow-y-auto overflow-x-visible">
+                    {/* Body */}
+                    <div className="flex-1 overflow-y-auto px-6 pb-6">
                         {!editing ? (
                             <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                                 <Field label="Employee ID" value={<span className="font-mono text-xs break-all">{employee.employee_id}</span>} />
@@ -150,12 +156,12 @@ export function EmployeeDetailDialog({ employee, open, onClose, onUpdated, toast
                                     <div className="space-y-1">
                                         <Label htmlFor="e_un" className={fieldLabel}>Username</Label>
                                         <Input id="e_un" value={form.username} onChange={set("username")}
-                                            className="border-border text-sm focus-visible:ring-0 focus-visible:border-primary" />
+                                            className="border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus-visible:ring-blue-300" />
                                     </div>
                                     <div className="space-y-1">
                                         <Label htmlFor="e_em" className={fieldLabel}>Email</Label>
                                         <Input id="e_em" type="email" value={form.email} onChange={set("email")}
-                                            className="border-border text-sm focus-visible:ring-0 focus-visible:border-primary" />
+                                            className="border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus-visible:ring-blue-300" />
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
@@ -177,29 +183,43 @@ export function EmployeeDetailDialog({ employee, open, onClose, onUpdated, toast
                                         <Label htmlFor="e_dob" className={fieldLabel}>Date of Birth</Label>
                                         <Input id="e_dob" type="date" value={form.date_of_birth} onChange={set("date_of_birth")}
                                             max={maxDobStr()}
-                                            className="border-border text-sm focus-visible:ring-0 focus-visible:border-primary" />
+                                            className="border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus-visible:ring-blue-300" />
                                     </div>
                                 </div>
                             </div>
                         )}
-                    </div>
 
-                    <div className="px-6 py-4 bg-muted border-t border-gray-100 flex items-center justify-end gap-2">
-                        <div className="flex items-center gap-2">
+                        {/* Actions */}
+                        <div className="flex gap-3 mt-6">
                             {editing ? (
                                 <>
-                                    <Button variant="outline" onClick={onClose} disabled={submitting} className="border-border text-xs font-semibold">Cancel</Button>
-                                    <button onClick={handleUpdate} disabled={submitting}
-                                        className="flex items-center gap-2 px-5 py-2 rounded-lg text-xs font-bold text-white transition-all hover:opacity-90 disabled:opacity-50"
-                                        style={{ background: "#003580" }}>
-                                        {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                                    <button
+                                        type="button"
+                                        onClick={onClose}
+                                        disabled={submitting}
+                                        className="flex-1 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl py-2.5 text-sm font-medium transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleUpdate}
+                                        disabled={submitting}
+                                        className="flex-1 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                        style={{ background: "#004C8F" }}
+                                    >
+                                        {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                                         Save Changes
                                     </button>
                                 </>
                             ) : (
-                                <>
-                                    <Button variant="outline" onClick={onClose} className="border-border text-xs font-semibold">Close</Button>
-                                </>
+                                <button
+                                    type="button"
+                                    onClick={onClose}
+                                    className="flex-1 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl py-2.5 text-sm font-medium transition-colors"
+                                >
+                                    Close
+                                </button>
                             )}
                         </div>
                     </div>

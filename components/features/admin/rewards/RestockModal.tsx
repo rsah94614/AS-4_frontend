@@ -1,21 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { Loader2, Archive } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { rewardsClient as rewardsApiClient } from "@/services/api-clients";
 import { extractErrorMessage } from "@/lib/error-utils";
 import { RewardItem } from "@/types/reward-types";
-import { RewardField } from "./UIHelpers";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import {
     Dialog,
     DialogContent,
-    DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-
 
 interface RestockModalProps {
     item: RewardItem;
@@ -47,84 +41,84 @@ export function RestockModal({ item, isOpen, onClose, onSave }: RestockModalProp
 
     return (
         <Dialog open={isOpen} onOpenChange={(val) => !val && onClose()}>
-            <DialogContent 
+            <DialogContent
+                showCloseButton={false}
                 onOpenAutoFocus={(e) => e.preventDefault()}
-                className="max-w-md p-0 border-none bg-white rounded-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300"
+                className="max-w-md p-0 border-none bg-white rounded-2xl overflow-hidden shadow-xl flex flex-col max-h-[85vh]"
             >
-                <DialogHeader className="flex flex-row items-center justify-between px-8 py-6 border-b border-slate-50 bg-slate-50/50">
-                    <div className="flex items-center gap-3 text-left">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-100 text-[#004C8F] shadow-inner">
-                            <Archive className="w-5 h-5" />
-                        </div>
+                {/* Header */}
+                <div className="flex items-center justify-between px-6 py-5 shrink-0">
+                    <DialogTitle className="text-lg font-bold text-gray-900">Add Stock</DialogTitle>
+                    <button
+                        onClick={onClose}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                </div>
+
+                {/* Body */}
+                <div className="flex-1 overflow-y-auto px-6 pb-6">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <p className="text-sm text-gray-500 leading-relaxed">
+                            Restocking{" "}
+                            <strong className="text-gray-800">{item.reward_name}</strong>.{" "}
+                            Current inventory:{" "}
+                            <strong className="text-[#004C8F]">{item.available_stock}</strong> units.
+                        </p>
+
+                        {/* Units */}
                         <div>
-                            <DialogTitle className="text-xl font-semibold text-slate-800 tracking-tight leading-none mb-1">
+                            <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                Units to Add <span style={{ color: "#E31837" }}>*</span>
+                            </label>
+                            <input
+                                type="number"
+                                className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                value={amount}
+                                min={1}
+                                onChange={(e) => setAmount(Math.max(1, Number(e.target.value)))}
+                            />
+                        </div>
+
+                        {/* Preview */}
+                        <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
+                            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                                New stock level
+                            </span>
+                            <span className="text-2xl font-bold text-[#004C8F]">
+                                {item.available_stock + amount}
+                            </span>
+                        </div>
+
+                        {/* Error */}
+                        {error && (
+                            <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600">
+                                {error}
+                            </div>
+                        )}
+
+                        {/* Actions */}
+                        <div className="flex gap-3 pt-2">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="flex-1 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl py-2.5 text-sm font-medium transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={saving}
+                                className="flex-1 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                style={{ background: "#004C8F" }}
+                            >
+                                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                                 Add Stock
-                            </DialogTitle>
-                            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">
-                                INVENTORY MANAGEMENT
-                            </p>
+                            </button>
                         </div>
-                    </div>
-                </DialogHeader>
-
-                <form onSubmit={handleSubmit} className="px-8 py-8 space-y-6">
-                    <p className="text-sm font-bold text-slate-500 leading-relaxed">
-                        Restocking{" "}
-                        <strong className="text-slate-800">{item.reward_name}</strong>.{" "}
-                        Current inventory:{" "}
-                        <strong className="text-[#004C8F]">{item.available_stock}</strong> units.
-                    </p>
-
-                    <RewardField label="UNITS TO ADD" required>
-                        <Input
-                            type="number"
-                            className="w-full h-12 px-5 rounded-xl border-2 border-slate-100 text-sm font-bold text-black focus-visible:ring-blue-50 focus-visible:border-blue-300 bg-white transition-all"
-                            value={amount}
-                            min={1}
-                            onChange={(e) => setAmount(Math.max(1, Number(e.target.value)))}
-                        />
-                    </RewardField>
-
-                    <Card className="flex items-center justify-between p-5 rounded-xl border-2 border-slate-100 bg-slate-50">
-                        <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                            New stock level
-                        </span>
-                        <span className="text-3xl font-bold text-[#004C8F] tracking-tight">
-                            {item.available_stock + amount}
-                        </span>
-                    </Card>
-
-                    {error && (
-                        <div className="p-4 bg-red-50 border-2 border-red-100 rounded-xl text-red-600 text-[10px] font-semibold animate-in shake-in duration-300 uppercase tracking-wider">
-                            ⚠️ {error}
-                        </div>
-                    )}
-
-                    <div className="flex gap-4 pt-4 border-t border-slate-50">
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={onClose}
-                            className="flex-1 h-14 rounded-2xl text-xs font-semibold text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all tracking-wider uppercase"
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={saving}
-                            className="flex-1 h-14 rounded-2xl text-xs font-semibold text-white bg-black hover:bg-slate-800 transition-all tracking-wider uppercase flex items-center justify-center gap-3 shadow-xl active:scale-95 disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none"
-                        >
-                            {saving ? (
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : (
-                                <>
-                                    <Archive className="w-4 h-4" />
-                                    Add Stock
-                                </>
-                            )}
-                        </Button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </DialogContent>
         </Dialog>
     );
