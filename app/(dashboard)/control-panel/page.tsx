@@ -129,11 +129,11 @@ export default function ControlPanelHub() {
             <div className="px-4 sm:px-6 md:px-10 py-6 sm:py-8 w-full">
 
                 {/* Cards grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                     {categories.map((cat) => (
                         <Link key={cat.href} href={cat.href} className="group block">
                             <div
-                                className="relative rounded-xl border border-slate-300 bg-white flex flex-col overflow-hidden
+                                className="relative rounded-xl border border-slate-300 bg-white flex flex-col overflow-hidden h-full
                                     transition-all duration-300 shadow-md shadow-slate-400
                                     cursor-pointer hover:shadow-xl hover:shadow-slate-300 hover:-translate-y-0.5"
                             >

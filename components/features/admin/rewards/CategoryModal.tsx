@@ -4,18 +4,23 @@ import React, { useState } from "react";
 import { rewardsClient as rewardsApiClient } from "@/services/api-clients";
 import { extractErrorMessage } from "@/lib/error-utils";
 import { Category, CreateCategoryPayload, UpdateCategoryPayload } from "@/types/reward-types";
-import { RewardField } from "./UIHelpers";
-import { Loader2, Save, Tag, CheckCircle2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Loader2, X } from "lucide-react";
 import {
     Dialog,
     DialogContent,
-    DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
 
+// ── Validation helpers ────────────────────────────────────────────────────────
+
+const SPECIAL_CHARS_REGEX = /[<>{}|\\^~\[\]]/;
+const DESC_MAX_LENGTH = 1000;
+
+function validateDescription(value: string): string | null {
+    if (SPECIAL_CHARS_REGEX.test(value)) return "Special characters like < > { } | \\ ^ ~ [ ] are not allowed.";
+    if (value.length > DESC_MAX_LENGTH) return `Description cannot exceed ${DESC_MAX_LENGTH} characters.`;
+    return null;
+}
 
 interface CategoryModalProps {
     category?: Category;
@@ -34,11 +39,20 @@ export function CategoryModal({ category, isOpen, onClose, onSave }: CategoryMod
     });
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [descError, setDescError] = useState<string | null>(null);
 
     if (!isOpen) return null;
 
+    const handleDescriptionChange = (value: string) => {
+        if (value.length > DESC_MAX_LENGTH) return;
+        setForm({ ...form, description: value });
+        setDescError(validateDescription(value));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        const dErr = validateDescription(form.description);
+        if (dErr) { setDescError(dErr); return; }
         setSaving(true);
         setError(null);
         try {
@@ -67,111 +81,131 @@ export function CategoryModal({ category, isOpen, onClose, onSave }: CategoryMod
 
     return (
         <Dialog open={isOpen} onOpenChange={(val) => !val && onClose()}>
-            <DialogContent 
+            <DialogContent
+                showCloseButton={false}
                 onOpenAutoFocus={(e) => e.preventDefault()}
-                className="max-w-lg p-0 border-none bg-white rounded-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300"
+                className="max-w-md p-0 border-none bg-white rounded-2xl overflow-hidden shadow-xl flex flex-col max-h-[85vh]"
             >
-                <DialogHeader className="flex flex-row items-center justify-between px-8 py-6 border-b border-slate-50 bg-slate-50/50">
-                    <div className="flex items-center gap-3 text-left">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isEdit ? "bg-blue-100 text-[#004C8F]" : "bg-green-100 text-green-600"} shadow-inner`}>
-                            <Tag className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <DialogTitle className="text-xl font-semibold text-slate-800 tracking-tight leading-none mb-1">
-                                {isEdit ? "Update Category" : "Build Category"}
-                            </DialogTitle>
-                            <p className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
-                                REWARD MANAGEMENT SYSTEM
-                            </p>
-                        </div>
-                    </div>
-                </DialogHeader>
+                {/* Header */}
+                <div className="flex items-center justify-between px-6 py-5 shrink-0">
+                    <DialogTitle className="text-lg font-bold text-gray-900">
+                        {isEdit ? "Update Category" : "New Category"}
+                    </DialogTitle>
+                    <button
+                        onClick={onClose}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                </div>
 
-                <form onSubmit={handleSubmit} className="px-8 py-8 space-y-6">
-                    {!isEdit && (
-                        <RewardField label="CATEGORY CODE" required>
-                            <Input
-                                className="w-full h-12 px-5 rounded-xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white placeholder:text-slate-300 transition-all uppercase"
-                                value={form.category_code}
-                                onChange={(e) => setForm({ ...form, category_code: e.target.value.toUpperCase() })}
-                                placeholder="e.g. CAT-GIFT"
+                {/* Body */}
+                <div className="flex-1 overflow-y-auto px-6 pb-6">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        {/* Category Code (create only) */}
+                        {!isEdit && (
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Category Code <span style={{ color: "#E31837" }}>*</span>
+                                </label>
+                                <input
+                                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 font-mono uppercase"
+                                    value={form.category_code}
+                                    onChange={(e) => setForm({ ...form, category_code: e.target.value.toUpperCase() })}
+                                    placeholder="e.g. CAT-GIFT"
+                                    required
+                                />
+                            </div>
+                        )}
+
+                        {/* Category Name */}
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                Category Name <span style={{ color: "#E31837" }}>*</span>
+                            </label>
+                            <input
+                                className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                value={form.category_name}
+                                onChange={(e) => setForm({ ...form, category_name: e.target.value })}
+                                placeholder="e.g. Amazon Gift Cards"
                                 required
                             />
-                        </RewardField>
-                    )}
-
-                    <RewardField label="CATEGORY NAME" required>
-                        <Input
-                            className="w-full h-12 px-5 rounded-xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white placeholder:text-slate-300 transition-all"
-                            value={form.category_name}
-                            onChange={(e) => setForm({ ...form, category_name: e.target.value })}
-                            placeholder="e.g. Amazon Gift Cards"
-                            required
-                        />
-                    </RewardField>
-
-                    <RewardField label="DESCRIPTION">
-                        <Textarea
-                            className="w-full px-5 py-3.5 rounded-xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white placeholder:text-slate-300 transition-all min-h-[120px] resize-none"
-                            value={form.description}
-                            onChange={(e) => setForm({ ...form, description: e.target.value })}
-                            placeholder="Tell us what this category covers..."
-                        />
-                    </RewardField>
-
-                    {isEdit && (
-                        <RewardField label="CATEGORY STATUS">
-                            <label className="flex items-center gap-4 cursor-pointer select-none bg-slate-50 p-4 rounded-xl border border-slate-100 group">
-                                <div className="relative flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        checked={form.is_active}
-                                        onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
-                                        className="peer h-6 w-11 cursor-pointer appearance-none rounded-full bg-slate-300 transition-all focus:outline-none checked:bg-[#004C8F]"
-                                    />
-                                    <div className="absolute left-1 h-4 w-4 transform rounded-full bg-white transition-transform peer-checked:translate-x-5" />
-                                </div>
-                                <span className={`text-sm font-semibold transition-colors ${form.is_active ? "text-[#004C8F]" : "text-slate-400"}`}>
-                                    {form.is_active ? "ACTIVE" : "DEACTIVE"}
-                                </span>
-                                {form.is_active && (
-                                    <CheckCircle2 className="w-5 h-5 text-[#004C8F] ml-auto animate-in zoom-in" />
-                                )}
-                            </label>
-                        </RewardField>
-                    )}
-
-                    {error && (
-                        <div className="p-4 bg-red-50 border-2 border-red-100 rounded-xl text-red-600 text-[10px] font-semibold animate-in shake-in duration-300 uppercase tracking-wider">
-                            ⚠️ {error}
                         </div>
-                    )}
 
-                    <div className="flex gap-4 pt-4 border-t border-slate-50">
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={onClose}
-                            className="flex-1 h-14 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all tracking-wider uppercase"
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={saving}
-                            className="flex-1 h-14 rounded-xl text-xs font-semibold text-white bg-[#004C8F] hover:bg-[#003d73] transition-all tracking-wider uppercase flex items-center justify-center gap-3 shadow-xl active:scale-95 disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none"
-                        >
-                            {saving ? (
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : (
-                                <>
-                                    <Save className="w-4 h-4" />
-                                    {isEdit ? "Update" : "Create"}
-                                </>
-                            )}
-                        </Button>
-                    </div>
-                </form>
+                        {/* Description */}
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                Description <span className="text-gray-300">(optional)</span>
+                            </label>
+                            <textarea
+                                className={`w-full border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 resize-none ${descError ? "border-red-300 focus:ring-red-200" : "border-gray-200 focus:ring-blue-300"}`}
+                                value={form.description}
+                                onChange={(e) => handleDescriptionChange(e.target.value)}
+                                placeholder="Tell us what this category covers..."
+                                rows={3}
+                                maxLength={DESC_MAX_LENGTH}
+                            />
+                            <div className="flex items-center justify-between mt-1">
+                                {descError ? (
+                                    <p className="text-xs text-red-500">{descError}</p>
+                                ) : (
+                                    <span />
+                                )}
+                                <p className="text-xs text-gray-400">{form.description.length}/{DESC_MAX_LENGTH}</p>
+                            </div>
+                        </div>
+
+                        {/* Active toggle (edit only) */}
+                        {isEdit && (
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Status
+                                </label>
+                                <label className="flex items-center gap-3 cursor-pointer select-none bg-gray-50 p-3.5 rounded-xl border border-gray-200 group">
+                                    <div className="relative flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={form.is_active}
+                                            onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
+                                            className="peer h-5 w-10 cursor-pointer appearance-none rounded-full bg-gray-300 transition-all focus:outline-none checked:bg-[#004C8F]"
+                                        />
+                                        <div className="absolute left-0.5 h-4 w-4 transform rounded-full bg-white transition-transform peer-checked:translate-x-5" />
+                                    </div>
+                                    <span className={`text-sm font-semibold transition-colors ${form.is_active ? "text-[#004C8F]" : "text-gray-400"}`}>
+                                        {form.is_active ? "Active" : "Inactive"}
+                                    </span>
+                                </label>
+                            </div>
+                        )}
+
+                        {/* Error */}
+                        {error && (
+                            <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600">
+                                {error}
+                            </div>
+                        )}
+
+                        {/* Actions */}
+                        <div className="flex gap-3 pt-2">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="flex-1 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl py-2.5 text-sm font-medium transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={saving || !!descError}
+                                className="flex-1 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                style={{ background: "#004C8F" }}
+                            >
+                                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                                {isEdit ? "Update" : "Create"}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </DialogContent>
         </Dialog>
     );

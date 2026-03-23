@@ -49,10 +49,9 @@ export default function PaginationControls({
                 size="sm"
                 disabled={!hasPrevious}
                 onClick={() => onPageChange(currentPage - 1)}
-                className="rounded-lg px-3 py-1.5 text-sm font-bold text-slate-800 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="rounded-lg px-2 py-1.5 text-sm font-bold text-slate-800 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
             >
                 <ChevronLeft className="w-4 h-4" />
-                Previous
             </Button>
 
             {getPaginationItems(currentPage, totalPages).map((item, index) =>
@@ -83,9 +82,8 @@ export default function PaginationControls({
                 size="sm"
                 disabled={!hasNext}
                 onClick={() => onPageChange(currentPage + 1)}
-                className="rounded-lg px-3 py-1.5 text-sm font-bold text-slate-800 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="rounded-lg px-2 py-1.5 text-sm font-bold text-slate-800 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-                Next
                 <ChevronRight className="w-4 h-4" />
             </Button>
         </div>
