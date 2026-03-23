@@ -95,8 +95,12 @@ export async function fetchManagerOptions(): Promise<ManagerOption[]> {
         }
     }
 
-    const employeeRows: EmployeeOption[] =
+    const employeeRows: EmployeeOption[] & { manager_id?: string; manager?: { email: string; employee_id: string } }[] =
         Array.isArray(empRes) ? empRes : (empRes.employees ?? empRes.data ?? []);
+
+    for (const emp of employeeRows) {
+        if (emp.manager?.email) allowedEmails.add(emp.manager.email);
+    }
 
     return employeeRows
         .filter((employee) => allowedEmails.has(employee.email))
