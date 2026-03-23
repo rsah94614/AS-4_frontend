@@ -35,7 +35,7 @@ export default function ReviewCategoriesPage() {
   const [activeOnly, setActiveOnly] = useState<FilterValue>(null);
   const [search, setSearch] = useState("");
 
-  const { categories, allCategories, loading, error, createCategory, updateCategory } =
+  const { categories, allCategories, pagination, loading, error, createCategory, updateCategory, setPage } =
     useReviewCategories(activeOnly, search);
 
   const [flash, setFlash] = useState<{ type: "success" | "error"; msg: string } | null>(null);
@@ -233,6 +233,8 @@ export default function ReviewCategoriesPage() {
                 onCancelEdit={() => setEditId(null)}
                 onEditFormChange={(field, val) => setEditForm(p => ({ ...p, [field]: val }))}
                 saving={saving}
+                pagination={pagination}
+                onPageChange={setPage}
               />
 
             </div>

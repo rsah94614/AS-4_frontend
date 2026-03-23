@@ -61,17 +61,18 @@ export function useDesignations() {
     }, [search]);
 
     // Client pagination
+    const PAGE_SIZE = 10;
     const paginatedDesignations = useMemo(() => {
-        const start = (page - 1) * 5;
-        return filteredAndSorted.slice(start, start + 5);
+        const start = (page - 1) * PAGE_SIZE;
+        return filteredAndSorted.slice(start, start + PAGE_SIZE);
     }, [filteredAndSorted, page]);
 
     const activePagination = useMemo(() => {
         const total = filteredAndSorted.length;
-        const total_pages = Math.ceil(total / 5) || 1;
+        const total_pages = Math.ceil(total / PAGE_SIZE) || 1;
         return {
             current_page: page,
-            per_page: 5,
+            per_page: PAGE_SIZE,
             total,
             total_pages,
             has_next: page < total_pages,

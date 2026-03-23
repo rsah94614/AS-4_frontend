@@ -13,6 +13,8 @@ export function useReviewCategories(activeOnly: boolean | null = null, search: s
   const [categories, setCategories] = useState<ReviewCategory[]>([]);
   const [loading, setLoading]       = useState(false);
   const [error, setError]           = useState<string | null>(null);
+  const [page, setPage]             = useState(1);
+  const PAGE_SIZE = 10;
 
   const fetchCategories = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
@@ -92,13 +94,38 @@ export function useReviewCategories(activeOnly: boolean | null = null, search: s
     return result;
   }, [categories, activeOnly, search]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [search, activeOnly]);
+
+  const paginatedCategories = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filteredCategories.slice(start, start + PAGE_SIZE);
+  }, [filteredCategories, page]);
+
+  const pagination = useMemo(() => {
+      const total = filteredCategories.length;
+      const total_pages = Math.ceil(total / PAGE_SIZE) || 1;
+      return {
+          current_page: page,
+          per_page: PAGE_SIZE,
+          total,
+          total_pages,
+          has_next: page < total_pages,
+          has_previous: page > 1,
+      };
+  }, [filteredCategories.length, page]);
+
   return {
-    categories: filteredCategories,
+    categories: paginatedCategories,
     allCategories: categories,
+    pagination,
     loading,
     error,
     createCategory,
     updateCategory,
     refetch: fetchCategories,
+    page,
+    setPage,
   };
 }

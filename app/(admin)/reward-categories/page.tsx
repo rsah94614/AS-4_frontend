@@ -14,6 +14,7 @@ export default function CategoriesPage() {
   const {
     categories,
     filtered,
+    pagination,
     loading,
     error,
     search,
@@ -27,6 +28,7 @@ export default function CategoriesPage() {
     openEdit,
     closeModal,
     handleSaved,
+    setPage,
     refresh
   } = useRewardCategories();
 
@@ -63,52 +65,58 @@ export default function CategoriesPage() {
           </div>
         )}
 
-        {/* ─── Toolbar ─── */}
-        <div className="flex flex-wrap items-center gap-3 mb-6">
-          {/* Search */}
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value.trimStart())}
-              placeholder="Search by name or code…"
-              className="w-full pl-9 pr-8 py-2 rounded-lg border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/10 focus:border-primary/40 transition-all"
-            />
-            {search && (
-              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                <X size={13} />
-              </button>
+        {/* ─── Main Table Container ─── */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-5 space-y-4 sm:space-y-5">
+          {/* ─── Toolbar ─── */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            {/* Search */}
+            <div className="relative flex-1 min-w-[200px] max-w-sm">
+              <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value.trimStart())}
+                placeholder="Search by name or code…"
+                className="w-full pl-9 pr-8 py-2 rounded-lg border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/10 focus:border-primary/40 transition-all"
+              />
+              {search && (
+                <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                  <X size={13} />
+                </button>
+              )}
+            </div>
+
+            {/* Filter tabs */}
+            {!loading && categories.length > 0 && (
+              <RewardStats
+                total={categories.length}
+                active={activeCount}
+                inactive={categories.length - activeCount}
+                filterState={filterState}
+                setFilterState={setFilterState}
+              />
             )}
+
+            <button
+              onClick={openCreate}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 font-semibold text-white px-5 py-2.5 text-sm rounded-lg transition-all hover:opacity-90 active:scale-95 sm:ml-auto"
+              style={{ backgroundColor: "#004C8F" }}
+            >
+              <Plus size={16} className="w-4 h-4" />
+              Add Category
+            </button>
           </div>
 
-          {/* Filter tabs */}
-          {!loading && categories.length > 0 && (
-            <RewardStats
-              total={categories.length}
-              active={activeCount}
-              inactive={categories.length - activeCount}
-              filterState={filterState}
-              setFilterState={setFilterState}
-            />
-          )}
-
-          <button
-            onClick={openCreate}
-            className="ml-auto flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-[10px] uppercase font-bold tracking-widest text-white whitespace-nowrap transition-all hover:opacity-90 active:scale-95 bg-primary"
-          >
-            <Plus size={13} />
-            Add Category
-          </button>
+          {/* ─── Category Table ─── */}
+          <CategoryTable
+            categories={filtered}
+            loading={loading}
+            onEdit={openEdit}
+            openCreate={openCreate}
+            filterState={filterState}
+            pagination={pagination}
+            onPageChange={setPage}
+          />
         </div>
-
-        {/* ─── Category Table ─── */}
-        <CategoryTable
-          categories={filtered}
-          loading={loading}
-          onEdit={openEdit}
-          openCreate={openCreate}
-          filterState={filterState}
-        />
       </div>
 
       {/* Modal Logic */}
