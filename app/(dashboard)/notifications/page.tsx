@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { AlertCircle, BarChart3, CheckCheck, Megaphone, RefreshCw } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
 import { getRolesFromToken } from "@/lib/role-utils";
@@ -9,22 +9,61 @@ import { DigestPanel } from "@/components/features/notifications/DigestPanel";
 import { NotificationList } from "@/components/features/notifications/NotificationList";
 import { AdminPanel } from "@/components/features/notifications/notifications-shared";
 
-type UserRole = "SUPER_ADMIN" | "HR_ADMIN" | "MANAGER" | "EMPLOYEE";
+type UserRole = "SUPER_ADMIN" | "HR_ADMIN" | "MANAGER" | "EMPLOYEE" | "ADMIN";
 
-const CAN_POST_ANNOUNCEMENT: UserRole[] = ["SUPER_ADMIN", "HR_ADMIN"];
-const CAN_GET_DIGEST: UserRole[] = ["SUPER_ADMIN", "HR_ADMIN", "MANAGER"];
-const CAN_POST_DIGEST: UserRole[] = ["SUPER_ADMIN", "HR_ADMIN"];
+const CAN_POST_ANNOUNCEMENT: UserRole[] = ["SUPER_ADMIN", "HR_ADMIN", "ADMIN"];
+const CAN_GET_DIGEST: UserRole[] = ["SUPER_ADMIN", "HR_ADMIN", "MANAGER", "ADMIN"];
+const CAN_POST_DIGEST: UserRole[] = ["SUPER_ADMIN", "HR_ADMIN", "ADMIN"];
 
 export default function NotificationsPage() {
     const { notifications, unreadCount, loading, error, markOne, markAll, reload } =
         useNotifications(100);
 
-    const roles = useMemo(() => getRolesFromToken() as UserRole[], []);
+    const [roles, setRoles] = useState<UserRole[]>([]);
+    const [mounted, setMounted] = useState(false);
+    const [canViewDigest, setCanViewDigest] = useState(false);
+
+    useEffect(() => {
+        const currentRoles = getRolesFromToken() as UserRole[];
+        setRoles(currentRoles);
+
+        const hasRoleAccess = CAN_GET_DIGEST.some((r) => currentRoles.includes(r as UserRole));
+        if (hasRoleAccess) {
+            setCanViewDigest(true);
+            setMounted(true);
+            return;
+        }
+
+        async function verifyManagerAccess() {
+            try {
+                const { auth } = await import("@/services/auth-service");
+                const { employeeService } = await import("@/services/employee-service");
+                const user = auth.getUser();
+                if (user?.employee_id) {
+                    const detail = await employeeService.getEmployee(user.employee_id);
+                    // Grant access if they have a manager_id (are in a team) OR if they are a manager themselves
+                    if (detail.manager?.employee_id) {
+                        setCanViewDigest(true);
+                    } else {
+                        const directReports = await employeeService.listEmployees({ manager_id: user.employee_id, limit: 1, is_active: true });
+                        if (directReports.data && directReports.data.length > 0) {
+                            setCanViewDigest(true);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to verify manager digest access:", error);
+            } finally {
+                setMounted(true);
+            }
+        }
+
+        verifyManagerAccess();
+    }, []);
 
     const canAnnounce = CAN_POST_ANNOUNCEMENT.some((role) => roles.includes(role));
-    const canViewDigest = CAN_GET_DIGEST.some((role) => roles.includes(role));
     const canSendDigest = CAN_POST_DIGEST.some((role) => roles.includes(role));
-    const showAdminArea = canAnnounce || canViewDigest;
+    const showAdminArea = mounted && (canAnnounce || canViewDigest);
     const hasUnread = unreadCount > 0;
 
     return (
