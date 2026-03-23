@@ -8,7 +8,7 @@ import { Designation } from "@/types/designation-types";
 import { PaginationMeta } from "@/types/pagination";
 import { Status } from "@/types/employee-types";
 import { Employee } from "@/types/employee-types";
-import { Users, UserPlus, X, ChevronDown, Briefcase, Building2, Calendar, MoreVertical } from "lucide-react";
+import { Users, UserPlus, ChevronDown, Briefcase, Building2, Calendar, MoreVertical } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import HowItWorks from "../shared/HowItWorks";
 import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
