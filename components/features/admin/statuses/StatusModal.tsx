@@ -76,7 +76,7 @@ export function StatusModal({ isOpen, onClose, onCreate, saving }: StatusModalPr
                 <form onSubmit={handleSubmit} className="px-8 py-8 space-y-6 overflow-y-auto flex-1">
                     <div className="space-y-1.5 mb-5 group">
                         <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider ml-1 group-focus-within:text-[#004C8F] transition-colors">
-                            CATEGORY
+                            CATEGORY <span style={{ color: "#E31837" }}>*</span>
                         </label>
                         <Select
                             value={form.entity_type}
@@ -102,7 +102,7 @@ export function StatusModal({ isOpen, onClose, onCreate, saving }: StatusModalPr
 
                     <div className="space-y-1.5 mb-5 group">
                         <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider ml-1 group-focus-within:text-[#004C8F] transition-colors">
-                            STATUS CODE
+                            STATUS CODE <span style={{ color: "#E31837" }}>*</span>
                         </label>
                         <Input
                             value={form.status_code}
@@ -128,7 +128,7 @@ export function StatusModal({ isOpen, onClose, onCreate, saving }: StatusModalPr
 
                     <div className="space-y-1.5 mb-5 group">
                         <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider ml-1 group-focus-within:text-[#004C8F] transition-colors">
-                            DISPLAY NAME
+                            DISPLAY NAME <span style={{ color: "#E31837" }}>*</span>
                         </label>
                         <Input
                             value={form.status_name}

@@ -7,20 +7,14 @@ import HistoryList from "@/components/features/dashboard/history/HistoryList";
 import HistoryPagination from "@/components/features/dashboard/history/HistoryPagination";
 import dynamic from "next/dynamic";
 import type { HistoryItem } from "@/types/history-types";
+import { PageHeader } from "@/components/shared/PageHeader";
 
 // Dynamically import the modal to reduce initial JS evaluation time
 const TransactionDetailModal = dynamic(() => import("@/components/features/dashboard/history/TransactionDetailModal"), {
     ssr: false
 });
 
-import {
-    PAGE_WRAPPER,
-    PAGE_CONTENT,
-    PAGE_HEADER,
-    PAGE_HEADER_INNER,
-    HDFC_RED,
-    HDFC_BLUE
-} from "@/components/features/dashboard/history/history-styles";
+// removed imports
 
 export default function HistoryPage() {
     const {
@@ -44,31 +38,19 @@ export default function HistoryPage() {
 
     return (
         <div
-            className={PAGE_WRAPPER}
+            className="flex-1 w-full min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_45%,#ffffff_100%)] mx-auto shadow-[0_10px_50px_rgba(15,23,42,0.05)]"
             onClick={closeDropdowns}
         >
             {/* ── Page Header ── */}
-            <div className={PAGE_HEADER}>
-                <div className={PAGE_HEADER_INNER}>
-                    <div>
-                        <h1 className="text-3xl font-semibold tracking-tight" style={{ color: HDFC_BLUE }}>
-                            History
-                        </h1>
-                        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                            Review every point movement, reward redemption, and supporting transaction detail in one place.
-                        </p>
-                    </div>
-                    <span className="hidden md:flex items-center text-2xl font-black tracking-tight select-none">
-                        <span style={{ color: HDFC_RED }}>A</span>
-                        <span style={{ color: HDFC_BLUE }}>abhar</span>
-                    </span>
-                </div>
-            </div>
+            <PageHeader
+                title="History"
+                subtitle="Review every point movement, reward redemption, and supporting transaction detail in one place."
+            />
 
             <div className="h-0.5 shrink-0" />
 
             {/* ── Main content ── */}
-            <div className={PAGE_CONTENT}>
+            <div className="px-6 md:px-10 py-8 md:py-10 mx-auto rounded-b-[24px]">
                 <HistoryFilterBar
                     selectedPeriod={selectedPeriod}
                     setSelectedPeriod={setSelectedPeriod}

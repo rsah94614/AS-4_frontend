@@ -11,7 +11,7 @@ import { extractErrorMessage } from "@/lib/error-utils";
 import { AuditTable } from "@/components/features/admin/audit-logs/AuditTable";
 import { AuditDetailModal } from "@/components/features/admin/audit-logs/AuditDetailModal";
 import { AuditFilterPanel } from "@/components/features/admin/audit-logs/AuditFilters";
-import { AdminPageHeader } from "@/components/features/admin/AdminControlPanelPageHeader";
+import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 
 export default function AuditLogsPage() {
     const [logs, setLogs] = useState<AuditLog[]>([]);
@@ -78,15 +78,15 @@ export default function AuditLogsPage() {
 
     return (
         <>
-            <main className="flex-1 overflow-y-auto overflow-x-hidden">
+            <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
                 {/* ─── Page Header ─── */}
                 <AdminPageHeader
                     title="Audit Logs"
                     subtitle="Track and monitor all system activity"
                 />
 
-                <div className="p-3 sm:p-4 md:p-5 lg:p-6 pt-2 sm:pt-3 md:pt-4 space-y-3 sm:space-y-4">
-                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-3 sm:px-4 md:px-5 lg:px-6 py-3 sm:py-3.5 space-y-3 sm:space-y-3.5">
+                <div className="px-8 md:px-10 py-8 space-y-6">
+                    <div className="bg-white flex flex-col gap-4 rounded-xl border border-slate-200 shadow-sm px-6 py-5">
                         <div className="flex items-center gap-2.5 sm:gap-3">
                             <Button
                                 variant="outline"

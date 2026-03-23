@@ -73,7 +73,7 @@ export default function ProfilePage() {
                                 <p className="text-sm text-muted-foreground text-center max-w-sm">{error}</p>
                                 <Button
                                     onClick={() => user?.employee_id && fetchProfile(user.employee_id)}
-                                    className="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
+                                    className="mt-6 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
                                 >
                                     Try Again
                                 </Button>
@@ -82,7 +82,7 @@ export default function ProfilePage() {
 
                         {/* Profile Content */}
                         {!authLoading && !loading && !error && profile && (
-                            <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
                                 {/* Back Button */}
                                 <Button
                                     variant="ghost"

@@ -12,7 +12,7 @@ import { RewardGrid } from "@/components/features/admin/rewards/RewardGrid";
 import { RewardModal } from "@/components/features/admin/rewards/RewardModal";
 import { RestockModal } from "@/components/features/admin/rewards/RestockModal";
 import { RewardStats } from "@/components/features/admin/rewards/UIHelpers";
-import { AdminPageHeader } from "@/components/features/admin/AdminControlPanelPageHeader";
+import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 
 export default function RewardsPage() {
   const [items, setItems] = useState<RewardItem[]>([]);
@@ -67,11 +67,22 @@ export default function RewardsPage() {
       const lowerSearch = search.toLowerCase();
       result = result.filter(
         (i) =>
-          i.reward_name.toLowerCase().includes(lowerSearch) ||
-          i.reward_code.toLowerCase().includes(lowerSearch)
+          i.reward_name.toLowerCase().split(/\s+/).some(word => word.startsWith(lowerSearch)) ||
+          i.reward_code.toLowerCase().startsWith(lowerSearch)
       );
+      // Sort: name starts with search first, then word-match, then code-match
+      result = [...result].sort((a, b) => {
+        const aName = a.reward_name.toLowerCase();
+        const bName = b.reward_name.toLowerCase();
+        const aStartsName = aName.startsWith(lowerSearch) ? 0 : 1;
+        const bStartsName = bName.startsWith(lowerSearch) ? 0 : 1;
+        if (aStartsName !== bStartsName) return aStartsName - bStartsName;
+        const aWordMatch = aName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
+        const bWordMatch = bName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
+        return aWordMatch - bWordMatch;
+      });
     }
-    
+
     // Local pagination for ALL tabs to ensure fully packed pages
     return result.slice((page - 1) * 12, page * 12);
   }, [items, search, filterState, page]);
@@ -85,14 +96,14 @@ export default function RewardsPage() {
       const lowerSearch = search.toLowerCase();
       result = result.filter(
         (i) =>
-          i.reward_name.toLowerCase().includes(lowerSearch) ||
-          i.reward_code.toLowerCase().includes(lowerSearch)
+          i.reward_name.toLowerCase().split(/\s+/).some(word => word.startsWith(lowerSearch)) ||
+          i.reward_code.toLowerCase().startsWith(lowerSearch)
       );
     }
-    
+
     const total = result.length;
     const total_pages = Math.ceil(total / 12) || 1;
-    
+
     return {
       current_page: page,
       per_page: 12,
@@ -114,7 +125,7 @@ export default function RewardsPage() {
   };
 
   return (
-    <main className="flex-1 overflow-y-auto flex flex-col bg-white">
+    <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 
       {/* ─── Page Header ─── */}
       <AdminPageHeader
@@ -122,73 +133,67 @@ export default function RewardsPage() {
         subtitle="Create and manage individual items in your reward list"
       />
 
-
-
       {/* ─── Content Area ─── */}
-      <div className="flex-1 px-8 md:px-10 py-8 flex flex-col" style={{ background: "#F7F9FC" }}>
-        <div className="w-full mx-auto flex-1 flex flex-col">
-          <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+      <div className="px-8 md:px-10 py-8">
 
-            {/* ─── Toolbar ─── */}
-            <div className="flex flex-wrap items-center gap-3 mb-6">
-              {/* Search */}
-              <div className="relative flex-1 min-w-[200px] max-w-sm">
-                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value.trimStart())}
-                  placeholder="Search by name or code…"
-                  className="w-full pl-9 pr-8 py-2 rounded-lg border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/10 focus:border-primary/40 transition-all"
-                />
-                {search && (
-                  <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                    <X size={13} />
-                  </button>
-                )}
-              </div>
-
-              {/* Filter tabs */}
-              <RewardStats
-                total={globalStats.total}
-                active={globalStats.active}
-                inactive={globalStats.inactive}
-                filterState={filterState}
-                setFilterState={(v: "all" | "active" | "inactive") => {
-                  setFilterState(v);
-                  setPage(1);
-                }}
-              />
-
-              <button
-                onClick={() => setModal("create")}
-                className="ml-auto flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-[10px] uppercase font-bold tracking-widest text-white whitespace-nowrap transition-all hover:opacity-90 active:scale-95 bg-primary"
-              >
-                <Plus size={13} />
-                Add Reward
-              </button>
-            </div>
-
-            {/* ─── Grid / Empty / Error / Loading ─── */}
-            <RewardGrid
-              items={displayItems}
-              loading={loading}
-              error={error}
-              pagination={displayPagination}
-              page={page}
-              setPage={setPage}
-              onRetry={load}
-              onEdit={(item) => {
-                setSelected(item);
-                setModal("edit");
-              }}
-              onRestock={(item) => {
-                setSelected(item);
-                setModal("restock");
-              }}
-              onCreateNew={() => setModal("create")}
+        {/* ─── Toolbar ─── */}
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+          {/* Search */}
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value.trimStart())}
+              placeholder="Search by name or code…"
+              className="w-full pl-9 pr-8 py-2 rounded-lg border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/10 focus:border-primary/40 transition-all"
             />
+            {search && (
+              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <X size={13} />
+              </button>
+            )}
           </div>
+
+          {/* Filter tabs */}
+          <RewardStats
+            total={globalStats.total}
+            active={globalStats.active}
+            inactive={globalStats.inactive}
+            filterState={filterState}
+            setFilterState={(v: "all" | "active" | "inactive") => {
+              setFilterState(v);
+              setPage(1);
+            }}
+          />
+
+          <button
+            onClick={() => setModal("create")}
+            className="ml-auto flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-[10px] uppercase font-bold tracking-widest text-white whitespace-nowrap transition-all hover:opacity-90 active:scale-95 bg-primary"
+          >
+            <Plus size={13} />
+            Add Reward
+          </button>
         </div>
+
+        {/* ─── Grid / Empty / Error / Loading ─── */}
+        <RewardGrid
+          items={displayItems}
+          loading={loading}
+          error={error}
+          pagination={displayPagination}
+          page={page}
+          setPage={setPage}
+          onRetry={load}
+          onEdit={(item) => {
+            setSelected(item);
+            setModal("edit");
+          }}
+          onRestock={(item) => {
+            setSelected(item);
+            setModal("restock");
+          }}
+          onCreateNew={() => setModal("create")}
+        />
       </div>
 
       {/* Modals */}

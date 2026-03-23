@@ -26,7 +26,7 @@ async function fetchTeamsWithDetail(): Promise<{
 
 function TeamsLoadingSkeleton() {
     return (
-        <div className="space-y-5">
+        <div className="space-y-5 px-8 md:px-10 py-8">
             <div className="flex flex-wrap items-center gap-3">
                 <Skeleton className="h-9 w-56 rounded-lg" />
                 <Skeleton className="h-9 w-64 rounded-lg" />

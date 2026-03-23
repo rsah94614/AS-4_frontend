@@ -1,13 +1,6 @@
 "use client";
 
-/**
- * Wallet page — live API calls via the direct wallet microservice client.
- *
- * Endpoints:
- *   GET /employees/{employee_id}        ? WalletResponse
- *   GET /{wallet_id}/points-summary     ? PointsSummary
- *   GET /transactions?wallet_id=...     ? TransactionListResponse
- */
+
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
@@ -20,19 +13,13 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
-import {
-  PAGE_WRAPPER,
-  PAGE_HEADER,
-  PAGE_HEADER_INNER,
-  PAGE_CONTENT,
-  HDFC_RED,
-  HDFC_BLUE,
-} from "@/components/features/dashboard/history/history-styles";
+// removed imports
 import { walletClient } from "@/services/api-clients";
 import { auth } from "@/services/auth-service";
 import { extractErrorMessage } from "@/lib/error-utils";
 import { Button } from "@/components/ui/button";
 import PaginationControls from "@/components/shared/PaginationControls";
+import { PageHeader } from "@/components/shared/PageHeader";
 
 
 
@@ -208,7 +195,7 @@ function ActivityRow({ txn }: { txn: Transaction }) {
     <div className="flex items-center gap-3 py-3 border-b border-border last:border-0 group hover:bg-muted/40 px-3 rounded-xl transition-colors">
       {/* Icon circle */}
       <div
-        className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${isCredit ? "bg-emerald-50" : "bg-[#EEF4FB]"
+        className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${isCredit ? "bg-emerald-50" : "bg-[#EEF4FB]"
           }`}
       >
         {isCredit ? (
@@ -231,7 +218,7 @@ function ActivityRow({ txn }: { txn: Transaction }) {
       </div>
 
       {/* Date + status */}
-      <div className="flex-shrink-0 text-right">
+      <div className="shrink-0 text-right">
         <p className="text-xs text-muted-foreground">
           {formatDate(txn.transaction_at)}
         </p>
@@ -331,25 +318,13 @@ export default function Wallet() {
 
   if (loadingWallet) {
     return (
-      <div className={PAGE_WRAPPER}>
-        <div className={PAGE_HEADER}>
-          <div className={PAGE_HEADER_INNER}>
-            <div>
-              <h1 className="text-2xl font-bold leading-tight" style={{ color: HDFC_BLUE }}>
-                Wallet
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Manage your points balance and transactions
-              </p>
-            </div>
-            <span className="hidden md:flex items-center text-xl font-black tracking-tight select-none">
-              <span style={{ color: HDFC_RED }}>A</span>
-              <span style={{ color: HDFC_BLUE }}>abhar</span>
-            </span>
-          </div>
-        </div>
+      <div className="flex-1 w-full min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_45%,#ffffff_100%)] mx-auto shadow-[0_10px_50px_rgba(15,23,42,0.05)]">
+        <PageHeader
+          title="Wallet"
+          subtitle="Manage your points balance and transactions"
+        />
 
-        <div className={PAGE_CONTENT}>
+        <div className="px-6 md:px-10 py-8 md:py-10 mx-auto rounded-b-[24px]">
           <div className="flex flex-col gap-5">
             <SkeletonLight className="h-28 w-full" />
 
@@ -381,48 +356,42 @@ export default function Wallet() {
 
   // Render
   return (
-    <div className={PAGE_WRAPPER}>
+    <div className="flex-1 w-full min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_45%,#ffffff_100%)] mx-auto shadow-[0_10px_50px_rgba(15,23,42,0.05)]">
 
       {/* Page Header */}
-      <div className={PAGE_HEADER}>
-        <div className={PAGE_HEADER_INNER}>
-          <div>
-            <h1 className="text-2xl font-bold leading-tight" style={{ color: HDFC_BLUE }}>
-              Wallet
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Manage your points balance and transactions
-            </p>
-          </div>
-          <span className="hidden md:flex items-center text-xl font-black tracking-tight select-none">
-            <span style={{ color: HDFC_RED }}>A</span>
-            <span style={{ color: HDFC_BLUE }}>abhar</span>
-          </span>
-        </div>
-      </div>
+      <PageHeader
+        title="Wallet"
+        subtitle="Manage your points balance and transactions"
+      />
 
 
 
       {/* Main content */}
-      <div className={PAGE_CONTENT}>
+      <div className="px-6 md:px-10 py-8 md:py-10 mx-auto rounded-b-[24px]">
         <div className="flex flex-col gap-5">
 
           {/* Hero Balance Banner */}
           <div
-            className="rounded-2xl border border-white/10 overflow-hidden shadow-sm relative px-5 py-5 lg:px-6 lg:py-6 bg-[#004C8F]"
+            className="rounded-2xl border border-[#E2E8F0] overflow-hidden shadow-lg shadow-slate-200/60 relative px-6 py-5 bg-white"
           >
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] items-center gap-6">
-              <div>
-                <p className="text-sm text-white/80 font-semibold uppercase tracking-[0.14em]">Points Balance</p>
-                <p className="text-2xl font-bold text-white leading-tight mt-1.5 tabular-nums">
-                  {displayBalance.toLocaleString()}
-                </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                  <Gift size={20} className="text-[#1E293B]" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 font-medium">Points Balance</p>
+                  <p className="text-2xl font-bold text-[#1E293B] leading-none mt-0.5 tabular-nums">
+                    {displayBalance.toLocaleString()}
+                    <span className="text-sm font-normal text-slate-400 ml-1.5">pts</span>
+                  </p>
+                </div>
               </div>
 
               <div className="justify-self-start lg:justify-self-end">
                 <Link href="/redeem">
                   <button
-                    className="px-7 py-2.5 rounded-xl font-semibold text-[#004C8F] bg-white text-sm leading-none shadow-md transition-all duration-200 active:scale-95 hover:bg-slate-100"
+                    className="px-7 py-2.5 rounded-xl font-semibold text-white bg-[#004C8F] text-sm leading-none shadow-md transition-all duration-200 active:scale-95 hover:bg-[#003d73]"
                   >
                     Redeem Reward
                   </button>
@@ -456,7 +425,7 @@ export default function Wallet() {
                   className="rounded-2xl p-4 border border-border bg-white shadow-sm flex items-center gap-3 transition-all"
                 >
                   <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 border border-[#D8E6F7] bg-[#EEF4FB]"
+                    className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border border-[#D8E6F7] bg-[#EEF4FB]"
                   >
                     <Icon size={18} className="text-[#004C8F]" />
                   </div>
@@ -482,7 +451,7 @@ export default function Wallet() {
               {/* Header */}
               <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-muted/20">
                 <div>
-                  <h3 className="text-base font-semibold leading-tight" style={{ color: HDFC_BLUE }}>
+                  <h3 className="text-base font-semibold leading-tight" style={{ color: "#004C8F" }}>
                     Recent Wallet Activity
                   </h3>
                   {txnData && (
@@ -561,7 +530,7 @@ export default function Wallet() {
                 <Link
                   href="/history"
                   className="text-sm font-semibold flex items-center gap-1 transition-colors hover:opacity-80"
-                  style={{ color: HDFC_BLUE }}
+                  style={{ color: "#004C8F" }}
                 >
                   View All Activity
                   <ChevronRight size={15} />
@@ -581,7 +550,7 @@ export default function Wallet() {
                   >
                     <Star size={14} className="text-[#004C8F]" />
                   </div>
-                  <h4 className="text-base font-semibold leading-tight" style={{ color: HDFC_BLUE }}>Period Summary</h4>
+                  <h4 className="text-base font-semibold leading-tight" style={{ color: "#004C8F" }}>Period Summary</h4>
                 </div>
 
                 <div className="flex flex-col gap-3">
@@ -590,7 +559,7 @@ export default function Wallet() {
                     {loadingSummary ? (
                       <Skeleton className="h-5 w-16" />
                     ) : (
-                      <span className="text-base font-bold leading-tight" style={{ color: HDFC_BLUE }}>
+                      <span className="text-base font-bold leading-tight" style={{ color: "#004C8F" }}>
                         {(summary?.points_this_month ?? 0).toLocaleString()}
                         <span className="text-sm font-normal text-muted-foreground ml-1">pts</span>
                       </span>
@@ -601,7 +570,7 @@ export default function Wallet() {
                     {loadingSummary ? (
                       <Skeleton className="h-5 w-16" />
                     ) : (
-                      <span className="text-base font-bold leading-tight" style={{ color: HDFC_BLUE }}>
+                      <span className="text-base font-bold leading-tight" style={{ color: "#004C8F" }}>
                         {(summary?.points_this_year ?? 0).toLocaleString()}
                         <span className="text-sm font-normal text-muted-foreground ml-1">pts</span>
                       </span>

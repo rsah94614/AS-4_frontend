@@ -64,19 +64,19 @@ const KPI_CONFIG = [
 ];
 
 
-function KpiCard({ label, value, icon: Icon, gradient }: {
-    label: string; value: string | number; icon: typeof Users; gradient: string;
+function KpiCard({ label, value, icon: Icon }: {
+    label: string; value: string | number; icon: typeof Users; gradient?: string;
 }) {
     return (
-        <div className={`relative rounded-2xl p-5 text-white overflow-hidden bg-linear-to-br ${gradient}`}>
-            <div className="absolute -right-5 -top-5 w-24 h-24 rounded-full bg-white/10" />
-            <div className="absolute -right-2 -bottom-6 w-16 h-16 rounded-full bg-white/10" />
+        <div className="relative rounded-2xl p-5 bg-white border border-gray-100 overflow-hidden">
+            <div className="absolute -right-5 -top-5 w-24 h-24 rounded-full bg-gray-50/50" />
+            <div className="absolute -right-2 -bottom-6 w-16 h-16 rounded-full bg-gray-50/50" />
             <div className="relative">
-                <div className="bg-white/20 p-2 rounded-xl w-fit mb-4">
-                    <Icon className="w-4 h-4 text-white" />
+                <div className="bg-blue-50 p-2 rounded-xl w-fit mb-4">
+                    <Icon className="w-4 h-4 text-primary" />
                 </div>
-                <h3 className="text-3xl font-black tabular-nums leading-none mb-1">{value}</h3>
-                <p className="text-white/70 text-xs font-semibold uppercase tracking-wide">{label}</p>
+                <h3 className="text-3xl font-black tabular-nums leading-none mb-1 text-gray-900">{value}</h3>
+                <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">{label}</p>
             </div>
         </div>
     );
@@ -158,37 +158,38 @@ export default function AdminTeamDetailSection({ report }: Props) {
     return (
         <div className="space-y-5">
             {/* Hero banner */}
-            <div className="relative rounded-2xl overflow-hidden bg-linear-to-br from-[#003A70] via-[#004C8F] to-[#1D6EC5] px-6 py-6 text-white">
+            <div className="relative rounded-2xl overflow-hidden bg-white border border-gray-100 px-6 py-6">
                 <div className="absolute top-0 right-0 w-64 h-full opacity-10 pointer-events-none">
-                    <div className="absolute top-[-20%] right-[-10%] w-72 h-72 rounded-full bg-white" />
-                    <div className="absolute bottom-[-30%] right-[20%] w-40 h-40 rounded-full bg-white" />
+                    <div className="absolute top-[-20%] right-[-10%] w-72 h-72 rounded-full bg-gray-200" />
+                    <div className="absolute bottom-[-30%] right-[20%] w-40 h-40 rounded-full bg-gray-200" />
                 </div>
                 <div className="relative flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
-                        <p className="text-white/60 text-[10px] uppercase tracking-widest font-bold mb-1.5">
+                        <p className="text-gray-500 text-[10px] uppercase tracking-widest font-bold mb-1.5">
                             Department Report
                         </p>
-                        <h2 className="text-2xl font-black text-white leading-tight">
+                        <h2 className="text-2xl font-black text-gray-900 leading-tight">
                             {report.department_name}
                         </h2>
                         <div className="flex items-center gap-2 mt-3 flex-wrap">
-                            <span className="bg-white/15 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                            <span className="bg-gray-100 text-gray-700 border border-gray-200 text-xs font-semibold px-3 py-1 rounded-full">
                                 {report.total_members} member{report.total_members !== 1 ? "s" : ""}
                             </span>
                         </div>
                     </div>
                     <div className="flex flex-col items-end gap-3 shrink-0">
                         <Button
+                            variant="outline"
                             size="sm"
                             onClick={() => exportTeamToXLSX(report)}
-                            className="gap-1.5 bg-white/15 border-0 text-white hover:bg-white/25 font-semibold h-8 text-xs rounded-xl"
+                            className="gap-1.5 font-semibold h-8 text-xs rounded-xl"
                         >
                             <Download className="w-3.5 h-3.5" />
                             Export
                         </Button>
                         <div className="text-right hidden sm:block">
-                            <p className="text-white/50 text-[10px] uppercase tracking-wider">Avg Score</p>
-                            <p className="text-5xl font-black leading-none tabular-nums">
+                            <p className="text-gray-500 text-[10px] uppercase tracking-wider">Avg Score</p>
+                            <p className="text-5xl font-black leading-none tabular-nums text-gray-900">
                                 {report.avg_performance_score}%
                             </p>
                         </div>

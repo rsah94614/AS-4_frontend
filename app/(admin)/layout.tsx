@@ -2,6 +2,7 @@
 
 import ProtectedRoute from "@/components/features/auth/ProtectedRoute";
 import Navbar from "@/components/layout/Navbar";
+import PageTransition from "@/components/layout/PageTransition";
 
 export default function AdminLayout({
     children,
@@ -16,7 +17,7 @@ export default function AdminLayout({
                 <div className="flex flex-col flex-1 min-w-0 min-h-0 overflow-hidden">
                     <Navbar />
                     <main className="flex-1 min-h-0 overflow-auto">
-                        {children}
+                        <PageTransition>{children}</PageTransition>
                     </main>
                 </div>
             </div>

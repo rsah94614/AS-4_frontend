@@ -53,3 +53,13 @@ export function getMessage(item: HistoryItem): string {
     }
     return item.comment ?? "Points awarded";
 }
+
+
+
+export const PAGE_SIZE = 10;
+
+export const periodOptions: PeriodFilter[] = [
+    "All History",
+    "Points History",
+    "Redeem History",
+];

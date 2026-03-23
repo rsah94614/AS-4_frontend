@@ -28,7 +28,7 @@ export default function DashboardRecognitionCard({
     image,
 }: DashboardRecognitionCardProps) {
     return (
-        <div className="group relative bg-white rounded-2xl border border-gray-100 p-4 hover:shadow-md hover:border-gray-200 transition-all duration-200">
+        <div className="group relative bg-white shadow-md rounded-2xl border border-gray-100 p-4 hover:shadow-lg hover:border-gray-200 transition-all duration-200">
             {/* Quote accent */}
             {/* <Quote className="absolute top-3 right-4 w-5 h-5 text-gray-100 group-hover:text-gray-150 transition-colors" /> */}
 

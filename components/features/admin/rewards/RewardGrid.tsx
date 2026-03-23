@@ -1,9 +1,7 @@
 "use client";
 
-import React from "react";
 import {
     Package,
-    Plus,
     RefreshCw,
     AlertCircle,
     Loader2,
@@ -38,7 +36,6 @@ export function RewardGrid({
     onRetry,
     onEdit,
     onRestock,
-    onCreateNew,
 }: RewardGridProps) {
     if (error && !loading) {
         return (
@@ -85,26 +82,15 @@ export function RewardGrid({
 
     if (items.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-40 text-slate-400 text-sm bg-white rounded-xl border border-dashed border-slate-200 gap-6 group hover:border-blue-200 transition-all cursor-default">
-                <div className="w-24 h-24 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors shadow-inner">
-                    <Package className="w-10 h-10 opacity-20 group-hover:text-blue-400 group-hover:opacity-100 transition-all duration-700" />
+            <div className="flex flex-col items-center justify-center py-40 text-slate-400 text-sm bg-white rounded-xl border border-dashed border-slate-200 gap-6">
+                <div className="w-24 h-24 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-100 shadow-inner">
+                    <Package className="w-10 h-10 opacity-20" />
                 </div>
-                <div className="text-center group-hover:scale-105 transition-transform">
-                    <p className="font-semibold text-slate-300 uppercase tracking-wide mb-2 group-hover:text-blue-400 transition-colors">
+                <div className="text-center">
+                    <p className="font-semibold text-slate-300 uppercase tracking-wide mb-2">
                         No Rewards Found
                     </p>
-                    <p className="font-bold text-slate-400/60 lowercase tracking-widest text-xs leading-relaxed max-w-xs">
-                        Try adjusting your search or create
-                        <br />a new reward for your employees.
-                    </p>
                 </div>
-                <Button
-                    onClick={onCreateNew}
-                    className="mt-4 px-10 py-4 bg-black text-white rounded-xl text-[11px] font-semibold tracking-wider shadow-2xl shadow-slate-200 hover:bg-slate-800 transition-all active:scale-95 uppercase flex items-center gap-2 group-hover:bg-[#004C8F] group-hover:shadow-blue-200"
-                >
-                    <Plus className="w-3.5 h-3.5" />
-                    New Reward
-                </Button>
             </div>
         );
     }

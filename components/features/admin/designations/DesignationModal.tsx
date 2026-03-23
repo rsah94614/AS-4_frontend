@@ -155,7 +155,7 @@ export function DesignationModal({
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-5">
 
-                            <Field label="Designation Name *">
+                            <Field label="Designation Name" required>
                                 <Input
                                     value={form.designation_name}
                                     onChange={e => setForm({ ...form, designation_name: e.target.value })}
@@ -166,7 +166,7 @@ export function DesignationModal({
                                 />
                             </Field>
 
-                            <Field label="Designation Code *">
+                            <Field label="Designation Code" required>
                                 <Input
                                     value={form.designation_code}
                                     onChange={e => setForm({ ...form, designation_code: e.target.value.toUpperCase() })}
@@ -177,7 +177,7 @@ export function DesignationModal({
                                 />
                             </Field>
 
-                            <Field label="Hierarchy Level *" hint="1 = Highest (CXO), higher numbers = lower levels">
+                            <Field label="Hierarchy Level" required hint="1 = Highest (CXO), higher numbers = lower levels">
                                 <Input
                                     type="number"
                                     min={1}

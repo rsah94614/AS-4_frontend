@@ -127,7 +127,7 @@ export function AddEmployeeModal({
                         className="space-y-4"
                     >
                         <div>
-                            <label className={labelCls}>Username</label>
+                            <label className={labelCls}>Username <span style={{ color: "#E31837" }}>*</span></label>
                             <input
                                 required
                                 placeholder="e.g. johndoe"
@@ -137,7 +137,7 @@ export function AddEmployeeModal({
                             />
                         </div>
                         <div>
-                            <label className={labelCls}>Email Address</label>
+                            <label className={labelCls}>Email Address <span style={{ color: "#E31837" }}>*</span></label>
                             <input
                                 required
                                 type="email"
@@ -148,7 +148,7 @@ export function AddEmployeeModal({
                             />
                         </div>
                         <div>
-                            <label className={labelCls}>Temporary Password</label>
+                            <label className={labelCls}>Temporary Password <span style={{ color: "#E31837" }}>*</span></label>
                             <input
                                 required
                                 type="password"
@@ -160,7 +160,7 @@ export function AddEmployeeModal({
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className={labelCls}>Department</label>
+                                <label className={labelCls}>Department <span style={{ color: "#E31837" }}>*</span></label>
                                 <select
                                     required
                                     className={fieldCls}
@@ -178,7 +178,7 @@ export function AddEmployeeModal({
                                 </select>
                             </div>
                             <div>
-                                <label className={labelCls}>Designation</label>
+                                <label className={labelCls}>Designation <span style={{ color: "#E31837" }}>*</span></label>
                                 <select
                                     required
                                     className={fieldCls}

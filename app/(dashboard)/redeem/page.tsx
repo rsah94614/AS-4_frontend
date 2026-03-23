@@ -7,18 +7,8 @@ import { Button } from "@/components/ui/button";
 import WalletBanner from "@/components/features/dashboard/redeem/WalletBanner";
 import RewardCard from "@/components/features/dashboard/redeem/RewardCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  PRODUCT_GRID,
-  CATEGORY_WRAP,
-  PILL_BASE,
-  PILL_ACTIVE,
-  PILL_INACTIVE,
-  SECTION_HEADER,
-  PAG_BTN_BASE,
-  PAG_NUM_BASE,
-  PAG_NUM_ACTIVE,
-  PAG_NUM_INACTIVE,
-} from "@/components/features/dashboard/redeem/redeem-styles";
+import { PageHeader } from "@/components/shared/PageHeader";
+// removed imports
 
 const RedeemDialog = dynamic(
   () => import("@/components/features/dashboard/redeem/RedeemDialog"),
@@ -35,14 +25,10 @@ export default function RedeemPage() {
     return (
       <div className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
         {/* Page Header Skeleton */}
-        <div className="bg-white border-b border-gray-100 px-8 md:px-10 py-6 rounded-t-[24px]">
-          <div className="mx-auto flex items-center justify-between">
-            <div className="space-y-2">
-              <Skeleton className="h-6 w-36" />
-              <Skeleton className="h-4 w-56" />
-            </div>
-          </div>
-        </div>
+        <PageHeader
+          title="Reward Store"
+          subtitle="Browse rewards · Redeem with your earned points"
+        />
 
         <div className="px-8 md:px-10 py-8 mx-auto rounded-b-[24px]">
           {/* Wallet Skeleton */}
@@ -58,18 +44,18 @@ export default function RedeemPage() {
           </div>
 
           {/* Categories Skeleton */}
-          <div className={CATEGORY_WRAP}>
+          <div className="flex gap-2 flex-wrap mb-8">
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-8 w-20 rounded-full" />
             ))}
           </div>
 
           {/* Products Skeleton */}
-          <div className={SECTION_HEADER}>
+          <div className="flex items-center justify-between mb-5">
             <Skeleton className="h-7 w-28" />
             <Skeleton className="h-4 w-16" />
           </div>
-          <div className={PRODUCT_GRID}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="rounded-2xl border border-slate-100 p-4 space-y-3">
                 <Skeleton className="h-36 w-full rounded-xl" />
@@ -90,34 +76,22 @@ export default function RedeemPage() {
   return (
     <div className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
       {/* ── Page Header ── */}
-      <div className="bg-white border-b border-gray-100 px-8 md:px-10 py-6 rounded-t-[24px]">
-        <div className="mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-[20px] font-bold text-primary leading-tight">
-              Reward Store
-            </h1>
-            <p className="text-[14px] text-muted-foreground mt-0.5">
-              Browse rewards · Redeem with your earned points
-            </p>
-          </div>
-          <span className="hidden lg:flex items-center text-xl font-black tracking-tight select-none shrink-0">
-            <span className="text-destructive">A</span>
-            <span className="text-primary">abhar</span>
-          </span>
-        </div>
-      </div>
+      <PageHeader
+        title="Reward Store"
+        subtitle="Browse rewards · Redeem with your earned points"
+      />
 
       {/* ── Main Content ── */}
       <div className="px-8 md:px-10 py-8 mx-auto rounded-b-[24px]">
         <WalletBanner wallet={redeem.wallet} />
 
         {redeem.categories.length > 0 && (
-          <div className={CATEGORY_WRAP}>
+          <div className="flex gap-2 flex-wrap mb-8">
             <Button
               variant={redeem.activeCategory === "ALL" ? "default" : "outline"}
               size="sm"
               onClick={() => redeem.setActiveCategory("ALL")}
-              className={`${PILL_BASE} ${redeem.activeCategory === "ALL" ? PILL_ACTIVE : PILL_INACTIVE
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${redeem.activeCategory === "ALL" ? "bg-white text-[#1E293B] border-[#1E293B] shadow-sm hover:bg-slate-50" : "bg-slate-100 text-slate-500 hover:bg-slate-200 border-transparent"
                 }`}
             >
               All
@@ -128,7 +102,7 @@ export default function RedeemPage() {
                 variant={redeem.activeCategory === cat.category_id ? "default" : "outline"}
                 size="sm"
                 onClick={() => redeem.setActiveCategory(cat.category_id)}
-                className={`${PILL_BASE} ${redeem.activeCategory === cat.category_id ? PILL_ACTIVE : PILL_INACTIVE
+                className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${redeem.activeCategory === cat.category_id ? "bg-white text-[#1E293B] border-[#1E293B] shadow-sm hover:bg-slate-50" : "bg-slate-100 text-slate-500 hover:bg-slate-200 border-transparent"
                   }`}
               >
                 {cat.category_name}
@@ -140,11 +114,11 @@ export default function RedeemPage() {
         {/* Skeleton loading when switching categories */}
         {redeem.categoryLoading ? (
           <>
-            <div className={SECTION_HEADER}>
+            <div className="flex items-center justify-between mb-5">
               <Skeleton className="h-7 w-28" />
               <Skeleton className="h-4 w-16" />
             </div>
-            <div className={PRODUCT_GRID}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="rounded-2xl border border-slate-100 p-4 space-y-3 animate-pulse">
                   <Skeleton className="h-36 w-full rounded-xl" />
@@ -160,7 +134,7 @@ export default function RedeemPage() {
           </>
         ) : redeem.productItems.length > 0 ? (
           <>
-            <div className={SECTION_HEADER}>
+            <div className="flex items-center justify-between mb-5">
               <h2 className="text-[22px] font-semibold text-foreground">
                 Products
               </h2>
@@ -172,7 +146,7 @@ export default function RedeemPage() {
               </div>
             </div>
 
-            <div className={PRODUCT_GRID}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {redeem.productItems.map((item) => (
                 <RewardCard
                   key={item.catalog_id}
@@ -191,7 +165,7 @@ export default function RedeemPage() {
                   size="sm"
                   disabled={!redeem.pagination.has_previous}
                   onClick={() => redeem.goToPage(redeem.currentPage - 1)}
-                  className={PAG_BTN_BASE}
+                  className="rounded-lg px-3 py-1.5 text-sm font-bold text-slate-800 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   ← Previous
                 </Button>
@@ -225,7 +199,7 @@ export default function RedeemPage() {
                         variant={p === current ? "default" : "outline"}
                         size="sm"
                         onClick={() => redeem.goToPage(p)}
-                        className={`${PAG_NUM_BASE} ${p === current ? PAG_NUM_ACTIVE : PAG_NUM_INACTIVE
+                        className={`rounded-lg min-w-[36px] px-2 py-1.5 text-sm font-medium transition-all ${p === current ? "bg-[#004C8F] text-white shadow-sm hover:bg-[#003d73]" : "text-slate-800 font-bold hover:bg-slate-100 border-slate-200"
                           }`}
                       >
                         {p}
@@ -239,7 +213,7 @@ export default function RedeemPage() {
                   size="sm"
                   disabled={!redeem.pagination.has_next}
                   onClick={() => redeem.goToPage(redeem.currentPage + 1)}
-                  className={PAG_BTN_BASE}
+                  className="rounded-lg px-3 py-1.5 text-sm font-bold text-slate-800 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Next →
                 </Button>

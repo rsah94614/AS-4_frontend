@@ -45,11 +45,11 @@ export function SkeletonRow() {
     );
 }
 
-export function RewardField({ label, children }: { label: string; children: React.ReactNode }) {
+export function RewardField({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
     return (
         <div className="space-y-1.5 mb-5 group">
             <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider ml-1 group-focus-within:text-[#004C8F] transition-colors">
-                {label}
+                {label} {required && <span style={{ color: "#E31837" }}>*</span>}
             </label>
             {children}
         </div>

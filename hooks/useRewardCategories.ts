@@ -46,10 +46,24 @@ export function useRewardCategories() {
                 if (filterState === "inactive") return !c.is_active;
                 return true;
             })
-            .filter(c =>
-                c.category_name.toLowerCase().includes(search.toLowerCase()) ||
-                c.category_code.toLowerCase().includes(search.toLowerCase())
-            );
+            .filter(c => {
+                const lowerSearch = search.toLowerCase();
+                if (!lowerSearch) return true;
+                return (
+                    c.category_name.toLowerCase().split(/\s+/).some(word => word.startsWith(lowerSearch)) ||
+                    c.category_code.toLowerCase().startsWith(lowerSearch)
+                );
+            })
+            .sort((a, b) => {
+                if (!search) return 0;
+                const lowerSearch = search.toLowerCase();
+                const aStarts = a.category_name.toLowerCase().startsWith(lowerSearch) ? 0 : 1;
+                const bStarts = b.category_name.toLowerCase().startsWith(lowerSearch) ? 0 : 1;
+                if (aStarts !== bStarts) return aStarts - bStarts;
+                const aWord = a.category_name.toLowerCase().split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
+                const bWord = b.category_name.toLowerCase().split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
+                return aWord - bWord;
+            });
     }, [categories, search, filterState]);
 
     const activeCount = useMemo(() => categories.filter(c => c.is_active).length, [categories]);

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Check, AlertCircle, X, Info, HelpCircle, } from "lucide-react";
-import { AdminPageHeader as PageHeader } from "@/components/features/admin/AdminControlPanelPageHeader";
+import { AdminPageHeader as PageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 
 // Re-export the shared header so existing imports work unchanged
 export { PageHeader };
@@ -11,7 +11,7 @@ export { PageHeader };
 
 export function PageShell({ children }: { children: React.ReactNode }) {
     return (
-        <main className="flex-1 overflow-y-auto flex flex-col bg-white">
+        <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
             {children}
         </main>
     );
@@ -21,12 +21,8 @@ export function PageShell({ children }: { children: React.ReactNode }) {
 
 export function ContentWrapper({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex-1 px-8 md:px-10 py-8 flex flex-col" style={{ background: "#F7F9FC" }}>
-            <div className="w-full mx-auto flex-1 flex flex-col">
-                <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
-                    {children}
-                </div>
-            </div>
+        <div className="px-8 md:px-10 py-8 max-w-[1600px] w-full mx-auto space-y-6">
+            {children}
         </div>
     );
 }

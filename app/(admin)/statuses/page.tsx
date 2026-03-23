@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Plus, Search, X, ChevronDown } from "lucide-react";
 import { fetchStatuses, createStatus, updateStatus } from "@/services/org-service";
 import {
@@ -19,7 +19,7 @@ import {
 } from "@/components/features/admin/statuses/UIHelpers";
 import { StatusTable, type EditForm } from "@/components/features/admin/statuses/StatusTable";
 import { StatusModal } from "@/components/features/admin/statuses/StatusModal";
-import { HowItWorks } from "@/components/features/admin/HowItWorks";
+import { HowItWorks } from "@/components/features/admin/shared/HowItWorks";
 
 const STATUS_STEPS = [
   { n: "01", title: "Create Status", desc: "Add a status with a unique code, name, entity type, and optional description." },
@@ -105,14 +105,31 @@ export default function StatusesPage() {
 
 
 
-  // Filter statuses by search text (name or code)
-  const filteredStatuses = search.trim()
-    ? statuses.filter(
-      (s) =>
-        s.status_name.toLowerCase().includes(search.toLowerCase()) ||
-        s.status_code.toLowerCase().includes(search.toLowerCase())
-    )
-    : statuses;
+  // Filter and sort statuses by search text (name or code)
+  const filteredStatuses = useMemo(() => {
+    let result = statuses;
+    if (search.trim()) {
+      const lowerSearch = search.trim().toLowerCase();
+      result = result.filter(
+        (s) =>
+          s.status_name.toLowerCase().split(/\s+/).some(w => w.startsWith(lowerSearch)) ||
+          s.status_code.toLowerCase().startsWith(lowerSearch)
+      );
+
+      result = [...result].sort((a, b) => {
+        const aName = a.status_name.toLowerCase();
+        const bName = b.status_name.toLowerCase();
+        const aStarts = aName.startsWith(lowerSearch) ? 0 : 1;
+        const bStarts = bName.startsWith(lowerSearch) ? 0 : 1;
+        if (aStarts !== bStarts) return aStarts - bStarts;
+
+        const aWord = aName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
+        const bWord = bName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
+        return aWord - bWord;
+      });
+    }
+    return result;
+  }, [statuses, search]);
 
   return (
     <PageShell>

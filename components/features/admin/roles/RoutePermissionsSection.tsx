@@ -11,7 +11,7 @@ import {
 } from "@/services/roles-service";
 import { extractErrorMessage } from "@/lib/error-utils";
 import { MethodBadge, type ToastType } from "./UIHelpers";
-import { HowItWorks } from "@/components/features/admin/HowItWorks";
+import { HowItWorks } from "@/components/features/admin/shared/HowItWorks";
 
 interface RoutePermissionsSectionProps {
     toast: (msg: string, t?: ToastType) => void;

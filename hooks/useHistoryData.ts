@@ -8,7 +8,7 @@ import {
     matchesPeriod,
     matchesType,
 } from "@/lib/history-utils";
-import { PAGE_SIZE } from "@/components/features/dashboard/history/constants";
+import { PAGE_SIZE } from "@/lib/history-utils";
 import { rewardsClient, walletClient } from "@/services/api-clients";
 import { auth } from "@/services/auth-service";
 import type {
@@ -83,7 +83,7 @@ function isLikelyDuplicateRedemption(
 
     const timeDiffMs = Math.abs(
         new Date(rewardsHistoryItem.granted_at).getTime() -
-            new Date(walletHistoryItem.granted_at).getTime()
+        new Date(walletHistoryItem.granted_at).getTime()
     );
 
     return rewardsHistoryItem.points === walletHistoryItem.points && timeDiffMs <= 5 * 60 * 1000;

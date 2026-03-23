@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Tag, Plus, Check, AlertCircle, X } from "lucide-react";
+import { Tag, Plus, Check, AlertCircle, X, Search } from "lucide-react";
 
 
 import { useReviewCategories } from "@/hooks/useReviewCategories";
@@ -11,8 +11,8 @@ import { extractErrorMessage } from "@/lib/error-utils";
 import { ReviewCategoryTable } from "@/components/features/admin/review-categories/ReviewCategoryTable";
 import { ReviewCategoryModals } from "@/components/features/admin/review-categories/ReviewCategoryModal";
 import { ReviewCategoryFilters } from "@/components/features/admin/review-categories/ReviewCategoryFilters";
-import { HowItWorks } from "@/components/features/admin/HowItWorks";
-import { AdminPageHeader } from "@/components/features/admin/AdminControlPanelPageHeader";
+import { HowItWorks } from "@/components/features/admin/shared/HowItWorks";
+import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 
 const REVIEW_CAT_STEPS = [
   { n: "01", title: "Create Category", desc: "Add a category with a unique code, name, and multiplier value greater than 0." },
@@ -33,9 +33,10 @@ interface EditForm {
 
 export default function ReviewCategoriesPage() {
   const [activeOnly, setActiveOnly] = useState<FilterValue>(null);
+  const [search, setSearch] = useState("");
 
   const { categories, allCategories, loading, error, createCategory, updateCategory } =
-    useReviewCategories(activeOnly);
+    useReviewCategories(activeOnly, search);
 
   const [flash, setFlash] = useState<{ type: "success" | "error"; msg: string } | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -133,7 +134,7 @@ export default function ReviewCategoriesPage() {
 
   return (
     <>
-      <main className="flex-1 overflow-y-auto flex flex-col bg-white">
+      <main className="flex-1 w-full min-w-0 flex flex-col min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 
         {/* ── Page Header ── */}
         <AdminPageHeader
@@ -144,20 +145,35 @@ export default function ReviewCategoriesPage() {
 
 
         {/* ── Main content ── */}
-        <div className="flex-1 px-8 md:px-10 py-8 flex flex-col" style={{ background: "#F7F9FC" }}>
-          <div className="w-full mx-auto flex-1 flex flex-col">
-            <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+        <div>
+            <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
 
               {/* ── How It Works ── */}
               <HowItWorks steps={REVIEW_CAT_STEPS} />
 
               {/* ── Toolbar: filters + add button ── */}
-              <div className="flex items-center justify-between gap-4 mb-5 flex-wrap">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 mb-6">
+                {/* Search */}
+                <div className="relative w-full sm:w-auto sm:flex-1 sm:min-w-[200px] max-w-sm">
+                  <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value.trimStart())}
+                    placeholder="Search by name or code…"
+                    className="w-full pl-9 pr-8 py-2 rounded-lg border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/10 focus:border-primary/40 transition-all"
+                  />
+                  {search && (
+                    <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                      <X size={13} />
+                    </button>
+                  )}
+                </div>
+
                 <ReviewCategoryFilters activeOnly={activeOnly} onFilterChange={setActiveOnly} />
 
                 <button
                   onClick={() => setShowCreate(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white transition-all duration-150"
+                  className="w-full sm:w-auto sm:ml-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white transition-all duration-150"
                   style={{ background: "#004C8F" }}
                 >
                   <Plus className="w-4 h-4" />
@@ -220,7 +236,6 @@ export default function ReviewCategoriesPage() {
               />
 
             </div>
-          </div>
         </div>
 
       </main>

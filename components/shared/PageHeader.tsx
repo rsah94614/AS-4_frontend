@@ -1,13 +1,11 @@
 "use client";
 
-import React from "react";
-
-interface AdminPageHeaderProps {
+interface PageHeaderProps {
     title: string;
     subtitle: string;
 }
 
-export function AdminPageHeader({ title, subtitle }: AdminPageHeaderProps) {
+export function PageHeader({ title, subtitle }: PageHeaderProps) {
     return (
         <div className="bg-white border-b border-border px-8 md:px-10 py-5">
             <div className="mx-auto flex items-center justify-between">
