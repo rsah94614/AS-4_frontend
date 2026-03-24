@@ -92,12 +92,11 @@ pipeline {
                 NEXT_PUBLIC_ANALYTICS_API_URL = ""
                 NEXT_PUBLIC_ORG_API_URL = ""
                 NEXT_PUBLIC_ROLES_API_URL = ""
-                NEXT_PUBLIC_S3_REGION = ""
-                NEXT_PUBLIC_S3_BUCKET = ""
             }
             steps {
                 echo "Building Next.js Production Image (No Cache)..."
                 script {
+                    // Replaced 'your-repo-name/frontend:latest' with '${IMAGE}:${TAG}'
                     sh """
                     docker build --no-cache \
                         --build-arg NEXT_PUBLIC_API_URL='${env.NEXT_PUBLIC_API_URL}' \
@@ -110,7 +109,7 @@ pipeline {
                         --build-arg NEXT_PUBLIC_ROLES_API_URL='${env.NEXT_PUBLIC_ROLES_API_URL}' \
                         --build-arg NEXT_PUBLIC_S3_REGION='${env.NEXT_PUBLIC_S3_REGION}' \
                         --build-arg NEXT_PUBLIC_S3_BUCKET='${env.NEXT_PUBLIC_S3_BUCKET}' \
-                        -t your-repo-name/frontend:latest .
+                        -t ${IMAGE}:${TAG} .
                     """
                 }
             }
