@@ -10,7 +10,7 @@ interface ReviewRowProps {
 
 export function ReviewRow({ review, employees }: ReviewRowProps) {
     const reviewer = employees.find((e) => e.employee_id === review.reviewer_id);
-    const points   = review.raw_points ?? 0;
+    const points = review.raw_points ?? 0;
     const initials = (name: string) => name.charAt(0).toUpperCase();
 
     return (
@@ -25,7 +25,7 @@ export function ReviewRow({ review, employees }: ReviewRowProps) {
                 {/* Top row */}
                 <div className="flex items-center gap-2 flex-wrap mb-1">
                     <span className="text-xs font-bold text-gray-800">
-                        {reviewer?.username ?? "Unknown"}
+                        {reviewer?.username ?? "Someone"}
                     </span>
 
                     {/* Points */}
