@@ -37,6 +37,7 @@ export default function TeamReportPage() {
     }, [id]);
 
     return (
+        <ProtectedRoute adminOnly adminOnlyKey="POST:/v1/roles/create">
         <div className="p-4 sm:p-6 space-y-5">
 
 
@@ -63,5 +64,6 @@ export default function TeamReportPage() {
 
             {state.status === "ok" && <AdminTeamDetailSection report={state.data} />}
         </div>
+        </ProtectedRoute>
     );
 }

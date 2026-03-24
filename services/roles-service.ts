@@ -100,6 +100,9 @@ export const routePermissionsApi = {
     removeRoutePermission: (body: RoutePermissionPayload): Promise<RoutePermission> =>
         request("/route-permissions", { method: "PATCH", body }),
 
+    getMyPermissions: (): Promise<string[]> =>
+            request("/my-permissions"),
+
     updateRouteTitle: (
         body: UpdateRouteTitlePayload,
     ): Promise<{ route_key: string; title: string; updated_rows: number }> =>

@@ -21,7 +21,7 @@ import { StatusTable, type EditForm } from "@/components/features/admin/statuses
 import { StatusModal } from "@/components/features/admin/statuses/StatusModal";
 import { HowItWorks } from "@/components/features/admin/shared/HowItWorks";
 import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
-
+import ProtectedRoute from "@/components/features/auth/ProtectedRoute"
 const STATUS_STEPS = [
   { n: "01", title: "Create Status", desc: "Add a status with a unique code, name, entity type, and optional description." },
   { n: "02", title: "Status Code is Fixed", desc: "The code is set at creation and cannot be changed — it is used internally by the system." },
@@ -132,6 +132,7 @@ export default function StatusesPage() {
   }, [statuses, search]);
 
   return (
+      <ProtectedRoute adminOnly pathPrefix="/v1/organizations/statuses">
     <PageShell>
       {/* ─── Page Header ─── */}
       <PageHeader
@@ -209,6 +210,7 @@ export default function StatusesPage() {
         saving={saving}
       />
     </PageShell>
+    </ProtectedRoute>
   );
 }
 
