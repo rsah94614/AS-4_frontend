@@ -60,6 +60,8 @@ interface DataTableProps<T> {
     mobileBreakpoint?: "sm" | "md" | "lg" | "xl";
     /** Minimum table width for horizontal scroll (default: "720px") */
     minTableWidth?: string;
+    /** Render each row with an individual border/boundary (default: false) */
+    borderedRows?: boolean;
 }
 
 // ─── Breakpoint helpers ───────────────────────────────────────────────────────
@@ -96,6 +98,7 @@ export function DataTable<T>({
     className,
     mobileBreakpoint = "lg",
     minTableWidth = "720px",
+    borderedRows = false,
 }: DataTableProps<T>) {
     const hasMobileView = !!mobileCardRender;
     const hideOnDesktop = HIDE_CLASSES[mobileBreakpoint]; // e.g. "lg:hidden"
@@ -170,9 +173,9 @@ export function DataTable<T>({
 
     // ── Data Rows ─────────────────────────────────────────────────────────────
     const renderDesktopRows = () => (
-        <table className="w-full text-sm" style={{ minWidth: minTableWidth }}>
+        <table className={cn("w-full text-sm", borderedRows && "border-separate border-spacing-y-2")} style={{ minWidth: minTableWidth }}>
             <thead>
-                <tr className="border-b-2 border-gray-200">
+                <tr className={borderedRows ? "" : "border-b-2 border-gray-200"}>
                     {columns.map((col) => (
                         <th
                             key={col.key}
@@ -192,16 +195,25 @@ export function DataTable<T>({
                     <tr
                         key={keyExtractor(row, idx)}
                         className={cn(
-                            "transition-colors",
-                            idx < data.length - 1 && "border-b border-gray-100",
+                            "transition-colors group",
+                            borderedRows
+                                ? "border border-gray-200 rounded-xl hover:border-[#004C8F]/30 hover:shadow-sm"
+                                : idx < data.length - 1 && "border-b border-gray-100",
                             onRowClick && "cursor-pointer hover:bg-slate-50"
                         )}
                         onClick={onRowClick ? () => onRowClick(row, idx) : undefined}
                     >
-                        {columns.map((col) => (
+                        {columns.map((col, colIdx) => (
                             <td
                                 key={col.key}
-                                className={cn("py-3.5 px-4", col.className, col.cellClassName)}
+                                className={cn(
+                                    "py-3.5 px-4",
+                                    col.className,
+                                    col.cellClassName,
+                                    borderedRows && colIdx === 0 && "rounded-l-xl border-l border-t border-b border-gray-200 group-hover:border-[#004C8F]/30",
+                                    borderedRows && colIdx === columns.length - 1 && "rounded-r-xl border-r border-t border-b border-gray-200 group-hover:border-[#004C8F]/30",
+                                    borderedRows && colIdx > 0 && colIdx < columns.length - 1 && "border-t border-b border-gray-200 group-hover:border-[#004C8F]/30"
+                                )}
                             >
                                 {col.render(row, idx)}
                             </td>
