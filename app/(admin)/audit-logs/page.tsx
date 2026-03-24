@@ -107,9 +107,19 @@ export default function AuditLogsPage() {
                             </Button>
                         </div>
 
-                        {filtersOpen && (
-                            <AuditFilterPanel initialFilters={filters} onApply={applyFilters} onClear={clearFilters} />
-                        )}
+                        {/* ── Animated filter collapse  ── */}
+                        <div
+                            className="overflow-hidden"
+                            style={{
+                                maxHeight: filtersOpen ? 500 : 0,
+                                opacity: filtersOpen ? 1 : 0,
+                                transition: "max-height 0.45s cubic-bezier(.4,0,.2,1), opacity 0.35s cubic-bezier(.4,0,.2,1)",
+                            }}
+                        >
+                            <div>
+                                <AuditFilterPanel initialFilters={filters} onApply={applyFilters} onClear={clearFilters} />
+                            </div>
+                        </div>
 
                         {hasActiveFilters && (
                             <div className="flex flex-wrap items-center gap-2 overflow-x-hidden">

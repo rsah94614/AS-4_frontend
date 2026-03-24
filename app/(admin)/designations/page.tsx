@@ -11,6 +11,7 @@ import { DesignationTable } from "@/components/features/admin/designations/Desig
 import { DesignationModal } from "@/components/features/admin/designations/DesignationModal";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
+import { useSuccessToast, SuccessToastContainer } from "@/components/shared/SuccessToast";
 
 export default function DesignationsPage() {
     const {
@@ -27,6 +28,7 @@ export default function DesignationsPage() {
 
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedDesignation, setSelectedDesignation] = useState<Designation | null>(null);
+    const { toasts, show: showToast } = useSuccessToast();
     const openCreate = () => {
         setSelectedDesignation(null);
         setModalOpen(true);
@@ -102,9 +104,13 @@ export default function DesignationsPage() {
             <DesignationModal
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}
-                onSuccess={refresh}
+                onSuccess={() => {
+                    refresh();
+                    showToast(selectedDesignation ? "Designation updated successfully" : "Designation created successfully");
+                }}
                 selectedDesignation={selectedDesignation}
             />
+            <SuccessToastContainer toasts={toasts} />
         </>
     );
 }

@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 
 
-import { useToast, ToastContainer } from "@/components/features/admin/roles/UIHelpers";
+import { useSuccessToast, SuccessToastContainer } from "@/components/shared/SuccessToast";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 
 import { EmployeeListSection } from "@/components/features/admin/employees/EmployeeListSection";
@@ -23,7 +23,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function EmployeesPage() {
-    const { toasts, show: toast } = useToast();
+    const { toasts, show: toast } = useSuccessToast();
     const [tab, setTab] = useState<Tab>("list");
 
     return (
@@ -63,7 +63,7 @@ export default function EmployeesPage() {
                 </div>
 
             </main>
-            <ToastContainer toasts={toasts} />
+            <SuccessToastContainer toasts={toasts} />
         </>
     );
 }

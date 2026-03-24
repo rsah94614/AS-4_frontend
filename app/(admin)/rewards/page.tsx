@@ -14,6 +14,7 @@ import { RestockModal } from "@/components/features/admin/rewards/RestockModal";
 import { RewardStats } from "@/components/features/admin/rewards/UIHelpers";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
+import { useSuccessToast, SuccessToastContainer } from "@/components/shared/SuccessToast";
 
 export default function RewardsPage() {
   const [items, setItems] = useState<RewardItem[]>([]);
@@ -26,6 +27,7 @@ export default function RewardsPage() {
 
   const [modal, setModal] = useState<null | "create" | "edit" | "restock">(null);
   const [selected, setSelected] = useState<RewardItem | undefined>();
+  const { toasts, show: showToast } = useSuccessToast();
 
   // ─── Data Fetching ────────────────────────────────────────────────────────
   const load = useCallback(async () => {
@@ -117,9 +119,10 @@ export default function RewardsPage() {
     setModal(null);
     setSelected(undefined);
   };
-  const saved = () => {
+  const saved = (msg?: string) => {
     close();
     load();
+    showToast(msg || "Action completed successfully");
   };
 
   return (
@@ -186,23 +189,24 @@ export default function RewardsPage() {
         isOpen={modal === "create"}
         categories={categories}
         onClose={close}
-        onSave={saved}
+        onSave={() => saved("Reward created successfully")}
       />
       <RewardModal
         isOpen={modal === "edit" && !!selected}
         item={selected}
         categories={categories}
         onClose={close}
-        onSave={saved}
+        onSave={() => saved("Reward updated successfully")}
       />
       {selected && (
         <RestockModal
           isOpen={modal === "restock"}
           item={selected}
           onClose={close}
-          onSave={saved}
+          onSave={() => saved("Stock updated successfully")}
         />
       )}
+      <SuccessToastContainer toasts={toasts} />
     </main>
   );
 }

@@ -9,6 +9,7 @@ import { DepartmentTable } from "@/components/features/admin/departments/Departm
 import { DepartmentModal } from "@/components/features/admin/departments/DepartmentModal";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
+import { useSuccessToast, SuccessToastContainer } from "@/components/shared/SuccessToast";
 
 export default function DepartmentsPage() {
     const {
@@ -26,6 +27,7 @@ export default function DepartmentsPage() {
 
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
+    const { toasts, show: showToast } = useSuccessToast();
     const openCreate = () => {
         setSelectedDepartment(null);
         setModalOpen(true);
@@ -99,10 +101,14 @@ export default function DepartmentsPage() {
             <DepartmentModal
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}
-                onSuccess={refresh}
+                onSuccess={() => {
+                    refresh();
+                    showToast(selectedDepartment ? "Department updated successfully" : "Department created successfully");
+                }}
                 selectedDepartment={selectedDepartment}
                 departmentTypes={departmentTypes}
             />
+            <SuccessToastContainer toasts={toasts} />
         </>
     );
 }
