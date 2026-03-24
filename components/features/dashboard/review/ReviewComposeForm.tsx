@@ -44,6 +44,16 @@ const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "video/mp4", "video/quick
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024   // 10 MB
 const MAX_VIDEO_BYTES = 50 * 1024 * 1024   // 50 MB
 
+// ── File-name security ───────────────────────────────────────────────────────
+// Blocked executable / script extensions — also catches double-extension tricks
+// such as "photo.jpg.exe" or "report.pdf.bat".
+const DANGEROUS_EXT_REGEX =
+    /\.(exe|bat|cmd|com|msi|ps1|psm1|psd1|vbs|vbe|js|jse|wsf|wsh|hta|scr|pif|lnk|jar|app|deb|rpm|sh|bash|zsh|fish|py|pyc|pyw|rb|php|php3|php4|php5|phtml|asp|aspx|jsp|jspx|cfm|cgi|pl|csh|ksh|elf|dmg|iso|img|apk|ipa|msc|inf|reg|dll|sys|drv|cpl|ocx|swf|fla|xap|gadget|ws|wsc)(\..*)?$/i
+
+// Forbidden characters in file names:
+//   NUL, path separators, shell metacharacters, and Unicode control characters.
+const DANGEROUS_FILENAME_CHARS_REGEX = /[\x00-\x1f\x7f/\\:*?"<>|;`$!&'(){}[\]^~%]/
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function calcPreviewPoints(categories: ReviewCategory[], selectedIds: string[], weight = 1.0): number {
@@ -165,6 +175,12 @@ export default function ReviewComposeForm({
 
     const validateFiles = useCallback((fileList: File[]): string | undefined => {
         for (const f of fileList) {
+            // ── File-name checks ─────────────────────────────────────────────
+            if (DANGEROUS_EXT_REGEX.test(f.name))
+                return `"${f.name}" has a disallowed file extension.`
+            if (DANGEROUS_FILENAME_CHARS_REGEX.test(f.name))
+                return `"${f.name}" contains invalid characters in the file name.`
+            // ── MIME-type & size checks ──────────────────────────────────────
             if (!ALLOWED_FILE_TYPES.includes(f.type))
                 return `"${f.name}" is not allowed. Use JPG, PNG, MP4, or MOV.`
             if (f.type.startsWith("image/") && f.size > MAX_IMAGE_BYTES)
@@ -225,6 +241,25 @@ export default function ReviewComposeForm({
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const picked = Array.from(e.target.files ?? [])
 
+        // ── File-name: dangerous extension ───────────────────────────────────
+        const extErr = picked.find(f => DANGEROUS_EXT_REGEX.test(f.name))
+        if (extErr) {
+            onToast({ msg: `"${extErr.name}" has a disallowed file extension.`, kind: "error" })
+            setErrors(er => ({ ...er, files: `"${extErr.name}" has a disallowed file extension.` }))
+            if (fileRef.current) fileRef.current.value = ""
+            return
+        }
+
+        // ── File-name: forbidden characters ──────────────────────────────────
+        const charErr = picked.find(f => DANGEROUS_FILENAME_CHARS_REGEX.test(f.name))
+        if (charErr) {
+            onToast({ msg: `"${charErr.name}" contains invalid characters in the file name.`, kind: "error" })
+            setErrors(er => ({ ...er, files: `"${charErr.name}" contains invalid characters in the file name.` }))
+            if (fileRef.current) fileRef.current.value = ""
+            return
+        }
+
+        // ── MIME type ────────────────────────────────────────────────────────
         const typeErr = picked.find(f => !ALLOWED_FILE_TYPES.includes(f.type))
         if (typeErr) {
             onToast({ msg: `"${typeErr.name}" is not allowed. Use JPG, PNG, MP4, or MOV.`, kind: "error" })
@@ -233,6 +268,7 @@ export default function ReviewComposeForm({
             return
         }
 
+        // ── Size ─────────────────────────────────────────────────────────────
         const sizeErr = picked.find(f =>
             (f.type.startsWith("image/") && f.size > MAX_IMAGE_BYTES) ||
             (f.type.startsWith("video/") && f.size > MAX_VIDEO_BYTES)
