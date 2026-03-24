@@ -20,16 +20,6 @@ pipeline {
 
         NEXT_PUBLIC_S3_REGION = "us-east-1"
         NEXT_PUBLIC_S3_BUCKET = "aabhar-storage-gu-2026"
-
-        // --- Frontend API Routing Variables ---
-        NEXT_PUBLIC_API_URL = ""
-        NEXT_PUBLIC_RECOGNITION_API_URL = ""
-        NEXT_PUBLIC_EMPLOYEE_API_URL = ""
-        NEXT_PUBLIC_WALLET_API_URL = ""
-        NEXT_PUBLIC_REWARDS_API_URL = ""
-        NEXT_PUBLIC_ANALYTICS_API_URL = ""
-        NEXT_PUBLIC_ORG_API_URL = ""
-        NEXT_PUBLIC_ROLES_API_URL = ""
     }
 
     options {
@@ -92,24 +82,59 @@ pipeline {
 
         // 2. Build Stage (Injects Environment Variables)
         stage('Build Docker Image') {
+            environment {
+                // Defining these here prevents the 'MissingPropertyException'
+                NEXT_PUBLIC_API_URL = ""
+                NEXT_PUBLIC_RECOGNITION_API_URL = ""
+                NEXT_PUBLIC_EMPLOYEE_API_URL = ""
+                NEXT_PUBLIC_WALLET_API_URL = ""
+                NEXT_PUBLIC_REWARDS_API_URL = ""
+                NEXT_PUBLIC_ANALYTICS_API_URL = ""
+                NEXT_PUBLIC_ORG_API_URL = ""
+                NEXT_PUBLIC_ROLES_API_URL = ""
+                NEXT_PUBLIC_S3_REGION = ""
+                NEXT_PUBLIC_S3_BUCKET = ""
+            }
             steps {
-                echo 'Building Next.js Production Image (No Cache)...'
-                sh """
-                docker build --no-cache --pull \\
-                  --build-arg NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \\
-                  --build-arg NEXT_PUBLIC_RECOGNITION_API_URL=${NEXT_PUBLIC_RECOGNITION_API_URL} \\
-                  --build-arg NEXT_PUBLIC_EMPLOYEE_API_URL=${NEXT_PUBLIC_EMPLOYEE_API_URL} \\
-                  --build-arg NEXT_PUBLIC_WALLET_API_URL=${NEXT_PUBLIC_WALLET_API_URL} \\
-                  --build-arg NEXT_PUBLIC_REWARDS_API_URL=${NEXT_PUBLIC_REWARDS_API_URL} \\
-                  --build-arg NEXT_PUBLIC_ANALYTICS_API_URL=${NEXT_PUBLIC_ANALYTICS_API_URL} \\
-                  --build-arg NEXT_PUBLIC_ORG_API_URL=${NEXT_PUBLIC_ORG_API_URL} \\
-                  --build-arg NEXT_PUBLIC_ROLES_API_URL=${NEXT_PUBLIC_ROLES_API_URL} \\
-                  --build-arg NEXT_PUBLIC_S3_REGION=${NEXT_PUBLIC_S3_REGION} \\
-                  --build-arg NEXT_PUBLIC_S3_BUCKET=${NEXT_PUBLIC_S3_BUCKET} \\
-                  -t ${IMAGE}:${TAG} .
-                """
+                echo "Building Next.js Production Image (No Cache)..."
+                script {
+                    sh """
+                    docker build --no-cache \
+                        --build-arg NEXT_PUBLIC_API_URL='${env.NEXT_PUBLIC_API_URL}' \
+                        --build-arg NEXT_PUBLIC_RECOGNITION_API_URL='${env.NEXT_PUBLIC_RECOGNITION_API_URL}' \
+                        --build-arg NEXT_PUBLIC_EMPLOYEE_API_URL='${env.NEXT_PUBLIC_EMPLOYEE_API_URL}' \
+                        --build-arg NEXT_PUBLIC_WALLET_API_URL='${env.NEXT_PUBLIC_WALLET_API_URL}' \
+                        --build-arg NEXT_PUBLIC_REWARDS_API_URL='${env.NEXT_PUBLIC_REWARDS_API_URL}' \
+                        --build-arg NEXT_PUBLIC_ANALYTICS_API_URL='${env.NEXT_PUBLIC_ANALYTICS_API_URL}' \
+                        --build-arg NEXT_PUBLIC_ORG_API_URL='${env.NEXT_PUBLIC_ORG_API_URL}' \
+                        --build-arg NEXT_PUBLIC_ROLES_API_URL='${env.NEXT_PUBLIC_ROLES_API_URL}' \
+                        --build-arg NEXT_PUBLIC_S3_REGION='${env.NEXT_PUBLIC_S3_REGION}' \
+                        --build-arg NEXT_PUBLIC_S3_BUCKET='${env.NEXT_PUBLIC_S3_BUCKET}' \
+                        -t your-repo-name/frontend:latest .
+                    """
+                }
             }
         }
+
+        // stage('Build Docker Image') {
+        //     steps {
+        //         echo 'Building Next.js Production Image (No Cache)...'
+        //         sh """
+        //         docker build --no-cache --pull \\
+        //           --build-arg NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \\
+        //           --build-arg NEXT_PUBLIC_RECOGNITION_API_URL=${NEXT_PUBLIC_RECOGNITION_API_URL} \\
+        //           --build-arg NEXT_PUBLIC_EMPLOYEE_API_URL=${NEXT_PUBLIC_EMPLOYEE_API_URL} \\
+        //           --build-arg NEXT_PUBLIC_WALLET_API_URL=${NEXT_PUBLIC_WALLET_API_URL} \\
+        //           --build-arg NEXT_PUBLIC_REWARDS_API_URL=${NEXT_PUBLIC_REWARDS_API_URL} \\
+        //           --build-arg NEXT_PUBLIC_ANALYTICS_API_URL=${NEXT_PUBLIC_ANALYTICS_API_URL} \\
+        //           --build-arg NEXT_PUBLIC_ORG_API_URL=${NEXT_PUBLIC_ORG_API_URL} \\
+        //           --build-arg NEXT_PUBLIC_ROLES_API_URL=${NEXT_PUBLIC_ROLES_API_URL} \\
+        //           --build-arg NEXT_PUBLIC_S3_REGION=${NEXT_PUBLIC_S3_REGION} \\
+        //           --build-arg NEXT_PUBLIC_S3_BUCKET=${NEXT_PUBLIC_S3_BUCKET} \\
+        //           -t ${IMAGE}:${TAG} .
+        //         """
+        //     }
+        // }
 
         // 3. Container Scan
         stage('Dynamic Analysis') {
