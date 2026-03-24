@@ -78,7 +78,7 @@ function StepDot({ n, active, done }: { n: number; active: boolean; done: boolea
     return (
         <div className={cn(
             "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all shrink-0",
-            done ? "bg-[#E31837] border-[#E31837] text-white"
+            done ? "bg-[#004C8F] border-[#004C8F] text-white"
                 : active ? "bg-white border-[#004C8F] text-[#004C8F]"
                     : "bg-white border-gray-300 text-gray-300"
         )}>
