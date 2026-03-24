@@ -222,9 +222,13 @@ export function DigestPanel({ canSend }: { canSend: boolean }) {
                                 type="date"
                                 value={weekStart}
                                 onChange={(event) => {
-                                    setWeekStart(event.target.value);
+                                    const val = event.target.value;
+                                    const yearPart = val.split("-")[0];
+                                    if (yearPart && yearPart.length > 4) return;
+                                    setWeekStart(val);
                                     setDigestData(null);
                                 }}
+                                max={new Date().toISOString().split("T")[0]}
                                 className={`${inputClass} min-h-11 pl-8`}
                                 style={inputFocus}
                                 disabled={isFetching}

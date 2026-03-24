@@ -25,6 +25,13 @@ export function CreateEmployeeDialog({ open, onClose, onCreated, toast, designat
     const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
         setForm((f) => ({ ...f, [k]: e.target.value }));
 
+    const setDate = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        const yearPart = val.split("-")[0];
+        if (yearPart && yearPart.length > 4) return;
+        setForm((f) => ({ ...f, [k]: val }));
+    };
+
     const isFormValid = !!(
         form.username.trim() &&
         form.email.trim() &&
@@ -161,7 +168,7 @@ export function CreateEmployeeDialog({ open, onClose, onCreated, toast, designat
                                 <input
                                     type="date"
                                     value={form.date_of_joining}
-                                    onChange={set("date_of_joining")}
+                                    onChange={setDate("date_of_joining")}
                                     max={todayStr()}
                                     className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
                                 />
@@ -173,7 +180,7 @@ export function CreateEmployeeDialog({ open, onClose, onCreated, toast, designat
                                 <input
                                     type="date"
                                     value={form.date_of_birth}
-                                    onChange={set("date_of_birth")}
+                                    onChange={setDate("date_of_birth")}
                                     max={maxDobStr()}
                                     className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
                                 />

@@ -22,6 +22,14 @@ interface AuditFiltersProps {
 export function AuditFilterPanel({ onApply, onClear, initialFilters }: AuditFiltersProps) {
     const [staged, setStaged] = useState<AuditFilters>(initialFilters);
 
+    const setDateTime = (key: keyof AuditFilters) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        const yearPart = val.split("-")[0];
+        if (yearPart && yearPart.length > 4) return;
+        setStaged(p => ({ ...p, [key]: val }));
+    };
+    const nowLocal = new Date().toISOString().slice(0, 16);
+
     const hasStaged = !!(
         staged.tableName || staged.operationType ||
         staged.performedBy || staged.startDate || staged.endDate
@@ -110,7 +118,8 @@ export function AuditFilterPanel({ onApply, onClear, initialFilters }: AuditFilt
                     <Input
                         type="datetime-local"
                         value={staged.startDate}
-                        onChange={e => setStaged(p => ({ ...p, startDate: e.target.value }))}
+                        onChange={setDateTime("startDate")}
+                        max={nowLocal}
                         className={inputClass}
                     />
                 </div>
@@ -121,7 +130,8 @@ export function AuditFilterPanel({ onApply, onClear, initialFilters }: AuditFilt
                     <Input
                         type="datetime-local"
                         value={staged.endDate}
-                        onChange={e => setStaged(p => ({ ...p, endDate: e.target.value }))}
+                        onChange={setDateTime("endDate")}
+                        max={nowLocal}
                         className={inputClass}
                     />
                 </div>
