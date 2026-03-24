@@ -165,6 +165,7 @@ export function CategoryTable({
             mobileBreakpoint="lg"
             pagination={pagination}
             onPageChange={onPageChange}
+            borderedRows
         />
     );
 }

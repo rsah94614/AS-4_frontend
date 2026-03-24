@@ -18,17 +18,39 @@ import {
     DialogTitle, DialogDescription, DialogFooter, DialogClose,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { routePermissionsApi } from '@/services/roles-service';
+
+// ── Control panel service prefixes ────────────────────────────────────────────
+// Control Panel link is shown if the user has access to ANY route under these.
+const CONTROL_PANEL_PREFIXES = [
+    '/v1/audit-logs',
+    '/v1/departments',
+    '/v1/designations',
+    '/v1/employees',
+    '/v1/reward-categories',
+    '/v1/rewards',
+    '/v1/review-categories',
+    '/v1/reviews',
+    '/v1/roles',
+    '/v1/statuses',
+    '/v1/organizations',   // audit-logs may live here
+];
 
 // ── Nav items ─────────────────────────────────────────────────────────────────
 
-const navItems = [
+const NAV_ITEMS_BASE = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
     { label: 'Recognize', href: '/review', icon: FileText },
     { label: 'Redeem', href: '/redeem', icon: Trophy },
     { label: 'Wallet', href: '/wallet', icon: Wallet },
     { label: 'History', href: '/history', icon: Clock },
-    { label: 'Control Panel', href: '/control-panel', icon: SlidersHorizontal, adminOnly: true },
 ];
+
+const CONTROL_PANEL_ITEM = {
+    label: 'Control Panel',
+    href: '/control-panel',
+    icon: SlidersHorizontal,
+};
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -58,6 +80,7 @@ export default function Navbar() {
     const [showNotifications, setShowNotifications] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [hasControlPanelAccess, setHasControlPanelAccess] = useState(false);
     const notificationRef = useRef<HTMLDivElement | null>(null);
     const prevUnreadRef = useRef<number>(0);
     const pathname = usePathname();
@@ -77,14 +100,54 @@ export default function Navbar() {
         '/roles', '/statuses', '/team-report',
     ];
     const isAdminRoute = ADMIN_ROUTES.some(route => pathname?.startsWith(route));
-    const visibleNavItems = navItems.filter(item => !item.adminOnly || isAdmin);
+
+    // Append Control Panel only when the user has confirmed access
+    const visibleNavItems = [
+        ...NAV_ITEMS_BASE,
+        ...(hasControlPanelAccess ? [CONTROL_PANEL_ITEM] : []),
+    ];
+
+    // ── Determine Control Panel visibility via /my-permissions ────────────────
+    useEffect(() => {
+        if (!user) return;
+
+        const userRoleCodes: string[] = user.roles ?? [];
+
+        // SUPER_ADMIN always gets full access — skip the API call
+        if (userRoleCodes.includes('SUPER_ADMIN')) {
+            setHasControlPanelAccess(true);
+            return;
+        }
+
+        (async () => {
+            try {
+                // Calls GET /v1/roles/my-permissions
+                // Returns string[] of route_keys the current user can access.
+                // This endpoint is always_public — auth required, no role check.
+                const myRouteKeys: string[] = await routePermissionsApi.getMyPermissions();
+
+                const canAccess = myRouteKeys.some((routeKey) => {
+                    const colonIdx = routeKey.indexOf(':');
+                    if (colonIdx === -1) return false;
+                    const path = routeKey.slice(colonIdx + 1);
+                    return CONTROL_PANEL_PREFIXES.some((prefix) => path.startsWith(prefix));
+                });
+
+                setHasControlPanelAccess(canAccess);
+            } catch {
+                // Silent fail — user simply won't see Control Panel link
+                setHasControlPanelAccess(false);
+            }
+        })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
         const id = setTimeout(() => { setMounted(true); }, 0);
         return () => clearTimeout(id);
     }, [pathname]);
 
-    // ── Bootstrap + poll ──────────────────────────────────────────────────────
+    // ── Bootstrap + poll notifications ────────────────────────────────────────
     useEffect(() => {
         fetchNotifications(10).then(() => {
             prevUnreadRef.current = useNotificationStore.getState().unreadCount;
@@ -108,7 +171,7 @@ export default function Navbar() {
         return () => clearTimeout(t);
     }, [pathname]);
 
-    // ── Close on outside click ────────────────────────────────────────────────
+    // ── Close notification panel on outside click ─────────────────────────────
     useEffect(() => {
         function handleOut(e: MouseEvent) {
             if (notificationRef.current && !notificationRef.current.contains(e.target as Node))
@@ -142,12 +205,11 @@ export default function Navbar() {
 
     return (
         <>
-            {/* ── Single-row navbar ── */}
             <nav className="sticky top-0 z-50 w-full shrink-0 bg-[#004C8F] shadow-md">
                 <div className="px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16 gap-4">
 
-                        {/* ── Left: Logo ── */}
+                        {/* Left: Logo / Back */}
                         <div className="flex items-center shrink-0">
                             {isAdminRoute ? (
                                 <button
@@ -162,18 +224,12 @@ export default function Navbar() {
                                 </button>
                             ) : (
                                 <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
-                                    <Image
-                                        src="/logo.svg"
-                                        alt="HDFC Bank"
-                                        width={130}
-                                        height={38}
-                                        priority
-                                    />
+                                    <Image src="/logo.svg" alt="HDFC Bank" width={130} height={38} priority />
                                 </Link>
                             )}
                         </div>
 
-                        {/* ── Center: HDFC-style pipe-separated nav links (desktop) ── */}
+                        {/* Center: pipe-separated nav links (desktop) */}
                         {!isAdminRoute && (
                             <div className="hidden lg:flex items-center flex-1 justify-center">
                                 {visibleNavItems.map((item, idx) => {
@@ -181,7 +237,6 @@ export default function Navbar() {
                                         pathname === item.href || pathname.startsWith(item.href + '/');
                                     return (
                                         <React.Fragment key={item.href}>
-                                            {/* Pipe separator — not before first item */}
                                             {idx !== 0 && (
                                                 <span
                                                     className="h-5 w-px mx-0.5 xl:mx-1 shrink-0"
@@ -192,10 +247,7 @@ export default function Navbar() {
                                                 href={item.href}
                                                 className={`
                                                     relative px-2 xl:px-4 py-1.5 text-[13px] xl:text-[15px] font-semibold tracking-wide transition-all whitespace-nowrap
-                                                    ${isActive
-                                                        ? 'text-white'
-                                                        : 'text-white/70 hover:text-white'
-                                                    }
+                                                    ${isActive ? 'text-white' : 'text-white/70 hover:text-white'}
                                                 `}
                                             >
                                                 {item.label}
@@ -206,10 +258,9 @@ export default function Navbar() {
                             </div>
                         )}
 
-                        {/* ── Right: Dev Logger + Bell + Divider + Profile + Logout + Hamburger ── */}
+                        {/* Right: Dev Logger + Bell + Profile + Logout + Hamburger */}
                         <div className="flex items-center gap-2 shrink-0">
 
-                            {/* Dev Logger — admin only, desktop */}
                             {mounted && isAdmin && !isAdminRoute && (
                                 <Link
                                     href="/dev-logger"
@@ -247,26 +298,20 @@ export default function Navbar() {
                                     )}
                                 </button>
 
-                                {/* Notification dropdown — desktop only */}
                                 {showNotifications && (
                                     <div
                                         className="absolute right-0 top-12 w-96 rounded-xl shadow-2xl border z-50 hidden lg:flex flex-col overflow-hidden"
                                         style={{ background: '#fff', borderColor: '#dde3ea' }}
                                     >
-                                        {/* Header */}
                                         <div className="flex items-center justify-between px-5 py-3" style={{ background: '#004C8F' }}>
                                             <span className="font-semibold text-white text-sm">Notifications</span>
                                             {hasUnread && (
-                                                <span
-                                                    className="text-[10px] font-bold text-white rounded-full px-2 py-0.5"
-                                                    style={{ background: '#E31837' }}
-                                                >
+                                                <span className="text-[10px] font-bold text-white rounded-full px-2 py-0.5" style={{ background: '#E31837' }}>
                                                     {unreadCount > 99 ? '99+' : unreadCount} unread
                                                 </span>
                                             )}
                                         </div>
 
-                                        {/* List */}
                                         <div className="max-h-80 overflow-y-auto divide-y" style={{ borderColor: '#f0f4f8' }}>
                                             {previewItems.length === 0 ? (
                                                 <div className="py-10 text-center">
@@ -282,23 +327,15 @@ export default function Navbar() {
                                                             }
                                                         }}
                                                         className="w-full text-left flex items-start gap-3 px-5 py-3.5 transition-colors border-b last:border-0"
-                                                        style={{
-                                                            background: !n.is_read ? '#EEF4FB' : '#fff',
-                                                            borderColor: '#f0f4f8',
-                                                        }}
+                                                        style={{ background: !n.is_read ? '#EEF4FB' : '#fff', borderColor: '#f0f4f8' }}
                                                         onMouseEnter={e => (e.currentTarget.style.background = '#EEF4FB')}
                                                         onMouseLeave={e => (e.currentTarget.style.background = !n.is_read ? '#EEF4FB' : '#fff')}
                                                     >
-                                                        <span className="text-base leading-none pt-0.5 shrink-0">
-                                                            {TYPE_ICON[n.type] ?? '🔔'}
-                                                        </span>
+                                                        <span className="text-base leading-none pt-0.5 shrink-0">{TYPE_ICON[n.type] ?? '🔔'}</span>
                                                         <div className="flex-1 min-w-0">
                                                             <p
                                                                 className="text-sm leading-snug truncate"
-                                                                style={{
-                                                                    fontWeight: !n.is_read ? 600 : 400,
-                                                                    color: !n.is_read ? '#003366' : '#6b7280',
-                                                                }}
+                                                                style={{ fontWeight: !n.is_read ? 600 : 400, color: !n.is_read ? '#003366' : '#6b7280' }}
                                                             >
                                                                 {n.title}
                                                             </p>
@@ -307,17 +344,13 @@ export default function Navbar() {
                                                             </p>
                                                         </div>
                                                         {!n.is_read && (
-                                                            <span
-                                                                className="w-2 h-2 rounded-full shrink-0 mt-1.5"
-                                                                style={{ background: '#E31837' }}
-                                                            />
+                                                            <span className="w-2 h-2 rounded-full shrink-0 mt-1.5" style={{ background: '#E31837' }} />
                                                         )}
                                                     </button>
                                                 ))
                                             )}
                                         </div>
 
-                                        {/* Footer */}
                                         <button
                                             onClick={() => { setShowNotifications(false); router.push('/notifications'); }}
                                             className="py-3 text-center text-sm font-semibold border-t transition-colors"
@@ -331,7 +364,6 @@ export default function Navbar() {
                                 )}
                             </div>
 
-                            {/* Divider */}
                             <div className="h-7 w-px" style={{ background: 'rgba(255,255,255,0.25)' }} />
 
                             {/* Profile */}
@@ -339,10 +371,7 @@ export default function Navbar() {
                                 className="flex items-center gap-2 transition-opacity hover:opacity-80"
                                 onClick={() => router.push('/profile')}
                             >
-                                <div
-                                    className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                                    style={{ background: '#E31837' }}
-                                >
+                                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: '#E31837' }}>
                                     <span className="text-white font-bold text-xs">{initials || '??'}</span>
                                 </div>
                                 {username && (
@@ -371,14 +400,8 @@ export default function Navbar() {
                                         </DialogDescription>
                                     </DialogHeader>
                                     <DialogFooter>
-                                        <DialogClose asChild>
-                                            <Button variant="outline">Cancel</Button>
-                                        </DialogClose>
-                                        <Button
-                                            onClick={logoutUser}
-                                            style={{ background: '#E31837', color: '#fff' }}
-                                            className="hover:opacity-90 cursor-pointer"
-                                        >
+                                        <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+                                        <Button onClick={logoutUser} style={{ background: '#E31837', color: '#fff' }} className="hover:opacity-90 cursor-pointer">
                                             Confirm
                                         </Button>
                                     </DialogFooter>
@@ -403,18 +426,14 @@ export default function Navbar() {
                 </div>
             </nav>
 
-            {/* ── Mobile slide-down menu ── */}
+            {/* Mobile slide-down menu */}
             {mobileMenuOpen && !isAdminRoute && (
                 <>
-                    <div
-                        className="fixed inset-0 bg-black/40 z-40 lg:hidden"
-                        onClick={() => setMobileMenuOpen(false)}
-                    />
+                    <div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={() => setMobileMenuOpen(false)} />
                     <div className="fixed top-16 left-0 right-0 z-50 lg:hidden bg-[#004C8F] border-t border-white/10 shadow-xl">
                         <div className="px-4 py-3 space-y-1">
                             {visibleNavItems.map(item => {
-                                const isActive =
-                                    pathname === item.href || pathname.startsWith(item.href + '/');
+                                const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                                 return (
                                     <Link
                                         key={item.href}
@@ -422,10 +441,7 @@ export default function Navbar() {
                                         onClick={() => setMobileMenuOpen(false)}
                                         className={`
                                             flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all
-                                            ${isActive
-                                                ? 'bg-white/15 text-white'
-                                                : 'text-white/70 hover:bg-white/10 hover:text-white'
-                                            }
+                                            ${isActive ? 'bg-white/15 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white'}
                                         `}
                                     >
                                         <item.icon className="w-4.5 h-4.5 shrink-0" />
@@ -434,7 +450,6 @@ export default function Navbar() {
                                 );
                             })}
 
-                            {/* Dev Logger — mobile, admin only */}
                             {mounted && isAdmin && (
                                 <Link
                                     href="/dev-logger"
@@ -447,7 +462,6 @@ export default function Navbar() {
                                 </Link>
                             )}
 
-                            {/* Logout — mobile */}
                             <Dialog>
                                 <DialogTrigger asChild>
                                     <button
@@ -466,14 +480,8 @@ export default function Navbar() {
                                         </DialogDescription>
                                     </DialogHeader>
                                     <DialogFooter>
-                                        <DialogClose asChild>
-                                            <Button variant="outline">Cancel</Button>
-                                        </DialogClose>
-                                        <Button
-                                            onClick={logoutUser}
-                                            style={{ background: '#E31837', color: '#fff' }}
-                                            className="hover:opacity-90 cursor-pointer"
-                                        >
+                                        <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+                                        <Button onClick={logoutUser} style={{ background: '#E31837', color: '#fff' }} className="hover:opacity-90 cursor-pointer">
                                             Confirm
                                         </Button>
                                     </DialogFooter>

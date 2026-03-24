@@ -16,6 +16,7 @@ import { AdminPageHeader } from "@/components/features/admin/shared/AdminControl
 import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
 import { useSuccessToast, SuccessToastContainer } from "@/components/shared/SuccessToast";
 
+import ProtectedRoute from "@/components/features/auth/ProtectedRoute"
 export default function RewardsPage() {
   const [items, setItems] = useState<RewardItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -126,6 +127,7 @@ export default function RewardsPage() {
   };
 
   return (
+      <ProtectedRoute adminOnly pathPrefix="/v1/rewards/catalog">
     <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 
       {/* ─── Page Header ─── */}
@@ -208,5 +210,6 @@ export default function RewardsPage() {
       )}
       <SuccessToastContainer toasts={toasts} />
     </main>
+     </ProtectedRoute>
   );
 }
