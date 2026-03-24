@@ -9,7 +9,7 @@ import { useAdminReviews } from "@/hooks/useAdminReviews";
 import { TeamSection } from "@/components/features/admin/reviews/TeamSection";
 import { CalendarStrip } from "@/components/features/admin/reviews/UIHelpers";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
-
+import ProtectedRoute from "@/components/features/auth/ProtectedRoute"
 
 export default function AdminReviewsPage() {
     const [search, setSearch] = useState("");
@@ -42,6 +42,7 @@ export default function AdminReviewsPage() {
     };
 
     return (
+        <ProtectedRoute adminOnly pathPrefix="/v1/recognitions/reviews">
         <>
             <main className="flex-1 overflow-y-auto bg-white">
 
@@ -178,5 +179,6 @@ export default function AdminReviewsPage() {
                 </div>
             </main>
         </>
+        </ProtectedRoute>
     );
 }

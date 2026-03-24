@@ -12,7 +12,7 @@ import { AdminPageHeader } from "@/components/features/admin/shared/AdminControl
 import { EmployeeListSection } from "@/components/features/admin/employees/EmployeeListSection";
 import { BulkImportSection } from "@/components/features/admin/employees/BulkImportSection";
 import { Tab } from "@/types/employee-types";
-
+import ProtectedRoute from "@/components/features/auth/ProtectedRoute"
 
 
 
@@ -27,6 +27,7 @@ export default function EmployeesPage() {
     const [tab, setTab] = useState<Tab>("list");
 
     return (
+        <ProtectedRoute adminOnly pathPrefix="/v1/employees">
         <>
             <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 
@@ -65,6 +66,7 @@ export default function EmployeesPage() {
             </main>
             <ToastContainer toasts={toasts} />
         </>
+        </ProtectedRoute>
     );
 }
 

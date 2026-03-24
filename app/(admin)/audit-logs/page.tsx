@@ -12,7 +12,7 @@ import { AuditTable } from "@/components/features/admin/audit-logs/AuditTable";
 import { AuditDetailModal } from "@/components/features/admin/audit-logs/AuditDetailModal";
 import { AuditFilterPanel } from "@/components/features/admin/audit-logs/AuditFilters";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
-
+import ProtectedRoute from "@/components/features/auth/ProtectedRoute"
 export default function AuditLogsPage() {
     const [logs, setLogs] = useState<AuditLog[]>([]);
     const [pagination, setPagination] = useState<PaginationMeta | null>(null);
@@ -21,6 +21,7 @@ export default function AuditLogsPage() {
     const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [page, setPage] = useState(1);
+
 
     const [filters, setFilters] = useState<AuditFilters>({
         tableName: "",
@@ -77,6 +78,7 @@ export default function AuditLogsPage() {
     };
 
     return (
+        <ProtectedRoute adminOnly pathPrefix="/v1/organizations/audit-logs" readOnlyAccess>
         <>
             <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
                 {/* ─── Page Header ─── */}
@@ -190,5 +192,6 @@ export default function AuditLogsPage() {
             </main>
             <AuditDetailModal log={selectedLog} onClose={() => setSelectedLog(null)} />
         </>
+        </ProtectedRoute>
     );
 }

@@ -9,7 +9,7 @@ import { useToast, ToastContainer } from "@/components/features/admin/roles/UIHe
 import { RolesSection } from "@/components/features/admin/roles/RolesSection";
 import { AssignmentsSection } from "@/components/features/admin/roles/AssignmentsSection";
 import { RoutePermissionsSection } from "@/components/features/admin/roles/RoutePermissionsSection";
-
+import ProtectedRoute from "@/components/features/auth/ProtectedRoute"
 type Tab = "roles" | "assignments" | "permissions";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
@@ -23,6 +23,7 @@ export default function RolesPage() {
     const { toasts, show: toast } = useToast();
 
     return (
+        <ProtectedRoute adminOnly pathPrefix="/v1/roles">
         <>
             <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 
@@ -68,5 +69,6 @@ export default function RolesPage() {
             </main>
             <ToastContainer toasts={toasts} />
         </>
+        </ProtectedRoute>
     );
 }

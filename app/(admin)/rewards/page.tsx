@@ -14,7 +14,7 @@ import { RestockModal } from "@/components/features/admin/rewards/RestockModal";
 import { RewardStats } from "@/components/features/admin/rewards/UIHelpers";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
-
+import ProtectedRoute from "@/components/features/auth/ProtectedRoute"
 export default function RewardsPage() {
   const [items, setItems] = useState<RewardItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -123,6 +123,7 @@ export default function RewardsPage() {
   };
 
   return (
+      <ProtectedRoute adminOnly pathPrefix="/v1/rewards/catalog">
     <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 
       {/* ─── Page Header ─── */}
@@ -204,5 +205,6 @@ export default function RewardsPage() {
         />
       )}
     </main>
+     </ProtectedRoute>
   );
 }

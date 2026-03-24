@@ -14,7 +14,7 @@ import { ReviewCategoryFilters } from "@/components/features/admin/review-catego
 import { HowItWorks } from "@/components/features/admin/shared/HowItWorks";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
-
+import ProtectedRoute from "@/components/features/auth/ProtectedRoute"
 const REVIEW_CAT_STEPS = [
   { n: "01", title: "Create Category", desc: "Add a category with a unique code, name, and multiplier value greater than 0." },
   { n: "02", title: "Set Multiplier", desc: "The multiplier determines points awarded — e.g. 1.4× means 1.4 points per reviewer weight unit." },
@@ -134,6 +134,7 @@ export default function ReviewCategoriesPage() {
   const inactiveCount = (allCategories || []).filter(c => !c.is_active).length;
 
   return (
+      <ProtectedRoute adminOnly pathPrefix="/v1/recognitions/review-categories">
     <>
       <main className="flex-1 w-full min-w-0 flex flex-col min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 
@@ -238,5 +239,6 @@ export default function ReviewCategoriesPage() {
         saving={saving}
       />
     </>
+    </ProtectedRoute>
   );
 }
