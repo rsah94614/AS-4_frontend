@@ -7,9 +7,6 @@ import {
     DialogContent,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
     Designation,
     DesignationDetail,
@@ -18,7 +15,17 @@ import {
 } from "@/types/designation-types";
 import { designationService } from "@/services/designation-service";
 import { extractErrorMessage } from "@/lib/error-utils";
-import { Field } from "./UIHelpers";
+
+// ── Validation helpers ────────────────────────────────────────────────────────
+
+const SPECIAL_CHARS_REGEX = /[<>{}|\\^~\[\]]/;
+const DESC_MAX_LENGTH = 1000;
+
+function validateDescription(value: string): string | null {
+    if (SPECIAL_CHARS_REGEX.test(value)) return "Special characters like < > { } | \\ ^ ~ [ ] are not allowed.";
+    if (value.length > DESC_MAX_LENGTH) return `Description cannot exceed ${DESC_MAX_LENGTH} characters.`;
+    return null;
+}
 
 interface DesignationModalProps {
     open: boolean;
@@ -27,7 +34,7 @@ interface DesignationModalProps {
     selectedDesignation: Designation | null;
 }
 
-const EMPTY_FORM = {
+const EMPTY_FORM: { designation_name: string; designation_code: string; level: number | string; description: string } = {
     designation_name: "",
     designation_code: "",
     level: 1,
@@ -42,6 +49,8 @@ export function DesignationModal({
 }: DesignationModalProps) {
     const [form, setForm] = useState(EMPTY_FORM);
     const [error, setError] = useState<string | null>(null);
+    const [descError, setDescError] = useState<string | null>(null);
+    const [levelError, setLevelError] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [detailLoading, setDetailLoading] = useState(false);
     const [detail, setDetail] = useState<DesignationDetail | null>(null);
@@ -51,6 +60,8 @@ export function DesignationModal({
             setForm(EMPTY_FORM);
             setDetail(null);
             setError(null);
+            setDescError(null);
+            setLevelError(null);
             return;
         }
         if (selectedDesignation) {
@@ -82,8 +93,21 @@ export function DesignationModal({
         }
     }, [open, selectedDesignation]);
 
+    const handleDescriptionChange = (value: string) => {
+        if (value.length > DESC_MAX_LENGTH) return;
+        setForm({ ...form, description: value });
+        setDescError(validateDescription(value));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        const dErr = validateDescription(form.description);
+        if (dErr) { setDescError(dErr); return; }
+        const levelNum = Number(form.level);
+        if (levelNum < 1 || levelNum > 6) {
+            setLevelError(levelNum < 1 ? "Hierarchy level must be at least 1." : "Maximum hierarchy level is 6.");
+            return;
+        }
         setSubmitting(true);
         setError(null);
         try {
@@ -109,115 +133,159 @@ export function DesignationModal({
 
     return (
         <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
-            <DialogContent className="max-w-md p-0 overflow-hidden rounded-xl [&>button]:hidden" style={{ border: "none" }}>
-
-                {/* Blue header */}
-                <div
-                    className="flex items-center justify-between px-6 py-4"
-                    style={{ backgroundColor: "#1a4ab5" }}
-                >
+            <DialogContent
+                showCloseButton={false}
+                onOpenAutoFocus={(e) => e.preventDefault()}
+                className="max-w-md p-0 border-none bg-white rounded-2xl overflow-hidden shadow-xl flex flex-col max-h-[85vh]"
+            >
+                {/* Header */}
+                <div className="flex items-center justify-between px-6 py-5 shrink-0">
                     <div>
-                        <DialogTitle className="text-lg font-bold text-white">
+                        <DialogTitle className="text-lg font-bold text-gray-900">
                             {selectedDesignation ? "Edit Designation" : "Add Designation"}
                         </DialogTitle>
                         {detail && (
-                            <span className="text-xs text-blue-200 mt-0.5 block">
+                            <span className="text-xs text-gray-400 mt-0.5 block">
                                 {detail.employee_count} employee{detail.employee_count !== 1 ? "s" : ""} assigned
                             </span>
                         )}
                     </div>
-                    <Button
-                        variant="ghost"
-                        size="sm"
+                    <button
                         onClick={onClose}
-                        className="text-white hover:text-blue-200 hover:bg-transparent p-1 h-auto"
+                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                     >
-                        <X className="w-5 h-5" />
-                    </Button>
+                        <X className="w-4 h-4" />
+                    </button>
                 </div>
 
                 {/* Body */}
-                <div className="bg-white px-6 py-6">
+                <div className="flex-1 overflow-y-auto px-6 pb-6">
                     {error && (
-                        <div
-                            className="mb-4 px-4 py-3 rounded-lg text-sm"
-                            style={{ backgroundColor: "#fef2f2", border: "1px solid #fecaca", color: "#b91c1c" }}
-                        >
+                        <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600">
                             {error}
                         </div>
                     )}
 
                     {detailLoading ? (
                         <div className="py-12 flex flex-col items-center gap-2">
-                            <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#1a4ab5" }} />
-                            <p className="text-xs" style={{ color: "#9ca3af" }}>Fetching details...</p>
+                            <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                            <p className="text-xs text-gray-400">Fetching details...</p>
                         </div>
                     ) : (
-                        <form onSubmit={handleSubmit} className="space-y-5">
-
-                            <Field label="Designation Name" required>
-                                <Input
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            {/* Designation Name */}
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Designation Name <span style={{ color: "#E31837" }}>*</span>
+                                </label>
+                                <input
+                                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
                                     value={form.designation_name}
                                     onChange={e => setForm({ ...form, designation_name: e.target.value })}
                                     placeholder="e.g. Senior Software Engineer"
-                                    className="h-10 rounded-lg border-slate-300 focus-visible:ring-0 focus-visible:border-[#1a4ab5]"
                                     required
                                     maxLength={100}
                                 />
-                            </Field>
+                            </div>
 
-                            <Field label="Designation Code" required>
-                                <Input
+                            {/* Designation Code */}
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Designation Code <span style={{ color: "#E31837" }}>*</span>
+                                </label>
+                                <input
+                                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 font-mono uppercase"
                                     value={form.designation_code}
                                     onChange={e => setForm({ ...form, designation_code: e.target.value.toUpperCase() })}
                                     placeholder="e.g. SR_SWE"
-                                    className="h-10 rounded-lg border-slate-300 focus-visible:ring-0 focus-visible:border-[#1a4ab5] font-mono"
                                     required
                                     maxLength={50}
                                 />
-                            </Field>
+                            </div>
 
-                            <Field label="Hierarchy Level" required hint="1 = Highest (CXO), higher numbers = lower levels">
-                                <Input
+                            {/* Level */}
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Hierarchy Level <span style={{ color: "#E31837" }}>*</span>
+                                </label>
+                                <input
                                     type="number"
                                     min={1}
-                                    max={50}
+                                    max={6}
+                                    className={`w-full border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 font-bold ${levelError ? 'border-red-300 focus:ring-red-200' : 'border-gray-200 focus:ring-blue-300'}`}
                                     value={form.level}
-                                    onChange={e => setForm({ ...form, level: Number(e.target.value) })}
-                                    className="h-10 rounded-lg border-slate-300 focus-visible:ring-0 focus-visible:border-[#1a4ab5] font-bold"
+                                    onChange={e => {
+                                        const val = e.target.value;
+                                        if (val === "") {
+                                            setForm({ ...form, level: "" });
+                                            setLevelError(null);
+                                            return;
+                                        }
+                                        if (val.length > 1 && val.startsWith("0")) {
+                                            setLevelError("Leading zeros are not allowed.");
+                                            setForm({ ...form, level: val });
+                                            return;
+                                        }
+                                        const num = Number(val);
+                                        setForm({ ...form, level: num });
+                                        if (num < 1) {
+                                            setLevelError("Hierarchy level must be at least 1.");
+                                        } else if (num > 6) {
+                                            setLevelError("Maximum hierarchy level is 6.");
+                                        } else {
+                                            setLevelError(null);
+                                        }
+                                    }}
                                     required
                                 />
-                            </Field>
+                                {levelError ? (
+                                    <p className="text-xs text-red-500 mt-1">{levelError}</p>
+                                ) : (
+                                    <p className="text-xs text-gray-400 mt-1">1 = Highest (CXO), higher numbers = lower levels</p>
+                                )}
+                            </div>
 
-                            <Field label="Description (optional)">
-                                <Textarea
+                            {/* Description */}
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Description <span className="text-gray-300">(optional)</span>
+                                </label>
+                                <textarea
+                                    className={`w-full border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 resize-none ${descError ? "border-red-300 focus:ring-red-200" : "border-gray-200 focus:ring-blue-300"}`}
                                     value={form.description}
-                                    onChange={e => setForm({ ...form, description: e.target.value })}
+                                    onChange={e => handleDescriptionChange(e.target.value)}
                                     placeholder="Brief summary of the role's responsibilities…"
                                     rows={3}
-                                    className="rounded-lg border-slate-300 focus-visible:ring-0 focus-visible:border-[#1a4ab5] resize-none"
+                                    maxLength={DESC_MAX_LENGTH}
                                 />
-                            </Field>
+                                <div className="flex items-center justify-between mt-1">
+                                    {descError ? (
+                                        <p className="text-xs text-red-500">{descError}</p>
+                                    ) : (
+                                        <span />
+                                    )}
+                                    <p className="text-xs text-gray-400">{form.description.length}/{DESC_MAX_LENGTH}</p>
+                                </div>
+                            </div>
 
                             {/* Actions */}
-                            <div className="flex justify-end gap-3 pt-2">
-                                <Button
+                            <div className="flex gap-3 pt-2">
+                                <button
                                     type="button"
-                                    variant="outline"
                                     onClick={onClose}
-                                    className="h-10 px-5 rounded-lg border-slate-300 text-slate-700"
+                                    className="flex-1 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl py-2.5 text-sm font-medium transition-colors"
                                 >
                                     Cancel
-                                </Button>
-                                <Button
+                                </button>
+                                <button
                                     type="submit"
-                                    disabled={submitting}
-                                    className="h-10 px-5 rounded-lg font-semibold text-white hover:opacity-90"
-                                    style={{ backgroundColor: "#1a4ab5", border: "none" }}
+                                    disabled={submitting || !!descError || !!levelError}
+                                    className="flex-1 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                    style={{ background: "#004C8F" }}
                                 >
-                                    {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />}
+                                    {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                                     {submitting ? "Saving…" : selectedDesignation ? "Save Changes" : "Create"}
-                                </Button>
+                                </button>
                             </div>
                         </form>
                     )}

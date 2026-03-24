@@ -1,15 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Loader2, Save, ClipboardList, AlertTriangle } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { EntityType, ENTITY_TYPES, ENTITY_META } from "@/types/status-types";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
     Dialog,
     DialogContent,
-    DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -19,6 +15,17 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+
+// ── Validation helpers ────────────────────────────────────────────────────────
+
+const SPECIAL_CHARS_REGEX = /[<>{}|\\^~\[\]]/;
+const DESC_MAX_LENGTH = 1000;
+
+function validateDescription(value: string): string | null {
+    if (SPECIAL_CHARS_REGEX.test(value)) return "Special characters like < > { } | \\ ^ ~ [ ] are not allowed.";
+    if (value.length > DESC_MAX_LENGTH) return `Description cannot exceed ${DESC_MAX_LENGTH} characters.`;
+    return null;
+}
 
 interface StatusModalProps {
     isOpen: boolean;
@@ -39,151 +46,149 @@ export function StatusModal({ isOpen, onClose, onCreate, saving }: StatusModalPr
         description: "",
         entity_type: "EMPLOYEE" as EntityType,
     });
+    const [descError, setDescError] = useState<string | null>(null);
+
+    const handleDescriptionChange = (value: string) => {
+        if (value.length > DESC_MAX_LENGTH) return;
+        setForm(p => ({ ...p, description: value }));
+        setDescError(validateDescription(value));
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        const dErr = validateDescription(form.description);
+        if (dErr) { setDescError(dErr); return; }
         await onCreate(form);
         setForm({ status_code: "", status_name: "", description: "", entity_type: "EMPLOYEE" });
+        setDescError(null);
     };
 
     const handleClose = () => {
         onClose();
         setForm({ status_code: "", status_name: "", description: "", entity_type: "EMPLOYEE" });
+        setDescError(null);
     };
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
             <DialogContent
+                showCloseButton={false}
                 onOpenAutoFocus={(e) => e.preventDefault()}
-                className="max-w-lg p-0 border-none bg-white rounded-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh] selection:bg-[#004C8F] selection:text-white"
+                className="max-w-md p-0 border-none bg-white rounded-2xl overflow-hidden shadow-xl flex flex-col max-h-[85vh]"
             >
-                <DialogHeader className="flex flex-row items-center justify-between px-8 py-6 border-b border-slate-50 bg-slate-50/50 shrink-0">
-                    <div className="flex items-center gap-3 text-left">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-green-100 text-green-600 shadow-inner">
-                            <ClipboardList className="w-5 h-5" />
-                        </div>
+                {/* Header */}
+                <div className="flex items-center justify-between px-6 py-5 shrink-0">
+                    <DialogTitle className="text-lg font-bold text-gray-900">Add Status</DialogTitle>
+                    <button
+                        onClick={handleClose}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                </div>
+
+                {/* Body */}
+                <div className="flex-1 overflow-y-auto px-6 pb-6">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        {/* Category (Entity Type) */}
                         <div>
-                            <DialogTitle className="text-xl font-semibold text-slate-800 tracking-tight leading-none mb-1">
-                                Add Status
-                            </DialogTitle>
-                            <p className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
-                                STATUS MANAGEMENT
+                            <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                Category <span style={{ color: "#E31837" }}>*</span>
+                            </label>
+                            <Select
+                                value={form.entity_type}
+                                onValueChange={(val) => setForm(p => ({ ...p, entity_type: val as EntityType }))}
+                            >
+                                <SelectTrigger className="w-full h-10 rounded-xl border-gray-200 text-sm focus:ring-2 focus:ring-blue-300">
+                                    <SelectValue placeholder="Select category…" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {ENTITY_TYPES.map((t) => (
+                                        <SelectItem key={t} value={t} className="font-semibold">
+                                            {ENTITY_META[t].label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Status Code */}
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                Status Code <span style={{ color: "#E31837" }}>*</span>
+                            </label>
+                            <input
+                                className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 font-mono uppercase"
+                                value={form.status_code}
+                                onChange={(e) => setForm(p => ({ ...p, status_code: e.target.value.toUpperCase().replace(/\s/g, "_") }))}
+                                placeholder="e.g. ON_LEAVE"
+                                maxLength={50}
+                            />
+                            <p className="text-xs text-gray-400 mt-1">
+                                This code is permanent and used by the system internally.
                             </p>
                         </div>
-                    </div>
-                </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="px-8 py-8 space-y-6 overflow-y-auto flex-1">
-                    <div className="space-y-1.5 mb-5 group">
-                        <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider ml-1 group-focus-within:text-[#004C8F] transition-colors">
-                            CATEGORY <span style={{ color: "#E31837" }}>*</span>
-                        </label>
-                        <Select
-                            value={form.entity_type}
-                            onValueChange={(val) =>
-                                setForm((p) => ({
-                                    ...p,
-                                    entity_type: val as EntityType,
-                                }))
-                            }
-                        >
-                            <SelectTrigger className="w-full h-12 px-5 rounded-xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white">
-                                <SelectValue placeholder="Select category…" />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-xl">
-                                {ENTITY_TYPES.map((t) => (
-                                    <SelectItem key={t} value={t} className="font-semibold">
-                                        {ENTITY_META[t].label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="space-y-1.5 mb-5 group">
-                        <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider ml-1 group-focus-within:text-[#004C8F] transition-colors">
-                            STATUS CODE <span style={{ color: "#E31837" }}>*</span>
-                        </label>
-                        <Input
-                            value={form.status_code}
-                            onChange={(e) =>
-                                setForm((p) => ({
-                                    ...p,
-                                    status_code: e.target.value
-                                        .toUpperCase()
-                                        .replace(/\s/g, "_"),
-                                }))
-                            }
-                            placeholder="e.g. ON_LEAVE"
-                            maxLength={50}
-                            className="w-full h-12 px-5 rounded-xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white placeholder:text-slate-300 transition-all uppercase"
-                        />
-                        <div className="flex items-center gap-1.5 mt-2 ml-1">
-                            <AlertTriangle className="w-3 h-3 text-amber-500" />
-                            <p className="text-[10px] text-slate-500 font-medium">
-                                This code is permanent and used by the system internally. Choose carefully.
-                            </p>
+                        {/* Display Name */}
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                Display Name <span style={{ color: "#E31837" }}>*</span>
+                            </label>
+                            <input
+                                className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                value={form.status_name}
+                                onChange={(e) => setForm(p => ({ ...p, status_name: e.target.value }))}
+                                placeholder="e.g. On Leave"
+                                maxLength={100}
+                            />
                         </div>
-                    </div>
 
-                    <div className="space-y-1.5 mb-5 group">
-                        <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider ml-1 group-focus-within:text-[#004C8F] transition-colors">
-                            DISPLAY NAME <span style={{ color: "#E31837" }}>*</span>
-                        </label>
-                        <Input
-                            value={form.status_name}
-                            onChange={(e) =>
-                                setForm((p) => ({ ...p, status_name: e.target.value }))
-                            }
-                            placeholder="e.g. On Leave"
-                            maxLength={100}
-                            className="w-full h-12 px-5 rounded-xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white placeholder:text-slate-300 transition-all"
-                        />
-                    </div>
+                        {/* Description */}
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                Description <span className="text-gray-300">(optional)</span>
+                            </label>
+                            <textarea
+                                className={`w-full border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 resize-none ${descError ? "border-red-300 focus:ring-red-200" : "border-gray-200 focus:ring-blue-300"}`}
+                                value={form.description}
+                                onChange={(e) => handleDescriptionChange(e.target.value)}
+                                rows={2}
+                                placeholder="e.g. Employee is temporarily on approved leave."
+                                maxLength={DESC_MAX_LENGTH}
+                            />
+                            <div className="flex items-center justify-between mt-1">
+                                {descError ? (
+                                    <p className="text-xs text-red-500">{descError}</p>
+                                ) : (
+                                    <span />
+                                )}
+                                <p className="text-xs text-gray-400">{form.description.length}/{DESC_MAX_LENGTH}</p>
+                            </div>
+                        </div>
 
-                    <div className="space-y-1.5 mb-5 group">
-                        <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider ml-1 group-focus-within:text-[#004C8F] transition-colors">
-                            DESCRIPTION
-                        </label>
-                        <Textarea
-                            value={form.description}
-                            onChange={(e) =>
-                                setForm((p) => ({ ...p, description: e.target.value }))
-                            }
-                            className="w-full px-5 py-3.5 rounded-xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white placeholder:text-slate-300 transition-all min-h-[100px] resize-none"
-                            rows={2}
-                            placeholder="e.g. Employee is temporarily on approved leave."
-                        />
-                    </div>
-
-                    <div className="flex gap-4 pt-4 border-t border-slate-50">
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={handleClose}
-                            disabled={saving}
-                            className="flex-1 h-14 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all tracking-wider uppercase"
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={saving}
-                            className="flex-1 h-14 rounded-xl text-xs font-semibold text-white bg-[#004C8F] hover:bg-[#003d73] transition-all tracking-wider uppercase flex items-center justify-center gap-3 shadow-xl active:scale-95 disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none"
-                        >
-                            {saving ? (
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : (
-                                <>
-                                    <Save className="w-4 h-4" />
-                                    Create
-                                </>
-                            )}
-                        </Button>
-                    </div>
-                </form>
+                        {/* Actions */}
+                        <div className="flex gap-3 pt-2">
+                            <button
+                                type="button"
+                                onClick={handleClose}
+                                disabled={saving}
+                                className="flex-1 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl py-2.5 text-sm font-medium transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={saving || !!descError}
+                                className="flex-1 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                style={{ background: "#004C8F" }}
+                            >
+                                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                                Create
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </DialogContent>
         </Dialog>
     );
 }
-

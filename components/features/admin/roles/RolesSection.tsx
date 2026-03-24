@@ -1,16 +1,11 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Shield, Plus, Loader2, Hash, ArrowUpRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Shield, Plus, Loader2,ArrowUpRight, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
     Dialog,
     DialogContent,
-    DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
 import { rolesApi, type Role } from "@/services/roles-service";
@@ -156,77 +151,86 @@ export function RolesSection({ toast }: RolesSectionProps) {
             {/* Create Role Dialog */}
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent
-                    className="max-w-md p-0 border-none bg-white rounded-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh] selection:bg-[#004C8F] selection:text-white"
+                    showCloseButton={false}
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                    className="max-w-md p-0 border-none bg-white rounded-2xl overflow-hidden shadow-xl flex flex-col max-h-[85vh]"
                 >
-                    <DialogHeader className="flex flex-row items-center justify-between px-8 py-6 border-b border-slate-50 bg-slate-50/50 shrink-0">
-                        <div className="flex items-center gap-3 text-left">
-                            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-100 text-[#004C8F] shadow-inner">
-                                <Shield className="w-5 h-5" />
-                            </div>
+                    {/* Header */}
+                    <div className="flex items-center justify-between px-6 py-5 shrink-0">
+                        <DialogTitle className="text-lg font-bold text-gray-900">Create New Role</DialogTitle>
+                        <button
+                            onClick={() => setOpen(false)}
+                            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    </div>
+
+                    {/* Body */}
+                    <div className="flex-1 overflow-y-auto px-6 pb-6">
+                        <div className="space-y-4">
+                            {/* Role Name */}
                             <div>
-                                <DialogTitle className="text-xl font-semibold text-slate-800 tracking-tight leading-none mb-1">
-                                    Create New Role
-                                </DialogTitle>
-                                <p className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
-                                    SYSTEM ACCESS
-                                </p>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Role Name <span style={{ color: "#E31837" }}>*</span>
+                                </label>
+                                <input
+                                    placeholder="e.g. HR Manager"
+                                    value={form.role_name}
+                                    onChange={(e) => setForm((f) => ({ ...f, role_name: e.target.value }))}
+                                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                />
+                            </div>
+
+                            {/* Role Code */}
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Role Code <span style={{ color: "#E31837" }}>*</span>
+                                </label>
+                                <input
+                                    placeholder="e.g. HR_MANAGER"
+                                    value={form.role_code}
+                                    onChange={(e) => setForm((f) => ({ ...f, role_code: e.target.value.toUpperCase() }))}
+                                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 font-mono uppercase"
+                                />
+                                <p className="text-xs text-gray-400 mt-1">Stored in UPPERCASE</p>
+                            </div>
+
+                            {/* Description */}
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Description <span className="text-gray-300">(optional)</span>
+                                </label>
+                                <textarea
+                                    placeholder="Describe this role's responsibilities…"
+                                    value={form.description}
+                                    onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
+                                    rows={3}
+                                />
                             </div>
                         </div>
-                    </DialogHeader>
 
-                    <div className="px-8 py-8 space-y-6 overflow-y-auto flex-1">
-                        <div className="space-y-2">
-                            <Label htmlFor="role_name" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">
-                                ROLE NAME <span style={{ color: "#E31837" }}>*</span>
-                            </Label>
-                            <Input id="role_name" placeholder="e.g. HR Manager" value={form.role_name}
-                                onChange={(e) => setForm((f) => ({ ...f, role_name: e.target.value }))}
-                                className="w-full h-12 px-5 rounded-xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white placeholder:text-slate-300 transition-all" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="role_code" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">
-                                ROLE CODE <span style={{ color: "#E31837" }}>*</span>
-                            </Label>
-                            <div className="relative">
-                                <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
-                                <Input id="role_code" placeholder="HR_MANAGER" value={form.role_code}
-                                    className="w-full h-12 pl-10 pr-5 rounded-xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white placeholder:text-slate-300 transition-all font-mono uppercase"
-                                    onChange={(e) => setForm((f) => ({ ...f, role_code: e.target.value.toUpperCase() }))} />
-                            </div>
-                            <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-wider pl-1">Stored in UPPERCASE</p>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="description" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">
-                                DESCRIPTION
-                            </Label>
-                            <Textarea id="description" placeholder="Describe this role's responsibilities…"
-                                value={form.description}
-                                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                                className="w-full px-5 py-3.5 rounded-xl border-2 border-slate-100 text-sm font-semibold text-black focus-visible:ring-0 focus-visible:border-[#004C8F] bg-white placeholder:text-slate-300 transition-all min-h-[100px] resize-none" />
-                        </div>
-
-                        <div className="flex gap-4 pt-4 border-t border-slate-50">
-                            <Button
+                        {/* Actions */}
+                        <div className="flex gap-3 mt-6">
+                            <button
                                 type="button"
-                                variant="ghost"
                                 onClick={() => setOpen(false)}
                                 disabled={submitting}
-                                className="flex-1 h-14 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all tracking-wider uppercase"
+                                className="flex-1 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl py-2.5 text-sm font-medium transition-colors"
                             >
                                 Cancel
-                            </Button>
-                            <Button 
+                            </button>
+                            <button
                                 type="button"
-                                onClick={handleCreate} 
+                                onClick={handleCreate}
                                 disabled={submitting}
-                                className="flex-1 h-14 rounded-xl text-xs font-semibold text-white bg-[#004C8F] hover:bg-[#003d73] transition-all tracking-wider uppercase flex items-center justify-center gap-3 shadow-xl active:scale-95 disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none"
+                                className="flex-1 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                style={{ background: "#004C8F" }}
                             >
-                                {submitting ? (
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                ) : (
-                                    <>Create Role</>
-                                )}
-                            </Button>
+                                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                                Create Role
+                            </button>
                         </div>
                     </div>
                 </DialogContent>

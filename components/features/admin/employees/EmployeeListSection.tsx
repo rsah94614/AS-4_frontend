@@ -8,9 +8,10 @@ import { Designation } from "@/types/designation-types";
 import { PaginationMeta } from "@/types/pagination";
 import { Status } from "@/types/employee-types";
 import { Employee } from "@/types/employee-types";
-import { Users, UserPlus, Search, X, ChevronDown, Briefcase, Building2, Calendar, MoreVertical } from "lucide-react";
+import { Users, UserPlus, ChevronDown, Briefcase, Building2, Calendar, MoreVertical } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import HowItWorks from "../shared/HowItWorks";
+import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
 import { ConfirmDeactivateDialog } from "./ConfirmDeactivateDialog";
 import { CreateEmployeeDialog } from "./CreateEmployeeDialog";
 import { EmployeeDetailDialog } from "./EmployeeDetailDialog";
@@ -75,7 +76,7 @@ export function EmployeeListSection({ toast }: { toast: (msg: string, t?: "succe
     const load = useCallback(async () => {
         try {
             setLoading(true);
-            const params: Record<string, string | number> = { page, limit: 20 };
+            const params: Record<string, string | number> = { page, limit: 10 };
             if (debouncedSearch) params.search = debouncedSearch;
             if (filterDept) params.department_id = filterDept;
             if (filterStatus) params.status_id = filterStatus;
@@ -303,21 +304,11 @@ export function EmployeeListSection({ toast }: { toast: (msg: string, t?: "succe
 
                 {/* Filters */}
                 <div className="px-5 py-3 border-b border-gray-100 flex flex-wrap items-center gap-2">
-                    <div className="relative flex-1 min-w-[180px] max-w-sm">
-                        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                        <input
-                            placeholder="Search name or email…"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value.trimStart())}
-                            className="w-full pl-9 pr-8 py-2 rounded-lg border border-border bg-muted text-sm
-                                placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/10 focus:border-primary/40 transition-all"
-                        />
-                        {search && (
-                            <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                                <X size={13} />
-                            </button>
-                        )}
-                    </div>
+                    <AdminSearchBar
+                        value={search}
+                        onChange={setSearch}
+                        placeholder="Search name or email…"
+                    />
                     {departments.length > 0 && (
                         <div className="relative">
                             <select value={filterDept} onChange={(e) => { setFilterDept(e.target.value); setPage(1); }}

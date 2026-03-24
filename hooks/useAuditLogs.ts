@@ -29,7 +29,7 @@ export function useAuditLogs() {
         try {
             const { data, pagination } = await fetchAuditLogs({
                 page,
-                limit: 50,
+                limit: 10,
                 ...(filters.tableName      && { table_name:      filters.tableName }),
                 ...(filters.operationType  && { operation_type:  filters.operationType }),
                 ...(filters.performedBy    && { performed_by:    filters.performedBy }),

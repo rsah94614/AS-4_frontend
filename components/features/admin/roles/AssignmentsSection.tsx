@@ -1,17 +1,13 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { UserPlus, UserMinus, Loader2, ChevronDown, Search, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { UserPlus, UserMinus, Loader2, ChevronDown, Users, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
     Dialog,
     DialogContent,
-    DialogHeader,
     DialogTitle,
-    DialogDescription,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
@@ -23,6 +19,8 @@ import {
 import { extractErrorMessage } from "@/lib/error-utils";
 import type { ToastType } from "./UIHelpers";
 import { HowItWorks } from "@/components/features/admin/shared/HowItWorks";
+import PaginationControls from "@/components/shared/PaginationControls";
+import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
 
 interface AssignmentsSectionProps {
     toast: (msg: string, t?: ToastType) => void;
@@ -49,6 +47,8 @@ export function AssignmentsSection({ toast }: AssignmentsSectionProps) {
     const [form, setForm] = useState({ employee_id: "", role_id: "" });
     const [search, setSearch] = useState("");
     const [confirmRevoke, setConfirmRevoke] = useState<EmployeeRole | null>(null);
+    const [page, setPage] = useState(1);
+    const PAGE_SIZE = 10;
 
     const load = useCallback(async () => {
         try {
@@ -102,11 +102,22 @@ export function AssignmentsSection({ toast }: AssignmentsSectionProps) {
         }
     };
 
+    useEffect(() => {
+        setPage(1);
+    }, [search]);
+
     const filtered = records.filter(
         (r) =>
             r.employee.username.toLowerCase().includes(search.toLowerCase()) ||
             r.employee.email.toLowerCase().includes(search.toLowerCase()) ||
             r.role.name.toLowerCase().includes(search.toLowerCase())
+    );
+
+    const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
+
+    const paginatedRecords = filtered.slice(
+        (page - 1) * PAGE_SIZE,
+        page * PAGE_SIZE
     );
 
     return (
@@ -135,19 +146,12 @@ export function AssignmentsSection({ toast }: AssignmentsSectionProps) {
                     </button>
                 </div>
 
-                {/* Search bar */}
                 <div className="px-4 sm:px-6 py-3 border-b border-gray-100">
-                    <div className="relative w-full sm:max-w-sm">
-                        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input
-                            placeholder="Search by name, email or role…"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm
-                                placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#004C8F]/10
-                                focus:border-[#004C8F]/40 transition-all"
-                        />
-                    </div>
+                    <AdminSearchBar
+                        value={search}
+                        onChange={setSearch}
+                        placeholder="Search by name, email or role…"
+                    />
                 </div>
 
                 {/* Body */}
@@ -167,7 +171,7 @@ export function AssignmentsSection({ toast }: AssignmentsSectionProps) {
                 ) : (
                     <div>
                         <div className="md:hidden divide-y divide-gray-100">
-                            {filtered.map((r) => (
+                            {paginatedRecords.map((r) => (
                                 <div key={r.employee_role_id} className="px-4 py-3.5 space-y-3">
                                     <div className="flex items-center min-w-0">
                                         <div className="min-w-0">
@@ -213,10 +217,10 @@ export function AssignmentsSection({ toast }: AssignmentsSectionProps) {
 
                         {/* Rows */}
                         <div className="hidden md:block divide-y divide-gray-100">
-                            {filtered.map((r) => (
+                            {paginatedRecords.map((r) => (
                                 <div
                                     key={r.employee_role_id}
-                                    className="grid px-4 sm:px-6 py-3.5 items-center hover:bg-gray-50 transition-colors"
+                                    className="grid px-4 sm:px-6 py-3.5 items-center transition-colors"
                                     style={{ gridTemplateColumns: "2fr 1fr 120px 90px" }}
                                 >
                                     {/* Employee */}
@@ -259,90 +263,150 @@ export function AssignmentsSection({ toast }: AssignmentsSectionProps) {
                                 </div>
                             ))}
                         </div>
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="border-t border-gray-100 px-4 py-4 w-full">
+                                <PaginationControls
+                                    currentPage={page}
+                                    totalPages={totalPages}
+                                    hasPrevious={page > 1}
+                                    hasNext={page < totalPages}
+                                    onPageChange={setPage}
+                                    className="mt-0"
+                                />
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
 
             {/* Assign Dialog */}
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-xl border-0">
-                    <div className="px-6 py-4" style={{ background: "#004C8F" }}>
-                        <DialogHeader>
-                            <DialogTitle className="text-white font-bold text-sm">Assign Role</DialogTitle>
-                            <DialogDescription className="text-blue-200 text-xs mt-0.5">
-                                Assign a role to an employee by their ID
-                            </DialogDescription>
-                        </DialogHeader>
+                <DialogContent
+                    showCloseButton={false}
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                    className="max-w-md p-0 border-none bg-white rounded-2xl overflow-hidden shadow-xl flex flex-col max-h-[85vh]"
+                >
+                    {/* Header */}
+                    <div className="flex items-center justify-between px-6 py-5 shrink-0">
+                        <div>
+                            <DialogTitle className="text-lg font-bold text-gray-900">Assign Role</DialogTitle>
+                            <p className="text-xs text-gray-400 mt-0.5">Assign a role to an employee by their ID</p>
+                        </div>
+                        <button
+                            onClick={() => setOpen(false)}
+                            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
                     </div>
 
-                    <div className="p-4 sm:p-6 space-y-4 bg-white">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="employee_id" className="text-[11px] font-bold text-[#004C8F] uppercase tracking-widest">
-                                Employee ID <span style={{ color: "#E31837" }}>*</span>
-                            </Label>
-                            <Input id="employee_id" placeholder="e.g. emp_abc123" value={form.employee_id}
-                                onChange={(e) => setForm((f) => ({ ...f, employee_id: e.target.value }))}
-                                className="border-gray-200 focus-visible:ring-0 focus-visible:border-[#004C8F]" />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label className="text-[11px] font-bold text-[#004C8F] uppercase tracking-widest">
-                                Role <span style={{ color: "#E31837" }}>*</span>
-                            </Label>
-                            <div className="relative">
-                                <select
-                                    value={form.role_id}
-                                    onChange={(e) => setForm((f) => ({ ...f, role_id: e.target.value }))}
-                                    className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white appearance-none pr-9
-                                        focus:outline-none focus:ring-2 focus:ring-[#004C8F]/10 focus:border-[#004C8F]/40 font-medium transition-all"
-                                >
-                                    <option value="">Select a role…</option>
-                                    {roles.map((r) => (
-                                        <option key={r.role_id} value={r.role_id}>
-                                            {r.role_name} ({r.role_code})
-                                        </option>
-                                    ))}
-                                </select>
-                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    {/* Body */}
+                    <div className="flex-1 overflow-y-auto px-6 pb-6">
+                        <div className="space-y-4">
+                            {/* Employee ID */}
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Employee ID <span style={{ color: "#E31837" }}>*</span>
+                                </label>
+                                <Input id="employee_id" placeholder="e.g. emp_abc123" value={form.employee_id}
+                                    onChange={(e) => setForm((f) => ({ ...f, employee_id: e.target.value }))}
+                                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus-visible:ring-blue-300" />
+                            </div>
+
+                            {/* Role Select */}
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Role <span style={{ color: "#E31837" }}>*</span>
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={form.role_id}
+                                        onChange={(e) => setForm((f) => ({ ...f, role_id: e.target.value }))}
+                                        className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm bg-white appearance-none pr-9
+                                            focus:outline-none focus:ring-2 focus:ring-blue-300 font-medium transition-all"
+                                    >
+                                        <option value="">Select a role…</option>
+                                        {roles.map((r) => (
+                                            <option key={r.role_id} value={r.role_id}>
+                                                {r.role_name} ({r.role_code})
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-100 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3">
-                        <Button variant="outline" onClick={() => setOpen(false)} disabled={submitting}
-                            className="border-gray-200 text-xs font-semibold w-full sm:w-auto">
-                            Cancel
-                        </Button>
-                        <button onClick={handleAssign} disabled={submitting}
-                            className="flex items-center justify-center gap-2 px-5 py-2 rounded-lg text-xs font-bold text-white transition-all hover:opacity-90 disabled:opacity-50 w-full sm:w-auto"
-                            style={{ background: "#004C8F" }}>
-                            {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                            Assign Role
-                        </button>
+                        {/* Actions */}
+                        <div className="flex gap-3 mt-6">
+                            <button
+                                type="button"
+                                onClick={() => setOpen(false)}
+                                disabled={submitting}
+                                className="flex-1 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl py-2.5 text-sm font-medium transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleAssign}
+                                disabled={submitting}
+                                className="flex-1 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                style={{ background: "#004C8F" }}
+                            >
+                                {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                                Assign Role
+                            </button>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>
 
             {/* Revoke Confirmation Dialog */}
             <Dialog open={!!confirmRevoke} onOpenChange={(val) => !val && setConfirmRevoke(null)}>
-                <DialogContent className="sm:max-w-sm p-6 overflow-hidden rounded-xl border-0 bg-white">
-                    <DialogHeader className="mb-4">
-                        <DialogTitle className="text-xl font-bold text-[#E31837]">Confirm Revoke</DialogTitle>
-                        <DialogDescription className="text-sm text-gray-500 mt-2">
-                            Are you sure you want to revoke <span className="font-semibold text-gray-700">{confirmRevoke?.role.name}</span> access from <span className="font-semibold text-gray-700">{confirmRevoke?.employee.username}</span>? This action takes effect immediately.
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 mt-6">
-                        <Button variant="outline" onClick={() => setConfirmRevoke(null)} disabled={revoking !== null}
-                            className="border-gray-200 text-xs font-semibold w-full sm:w-auto">
-                            Cancel
-                        </Button>
-                        <button onClick={handleRevoke} disabled={revoking !== null}
-                            className="flex items-center justify-center gap-2 px-5 py-2 rounded-lg text-xs font-bold text-white transition-all hover:opacity-90 disabled:opacity-50 w-full sm:w-auto"
-                            style={{ background: "#E31837" }}>
-                            {revoking !== null && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                            Yes, Revoke
+                <DialogContent
+                    showCloseButton={false}
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                    className="max-w-sm p-0 border-none bg-white rounded-2xl overflow-hidden shadow-xl flex flex-col"
+                >
+                    {/* Header */}
+                    <div className="flex items-center justify-between px-6 py-5 shrink-0">
+                        <DialogTitle className="text-lg font-bold text-gray-900">Confirm Revoke</DialogTitle>
+                        <button
+                            onClick={() => setConfirmRevoke(null)}
+                            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                            <X className="w-4 h-4" />
                         </button>
+                    </div>
+
+                    {/* Body */}
+                    <div className="px-6 pb-6">
+                        <p className="text-sm text-gray-500 leading-relaxed mb-6">
+                            Are you sure you want to revoke <span className="font-semibold text-gray-700">{confirmRevoke?.role.name}</span> access from <span className="font-semibold text-gray-700">{confirmRevoke?.employee.username}</span>? This action takes effect immediately.
+                        </p>
+
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setConfirmRevoke(null)}
+                                disabled={revoking !== null}
+                                className="flex-1 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl py-2.5 text-sm font-medium transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleRevoke}
+                                disabled={revoking !== null}
+                                className="flex-1 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                style={{ background: "#E31837" }}
+                            >
+                                {revoking !== null && <Loader2 className="w-4 h-4 animate-spin" />}
+                                Yes, Revoke
+                            </button>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>

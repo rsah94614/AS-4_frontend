@@ -291,7 +291,7 @@ export default function LoginPage() {
                       value={password}
                       onChange={handlePasswordChange}
                       onBlur={() => handleBlur('password')}
-                      className={`h-11 rounded-md border-border pl-10 focus-visible:ring-ring/20 focus-visible:border-primary ${errors.password && touched.password ? 'border-destructive/20 focus-visible:ring-red-500/20' : ''}`}
+                      className={`h-11 rounded-md border-border px-10 focus-visible:ring-ring/20 focus-visible:border-primary ${errors.password && touched.password ? 'border-destructive/20 focus-visible:ring-red-500/20' : ''}`}
                       disabled={loading}
                       autoComplete="current-password"
                     />

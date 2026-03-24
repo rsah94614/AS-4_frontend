@@ -7,7 +7,6 @@ import { fmtDate } from "@/lib/review-utils"
 export default function ReviewSuccessView({ data, onStartNew }: { data: SubmittedReviewData; onStartNew?: () => void }) {
     return (
         <Card className="rounded-xl overflow-hidden shadow-sm border-gray-200">
-            <div className="h-1 bg-[#E31837]" />
             <div className="p-8 text-center">
                 <div className="w-16 h-16 rounded-full bg-green-50 border-4 border-green-100 flex items-center justify-center mx-auto mb-4">
                     <CheckCircle2 className="w-8 h-8 text-green-500" />

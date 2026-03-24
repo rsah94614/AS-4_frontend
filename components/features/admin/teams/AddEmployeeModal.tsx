@@ -1,10 +1,15 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Users, X, AlertCircle, Loader2 } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import axiosClient from "@/services/api-client";
 import { extractErrorMessage } from "@/lib/error-utils";
 import { Employee } from "@/types/team-types";
+import {
+    Dialog,
+    DialogContent,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 interface AddEmployeeModalProps {
     onClose: () => void;
@@ -82,124 +87,123 @@ export function AddEmployeeModal({
         }
     }
 
-    const fieldCls =
-        "block w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-purple-300 outline-none bg-white text-black transition-all";
-    const labelCls =
-        "block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1";
-
     return (
-        <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
-            onClick={(e) => e.target === e.currentTarget && onClose()}
-        >
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col max-h-[90vh]">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-shrink-0">
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center">
-                            <Users className="w-4 h-4 text-purple-700" />
-                        </div>
-                        <div>
-                            <p className="font-bold text-black text-sm">Add New Employee</p>
-                            <p className="text-[11px] text-slate-400">
-                                Fill in the details to register
-                            </p>
-                        </div>
+        <Dialog open={true} onOpenChange={(val) => !val && onClose()}>
+            <DialogContent
+                showCloseButton={false}
+                onOpenAutoFocus={(e) => e.preventDefault()}
+                className="max-w-md p-0 border-none bg-white rounded-2xl overflow-hidden shadow-xl flex flex-col max-h-[85vh]"
+            >
+                {/* Header */}
+                <div className="flex items-center justify-between px-6 py-5 shrink-0">
+                    <div>
+                        <DialogTitle className="text-lg font-bold text-gray-900">Add New Employee</DialogTitle>
+                        <p className="text-xs text-gray-400 mt-0.5">Fill in the details to register</p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition"
+                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                     >
                         <X className="w-4 h-4" />
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+                {/* Body — scrollable */}
+                <div className="flex-1 overflow-y-auto px-6 pb-6">
                     {error && (
-                        <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3 font-medium">
-                            <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
-                            <p className="text-xs text-red-600">{error}</p>
+                        <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600">
+                            {error}
                         </div>
                     )}
 
-                    <form
-                        id="add-employee-form"
-                        onSubmit={handleSubmit}
-                        className="space-y-4"
-                    >
+                    <form id="add-employee-form" onSubmit={handleSubmit} className="space-y-4">
+                        {/* Username */}
                         <div>
-                            <label className={labelCls}>Username <span style={{ color: "#E31837" }}>*</span></label>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                Username <span style={{ color: "#E31837" }}>*</span>
+                            </label>
                             <input
                                 required
                                 placeholder="e.g. johndoe"
-                                className={fieldCls}
+                                className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
                                 value={form.username}
                                 onChange={(e) => setForm({ ...form, username: e.target.value })}
                             />
                         </div>
+
+                        {/* Email */}
                         <div>
-                            <label className={labelCls}>Email Address <span style={{ color: "#E31837" }}>*</span></label>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                Email Address <span style={{ color: "#E31837" }}>*</span>
+                            </label>
                             <input
                                 required
                                 type="email"
                                 placeholder="john@company.com"
-                                className={fieldCls}
+                                className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
                                 value={form.email}
                                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                             />
                         </div>
+
+                        {/* Password */}
                         <div>
-                            <label className={labelCls}>Temporary Password <span style={{ color: "#E31837" }}>*</span></label>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                Temporary Password <span style={{ color: "#E31837" }}>*</span>
+                            </label>
                             <input
                                 required
                                 type="password"
                                 placeholder="••••••••"
-                                className={fieldCls}
+                                className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
                                 value={form.password}
                                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                             />
                         </div>
+
+                        {/* Department + Designation */}
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className={labelCls}>Department <span style={{ color: "#E31837" }}>*</span></label>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Department <span style={{ color: "#E31837" }}>*</span>
+                                </label>
                                 <select
                                     required
-                                    className={fieldCls}
+                                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
                                     value={form.department_id}
-                                    onChange={(e) =>
-                                        setForm({ ...form, department_id: e.target.value })
-                                    }
+                                    onChange={(e) => setForm({ ...form, department_id: e.target.value })}
                                 >
                                     <option value="">Select...</option>
                                     {departments.map((d) => (
-                                        <option key={d.id} value={d.id}>
-                                            {d.name}
-                                        </option>
+                                        <option key={d.id} value={d.id}>{d.name}</option>
                                     ))}
                                 </select>
                             </div>
                             <div>
-                                <label className={labelCls}>Designation <span style={{ color: "#E31837" }}>*</span></label>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Designation <span style={{ color: "#E31837" }}>*</span>
+                                </label>
                                 <select
                                     required
-                                    className={fieldCls}
+                                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
                                     value={form.designation_id}
-                                    onChange={(e) =>
-                                        setForm({ ...form, designation_id: e.target.value })
-                                    }
+                                    onChange={(e) => setForm({ ...form, designation_id: e.target.value })}
                                 >
                                     <option value="">Select...</option>
                                     {designations.map((d) => (
-                                        <option key={d.id} value={d.id}>
-                                            {d.name}
-                                        </option>
+                                        <option key={d.id} value={d.id}>{d.name}</option>
                                     ))}
                                 </select>
                             </div>
                         </div>
+
+                        {/* Manager */}
                         <div>
-                            <label className={labelCls}>Manager (Optional)</label>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                Manager <span className="text-gray-300">(optional)</span>
+                            </label>
                             <select
-                                className={fieldCls}
+                                className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
                                 value={form.manager_id}
                                 onChange={(e) => setForm({ ...form, manager_id: e.target.value })}
                             >
@@ -213,32 +217,34 @@ export function AddEmployeeModal({
                                     ))}
                             </select>
                         </div>
+
+                        {/* Actions */}
+                        <div className="flex gap-3 pt-2">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="flex-1 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl py-2.5 text-sm font-medium transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={submitting}
+                                className="flex-1 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                style={{ background: "#004C8F" }}
+                            >
+                                {submitting ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" /> Adding…
+                                    </>
+                                ) : (
+                                    "Add Employee"
+                                )}
+                            </button>
+                        </div>
                     </form>
                 </div>
-
-                <div className="px-6 py-4 border-t border-slate-100 flex items-center gap-3 flex-shrink-0">
-                    <button
-                        onClick={onClose}
-                        className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        form="add-employee-form"
-                        type="submit"
-                        disabled={submitting}
-                        className="flex-1 py-2.5 rounded-xl bg-purple-700 text-white text-sm font-semibold hover:bg-purple-800 disabled:opacity-50 transition flex items-center justify-center gap-2"
-                    >
-                        {submitting ? (
-                            <>
-                                <Loader2 className="w-4 h-4 animate-spin" /> Adding…
-                            </>
-                        ) : (
-                            "Add Employee"
-                        )}
-                    </button>
-                </div>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 }

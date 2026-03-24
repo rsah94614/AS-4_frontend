@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Tag, Plus, Check, AlertCircle, X, Search } from "lucide-react";
+import { Tag, Plus, Check, AlertCircle, X } from "lucide-react";
 
 
 import { useReviewCategories } from "@/hooks/useReviewCategories";
@@ -13,6 +13,7 @@ import { ReviewCategoryModals } from "@/components/features/admin/review-categor
 import { ReviewCategoryFilters } from "@/components/features/admin/review-categories/ReviewCategoryFilters";
 import { HowItWorks } from "@/components/features/admin/shared/HowItWorks";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
+import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
 
 const REVIEW_CAT_STEPS = [
   { n: "01", title: "Create Category", desc: "Add a category with a unique code, name, and multiplier value greater than 0." },
@@ -35,7 +36,7 @@ export default function ReviewCategoriesPage() {
   const [activeOnly, setActiveOnly] = useState<FilterValue>(null);
   const [search, setSearch] = useState("");
 
-  const { categories, allCategories, loading, error, createCategory, updateCategory } =
+  const { categories, allCategories, pagination, loading, error, createCategory, updateCategory, setPage } =
     useReviewCategories(activeOnly, search);
 
   const [flash, setFlash] = useState<{ type: "success" | "error"; msg: string } | null>(null);
@@ -154,20 +155,7 @@ export default function ReviewCategoriesPage() {
               {/* ── Toolbar: filters + add button ── */}
               <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 mb-6">
                 {/* Search */}
-                <div className="relative w-full sm:w-auto sm:flex-1 sm:min-w-[200px] max-w-sm">
-                  <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value.trimStart())}
-                    placeholder="Search by name or code…"
-                    className="w-full pl-9 pr-8 py-2 rounded-lg border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/10 focus:border-primary/40 transition-all"
-                  />
-                  {search && (
-                    <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                      <X size={13} />
-                    </button>
-                  )}
-                </div>
+                <AdminSearchBar value={search} onChange={setSearch} />
 
                 <ReviewCategoryFilters activeOnly={activeOnly} onFilterChange={setActiveOnly} />
 
@@ -233,6 +221,8 @@ export default function ReviewCategoriesPage() {
                 onCancelEdit={() => setEditId(null)}
                 onEditFormChange={(field, val) => setEditForm(p => ({ ...p, [field]: val }))}
                 saving={saving}
+                pagination={pagination}
+                onPageChange={setPage}
               />
 
             </div>

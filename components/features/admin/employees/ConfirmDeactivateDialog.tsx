@@ -1,7 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { AlertTriangle, Loader2 } from "lucide-react";
-import { Dialog } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { AlertTriangle, Loader2, X } from "lucide-react";
 
 export function ConfirmDeactivateDialog({ open, username, onConfirm, onCancel, loading }: {
     open: boolean; username: string;
@@ -9,30 +7,54 @@ export function ConfirmDeactivateDialog({ open, username, onConfirm, onCancel, l
 }) {
     return (
         <Dialog open={open} onOpenChange={onCancel}>
-            <DialogContent className="w-full max-w-sm p-0 overflow-hidden rounded-xl border-0 [&>button]:hidden">
-                <div className="px-6 py-5 flex flex-col items-center text-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center">
-                        <AlertTriangle size={22} className="text-amber-500" />
-                    </div>
-                    <div>
-                        <DialogTitle className="text-[15px] font-bold text-foreground mb-1">Deactivate Employee?</DialogTitle>
-                        <DialogDescription className="text-[13px] text-muted-foreground leading-relaxed">
-                            Are you sure you want to deactivate <span className="font-semibold text-foreground">{username}</span>?
-                            Their history will be preserved.
-                        </DialogDescription>
-                    </div>
-                </div>
-                <div className="px-6 pb-5 flex items-center justify-center gap-3">
-                    <Button variant="outline" onClick={onCancel} disabled={loading}
-                        className="border-border text-sm font-semibold px-5">
-                        Cancel
-                    </Button>
-                    <button onClick={onConfirm} disabled={loading}
-                        className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90 disabled:opacity-50"
-                        style={{ background: "#004C8F" }}>
-                        {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                        Yes, Deactivate
+            <DialogContent
+                showCloseButton={false}
+                onOpenAutoFocus={(e) => e.preventDefault()}
+                className="max-w-sm p-0 border-none bg-white rounded-2xl overflow-hidden shadow-xl flex flex-col"
+            >
+                {/* Header */}
+                <div className="flex items-center justify-between px-6 py-5 shrink-0">
+                    <DialogTitle className="text-lg font-bold text-gray-900">Deactivate Employee?</DialogTitle>
+                    <button
+                        onClick={onCancel}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                        <X className="w-4 h-4" />
                     </button>
+                </div>
+
+                {/* Body */}
+                <div className="px-6 pb-6">
+                    <div className="flex items-start gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+                            <AlertTriangle size={18} className="text-amber-500" />
+                        </div>
+                        <p className="text-sm text-gray-500 leading-relaxed">
+                            Are you sure you want to deactivate <span className="font-semibold text-gray-700">{username}</span>?
+                            Their history will be preserved.
+                        </p>
+                    </div>
+
+                    <div className="flex gap-3">
+                        <button
+                            type="button"
+                            onClick={onCancel}
+                            disabled={loading}
+                            className="flex-1 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl py-2.5 text-sm font-medium transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            onClick={onConfirm}
+                            disabled={loading}
+                            className="flex-1 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-bold transition-all flex items-center justify-center gap-2"
+                            style={{ background: "#004C8F" }}
+                        >
+                            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                            Yes, Deactivate
+                        </button>
+                    </div>
                 </div>
             </DialogContent>
         </Dialog>

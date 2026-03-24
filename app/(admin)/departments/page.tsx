@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Search, RefreshCw, Plus, X } from "lucide-react";
+import { RefreshCw, Plus } from "lucide-react";
 import { useDepartments } from "@/hooks/useDepartments";
 import { Department } from "@/types/department-types";
 import { DepartmentStats } from "@/components/features/admin/departments/DepartmentStats";
 import { DepartmentTable } from "@/components/features/admin/departments/DepartmentTable";
 import { DepartmentModal } from "@/components/features/admin/departments/DepartmentModal";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
+import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
 
 export default function DepartmentsPage() {
     const {
@@ -56,20 +57,7 @@ export default function DepartmentsPage() {
                     <div className={`bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-5 ${sectionSpacing}`}>
                         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                             {/* Search */}
-                            <div className="relative flex-1 min-w-[200px] max-w-sm">
-                                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                                <input
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value.trimStart())}
-                                    placeholder="Search by name or code…"
-                                    className="w-full pl-9 pr-8 py-2 rounded-lg border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/10 focus:border-primary/40 transition-all"
-                                />
-                                {search && (
-                                    <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                                        <X size={13} />
-                                    </button>
-                                )}
-                            </div>
+                            <AdminSearchBar value={search} onChange={setSearch} />
                             <button
                                 onClick={openCreate}
                                 className="w-full sm:w-auto flex items-center justify-center gap-2 font-semibold text-white px-5 py-2.5 text-sm rounded-lg transition-all hover:opacity-90 active:scale-95"

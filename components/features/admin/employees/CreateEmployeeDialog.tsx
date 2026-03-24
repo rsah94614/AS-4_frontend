@@ -1,7 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { todayStr, maxDobStr, normalizeId } from "@/lib/employee-utils";
 import { extractErrorMessage } from "@/lib/error-utils";
 import authClient from "@/services/api-client";
@@ -69,86 +66,142 @@ export function CreateEmployeeDialog({ open, onClose, onCreated, toast, designat
         }
     };
 
-    const fieldLabel = "text-[11px] font-bold text-muted-foreground uppercase tracking-widest";
-
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent className="w-full max-w-[95vw] sm:max-w-lg p-0 rounded-xl border-0 [&>button]:hidden">
-                <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+            <DialogContent
+                showCloseButton={false}
+                onOpenAutoFocus={(e) => e.preventDefault()}
+                className="max-w-lg p-0 border-none bg-white rounded-2xl overflow-hidden shadow-xl flex flex-col max-h-[85vh]"
+            >
+                {/* Header */}
+                <div className="flex items-center justify-between px-6 py-5 shrink-0">
                     <div>
-                        <DialogTitle className="text-[15px] font-bold text-primary">Create New Employee</DialogTitle>
-                        <DialogDescription className="text-[12px] text-muted-foreground mt-0.5">Add a new employee to the platform</DialogDescription>
+                        <DialogTitle className="text-lg font-bold text-gray-900">Create New Employee</DialogTitle>
+                        <p className="text-xs text-gray-400 mt-0.5">Add a new employee to the platform</p>
                     </div>
-                    <button onClick={onClose} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors">
-                        <X size={14} className="text-muted-foreground" />
+                    <button
+                        onClick={onClose}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                        <X className="w-4 h-4" />
                     </button>
                 </div>
 
-                <div className="p-6 space-y-4 bg-white max-h-[70vh] overflow-y-auto overflow-x-visible">
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="username" className={fieldLabel}>Username <span className="text-destructive">*</span></Label>
-                            <Input id="username" placeholder="john.doe" value={form.username} onChange={set("username")}
-                                className="border-border text-sm focus-visible:ring-0 focus-visible:border-primary" />
+                {/* Body — scrollable */}
+                <div className="flex-1 overflow-y-auto px-6 pb-6">
+                    <div className="space-y-4">
+                        {/* Username + Email */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Username <span style={{ color: "#E31837" }}>*</span>
+                                </label>
+                                <input
+                                    placeholder="john.doe"
+                                    value={form.username}
+                                    onChange={set("username")}
+                                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Email <span style={{ color: "#E31837" }}>*</span>
+                                </label>
+                                <input
+                                    type="email"
+                                    placeholder="john@company.com"
+                                    value={form.email}
+                                    onChange={set("email")}
+                                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                />
+                            </div>
                         </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="email" className={fieldLabel}>Email <span className="text-destructive">*</span></Label>
-                            <Input id="email" type="email" placeholder="john@company.com" value={form.email} onChange={set("email")}
-                                className="border-border text-sm focus-visible:ring-0 focus-visible:border-primary" />
+
+                        {/* Password */}
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                Password <span style={{ color: "#E31837" }}>*</span>
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type={showPwd ? "text" : "password"}
+                                    placeholder="Min 8 chars, upper, lower, number, special"
+                                    value={form.password}
+                                    onChange={set("password")}
+                                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 pr-10"
+                                />
+                                <button type="button" onClick={() => setShowPwd((v) => !v)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    {showPwd ? <EyeOff size={14} /> : <Eye size={14} />}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Designation + Department */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <SearchableSelect id="designation_id" label="Designation" required value={form.designation_id}
+                                onChange={(v) => setForm((f) => ({ ...f, designation_id: v }))} placeholder="Select…"
+                                options={designations.map((d) => ({ value: d.designation_id, label: d.designation_name }))} />
+                            <SearchableSelect id="department_id" label="Department" required value={form.department_id}
+                                onChange={(v) => setForm((f) => ({ ...f, department_id: v }))} placeholder="Select…"
+                                options={departments.map((d) => ({ value: d.department_id, label: d.department_name }))} />
+                        </div>
+
+                        {/* Manager */}
+                        <SearchableSelect id="manager_id" label="Manager" value={form.manager_id}
+                            onChange={(v) => setForm((f) => ({ ...f, manager_id: v }))} placeholder="No manager (optional)"
+                            options={employees.map((e) => ({ value: normalizeId(e.employee_id), label: `${e.username} (${e.email})` }))} />
+
+                        {/* Date of Joining + DOB */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Date of Joining <span style={{ color: "#E31837" }}>*</span>
+                                </label>
+                                <input
+                                    type="date"
+                                    value={form.date_of_joining}
+                                    onChange={set("date_of_joining")}
+                                    max={todayStr()}
+                                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Date of Birth
+                                </label>
+                                <input
+                                    type="date"
+                                    value={form.date_of_birth}
+                                    onChange={set("date_of_birth")}
+                                    max={maxDobStr()}
+                                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                        <Label htmlFor="password" className={fieldLabel}>Password <span className="text-destructive">*</span></Label>
-                        <div className="relative">
-                            <Input id="password" type={showPwd ? "text" : "password"}
-                                placeholder="Min 8 chars, upper, lower, number, special"
-                                value={form.password} onChange={set("password")}
-                                className="border-border text-sm focus-visible:ring-0 focus-visible:border-primary pr-10" />
-                            <button type="button" onClick={() => setShowPwd((v) => !v)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                                {showPwd ? <EyeOff size={14} /> : <Eye size={14} />}
-                            </button>
-                        </div>
+                    {/* Actions */}
+                    <div className="flex gap-3 mt-6">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            disabled={submitting}
+                            className="flex-1 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl py-2.5 text-sm font-medium transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleCreate}
+                            disabled={submitting || !isFormValid}
+                            className="flex-1 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-bold transition-all flex items-center justify-center gap-2"
+                            style={{ background: "#004C8F" }}
+                        >
+                            {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                            Create Employee
+                        </button>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <SearchableSelect id="designation_id" label="Designation" required value={form.designation_id}
-                            onChange={(v) => setForm((f) => ({ ...f, designation_id: v }))} placeholder="Select…"
-                            options={designations.map((d) => ({ value: d.designation_id, label: d.designation_name }))} />
-                        <SearchableSelect id="department_id" label="Department" required value={form.department_id}
-                            onChange={(v) => setForm((f) => ({ ...f, department_id: v }))} placeholder="Select…"
-                            options={departments.map((d) => ({ value: d.department_id, label: d.department_name }))} />
-                    </div>
-
-                    <SearchableSelect id="manager_id" label="Manager" value={form.manager_id}
-                        onChange={(v) => setForm((f) => ({ ...f, manager_id: v }))} placeholder="No manager (optional)"
-                        options={employees.map((e) => ({ value: normalizeId(e.employee_id), label: `${e.username} (${e.email})` }))} />
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="doj" className={fieldLabel}>Date of Joining <span className="text-destructive">*</span></Label>
-                            <Input id="doj" type="date" value={form.date_of_joining} onChange={set("date_of_joining")}
-                                max={todayStr()}
-                                className="border-border text-sm focus-visible:ring-0 focus-visible:border-primary" />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="dob" className={fieldLabel}>Date of Birth</Label>
-                            <Input id="dob" type="date" value={form.date_of_birth} onChange={set("date_of_birth")}
-                                max={maxDobStr()}
-                                className="border-border text-sm focus-visible:ring-0 focus-visible:border-primary" />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="px-6 py-4 bg-muted border-t border-gray-100 flex items-center justify-end gap-2">
-                    <Button variant="outline" onClick={onClose} disabled={submitting} className="border-border text-xs font-semibold">Cancel</Button>
-                    <button onClick={handleCreate} disabled={submitting || !isFormValid}
-                        className="flex items-center gap-2 px-5 py-2 rounded-lg text-xs font-bold text-white transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-                        style={{ background: "#003580" }}>
-                        {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                        Create Employee
-                    </button>
                 </div>
             </DialogContent>
         </Dialog>

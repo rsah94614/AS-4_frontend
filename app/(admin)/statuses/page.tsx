@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Plus, Search, X, ChevronDown } from "lucide-react";
+import { Plus, ChevronDown } from "lucide-react";
 import { fetchStatuses, createStatus, updateStatus } from "@/services/org-service";
 import {
   Status,
@@ -20,6 +20,7 @@ import {
 import { StatusTable, type EditForm } from "@/components/features/admin/statuses/StatusTable";
 import { StatusModal } from "@/components/features/admin/statuses/StatusModal";
 import { HowItWorks } from "@/components/features/admin/shared/HowItWorks";
+import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
 
 const STATUS_STEPS = [
   { n: "01", title: "Create Status", desc: "Add a status with a unique code, name, entity type, and optional description." },
@@ -109,23 +110,22 @@ export default function StatusesPage() {
   const filteredStatuses = useMemo(() => {
     let result = statuses;
     if (search.trim()) {
-      const lowerSearch = search.trim().toLowerCase();
-      result = result.filter(
-        (s) =>
-          s.status_name.toLowerCase().split(/\s+/).some(w => w.startsWith(lowerSearch)) ||
-          s.status_code.toLowerCase().startsWith(lowerSearch)
-      );
+      const normalizedSearch = search.toLowerCase().replace(/\s+/g, " ").trim();
+      result = result.filter((s) => {
+        const normalizedName = s.status_name.toLowerCase().replace(/\s+/g, " ").trim();
+        const normalizedCode = s.status_code.toLowerCase().replace(/\s+/g, " ").trim();
+        return normalizedName.includes(normalizedSearch) || normalizedCode.startsWith(normalizedSearch);
+      });
 
       result = [...result].sort((a, b) => {
-        const aName = a.status_name.toLowerCase();
-        const bName = b.status_name.toLowerCase();
-        const aStarts = aName.startsWith(lowerSearch) ? 0 : 1;
-        const bStarts = bName.startsWith(lowerSearch) ? 0 : 1;
+        const aName = a.status_name.toLowerCase().replace(/\s+/g, " ").trim();
+        const bName = b.status_name.toLowerCase().replace(/\s+/g, " ").trim();
+        const aStarts = aName.startsWith(normalizedSearch) ? 0 : 1;
+        const bStarts = bName.startsWith(normalizedSearch) ? 0 : 1;
         if (aStarts !== bStarts) return aStarts - bStarts;
-
-        const aWord = aName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
-        const bWord = bName.split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
-        return aWord - bWord;
+        const aIncludes = aName.includes(normalizedSearch) ? 0 : 1;
+        const bIncludes = bName.includes(normalizedSearch) ? 0 : 1;
+        return aIncludes - bIncludes;
       });
     }
     return result;
@@ -156,20 +156,7 @@ export default function StatusesPage() {
         {/* ─── Toolbar ─── */}
         <div className="flex flex-wrap items-center gap-3 mb-6">
           {/* Search */}
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value.trimStart())}
-              placeholder="Search by name or code…"
-              className="w-full pl-9 pr-8 py-2 rounded-lg border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/10 focus:border-primary/40 transition-all"
-            />
-            {search && (
-              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                <X size={13} />
-              </button>
-            )}
-          </div>
+          <AdminSearchBar value={search} onChange={setSearch} />
 
           {/* Entity type filter dropdown */}
           <div className="relative">

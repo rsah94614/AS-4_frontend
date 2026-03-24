@@ -13,6 +13,8 @@ export function useRewardCategories() {
     const [error, setError] = useState<string | null>(null);
     const [search, setSearch] = useState("");
     const [filterState, setFilterState] = useState<CategoryFilter>("all");
+    const [page, setPage] = useState(1);
+    const PAGE_SIZE = 10;
 
     // Modal states
     const [modal, setModal] = useState<null | "create" | "edit">(null);
@@ -40,33 +42,60 @@ export function useRewardCategories() {
     }, [load]);
 
     const filtered = useMemo(() => {
-        return categories
-            .filter(c => {
-                if (filterState === "active") return c.is_active;
-                if (filterState === "inactive") return !c.is_active;
-                return true;
-            })
-            .filter(c => {
-                const lowerSearch = search.toLowerCase();
-                if (!lowerSearch) return true;
-                return (
-                    c.category_name.toLowerCase().split(/\s+/).some(word => word.startsWith(lowerSearch)) ||
-                    c.category_code.toLowerCase().startsWith(lowerSearch)
-                );
-            })
-            .sort((a, b) => {
-                if (!search) return 0;
-                const lowerSearch = search.toLowerCase();
-                const aStarts = a.category_name.toLowerCase().startsWith(lowerSearch) ? 0 : 1;
-                const bStarts = b.category_name.toLowerCase().startsWith(lowerSearch) ? 0 : 1;
-                if (aStarts !== bStarts) return aStarts - bStarts;
-                const aWord = a.category_name.toLowerCase().split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
-                const bWord = b.category_name.toLowerCase().split(/\s+/).some(w => w.startsWith(lowerSearch)) ? 0 : 1;
-                return aWord - bWord;
+        let result = categories.filter(c => {
+            if (filterState === "active") return c.is_active;
+            if (filterState === "inactive") return !c.is_active;
+            return true;
+        });
+
+        if (search) {
+            const normalizedSearch = search.toLowerCase().replace(/\s+/g, " ").trim();
+            result = result.filter(c => {
+                const normalizedName = c.category_name.toLowerCase().replace(/\s+/g, " ").trim();
+                const normalizedCode = c.category_code.toLowerCase().replace(/\s+/g, " ").trim();
+                return normalizedName.includes(normalizedSearch) || normalizedCode.startsWith(normalizedSearch);
             });
+
+            result = [...result].sort((a, b) => {
+                const aName = a.category_name.toLowerCase().replace(/\s+/g, " ").trim();
+                const bName = b.category_name.toLowerCase().replace(/\s+/g, " ").trim();
+                const aStarts = aName.startsWith(normalizedSearch) ? 0 : 1;
+                const bStarts = bName.startsWith(normalizedSearch) ? 0 : 1;
+                if (aStarts !== bStarts) return aStarts - bStarts;
+                const aIncludes = aName.includes(normalizedSearch) ? 0 : 1;
+                const bIncludes = bName.includes(normalizedSearch) ? 0 : 1;
+                return aIncludes - bIncludes;
+            });
+        }
+
+        return result;
     }, [categories, search, filterState]);
 
     const activeCount = useMemo(() => categories.filter(c => c.is_active).length, [categories]);
+
+    // Reset page on filter/search change
+    useEffect(() => {
+        setPage(1);
+    }, [search, filterState]);
+
+    // Client-side pagination
+    const paginatedFiltered = useMemo(() => {
+        const start = (page - 1) * PAGE_SIZE;
+        return filtered.slice(start, start + PAGE_SIZE);
+    }, [filtered, page]);
+
+    const pagination = useMemo(() => {
+        const total = filtered.length;
+        const total_pages = Math.ceil(total / PAGE_SIZE) || 1;
+        return {
+            current_page: page,
+            per_page: PAGE_SIZE,
+            total,
+            total_pages,
+            has_next: page < total_pages,
+            has_previous: page > 1,
+        };
+    }, [filtered.length, page]);
 
     const openCreate = () => setModal("create");
     const openEdit = (cat: Category) => {
@@ -85,7 +114,8 @@ export function useRewardCategories() {
 
     return {
         categories,
-        filtered,
+        filtered: paginatedFiltered,
+        pagination,
         loading,
         error,
         search,
@@ -99,6 +129,8 @@ export function useRewardCategories() {
         openEdit,
         closeModal,
         handleSaved,
+        page,
+        setPage,
         refresh: load
     };
 }

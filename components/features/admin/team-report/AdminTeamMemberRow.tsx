@@ -25,7 +25,7 @@ export default function AdminTeamMemberRow({ member, rank }: Props) {
     const rankText = rank <= 3 ? "text-white" : "text-[#004C8F]";
 
     return (
-        <tr className="border-b border-gray-50 hover:bg-[#F8FAFD] transition-colors">
+        <tr className="border-b border-gray-50 transition-colors">
             {/* Rank */}
             <td className="py-3.5 px-4 w-12">
                 <div className={cn(

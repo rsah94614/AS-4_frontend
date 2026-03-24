@@ -6,7 +6,6 @@ import {
     DialogContent,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { AuditLog } from "@/types/audit-types";
 import { OperationBadge } from "./AuditTable";
 
@@ -19,7 +18,7 @@ interface AuditDetailModalProps {
 function ChangeTable({ data, emptyMessage }: { data: unknown; emptyMessage: string }) {
     if (!data || typeof data !== "object" || Object.keys(data as object).length === 0) {
         return (
-            <p className="text-sm italic py-3 px-4 rounded-lg" style={{ color: "#9ca3af", backgroundColor: "#f9fafb", border: "1px solid #f3f4f6" }}>
+            <p className="text-sm italic py-3 px-4 rounded-xl bg-gray-50 border border-gray-200 text-gray-400">
                 {emptyMessage}
             </p>
         );
@@ -28,12 +27,12 @@ function ChangeTable({ data, emptyMessage }: { data: unknown; emptyMessage: stri
     const entries = Object.entries(data as Record<string, unknown>);
 
     return (
-        <div className="rounded-lg overflow-x-auto" style={{ border: "1px solid #e5e7eb" }}>
+        <div className="rounded-xl overflow-x-auto border border-gray-200">
             <table className="w-full text-sm">
                 <thead>
-                    <tr style={{ backgroundColor: "#f9fafb", borderBottom: "1px solid #e5e7eb" }}>
-                        <th className="text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wide" style={{ color: "#6b7280", width: "40%" }}>Field</th>
-                        <th className="text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wide" style={{ color: "#6b7280" }}>Value</th>
+                    <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-600 uppercase tracking-wide" style={{ width: "40%" }}>Field</th>
+                        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Value</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -55,10 +54,10 @@ function ChangeTable({ data, emptyMessage }: { data: unknown; emptyMessage: stri
                         return (
                             <tr
                                 key={key}
-                                style={{ borderBottom: idx < entries.length - 1 ? "1px solid #f3f4f6" : "none" }}
+                                className={idx < entries.length - 1 ? "border-b border-gray-100" : ""}
                             >
-                                <td className="px-4 py-2.5 font-medium text-sm" style={{ color: "#374151" }}>{label}</td>
-                                <td className="px-4 py-2.5 text-sm" style={{ color: "#111827" }}>{displayValue}</td>
+                                <td className="px-4 py-2.5 font-medium text-sm text-gray-700">{label}</td>
+                                <td className="px-4 py-2.5 text-sm text-gray-900">{displayValue}</td>
                             </tr>
                         );
                     })}
@@ -75,71 +74,65 @@ export function AuditDetailModal({ log, onClose }: AuditDetailModalProps) {
 
     return (
         <Dialog open={!!log} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0 rounded-xl [&>button]:hidden" style={{ border: "none" }}>
-
-                {/* Blue header */}
-                <div
-                    className="flex items-center justify-between px-4 sm:px-6 py-4 sticky top-0 z-10"
-                    style={{ backgroundColor: "#1a4ab5" }}
-                >
+            <DialogContent
+                showCloseButton={false}
+                onOpenAutoFocus={(e) => e.preventDefault()}
+                className="w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] sm:max-w-2xl p-0 border-none bg-white rounded-2xl overflow-hidden shadow-xl flex flex-col max-h-[85vh]"
+            >
+                {/* Header */}
+                <div className="flex items-center justify-between px-6 py-5 shrink-0">
                     <div>
-                        <DialogTitle className="text-lg font-bold text-white">
-                            Activity Detail
-                        </DialogTitle>
-                        <p className="text-blue-200 text-xs mt-0.5">
-                            What happened and what changed
-                        </p>
+                        <DialogTitle className="text-lg font-bold text-gray-900">Activity Detail</DialogTitle>
+                        <p className="text-xs text-gray-400 mt-0.5">What happened and what changed</p>
                     </div>
-                    <Button
-                        variant="ghost"
-                        size="sm"
+                    <button
                         onClick={onClose}
-                        className="text-white hover:text-blue-200 hover:bg-transparent p-1 h-auto"
+                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                     >
-                        <X className="w-5 h-5" />
-                    </Button>
+                        <X className="w-4 h-4" />
+                    </button>
                 </div>
 
-                <div className="bg-white px-4 sm:px-6 py-5 sm:py-6 space-y-5 sm:space-y-6">
-
+                {/* Body — scrollable */}
+                <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-6 space-y-5">
                     {/* Summary cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="rounded-lg px-4 py-3" style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}>
-                            <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "#6b7280" }}>Done by</p>
-                            <p className="text-sm font-semibold" style={{ color: "#111827" }}>{employeeName}</p>
+                        <div className="rounded-xl px-4 py-3 bg-gray-50 border border-gray-200">
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Done by</p>
+                            <p className="text-sm font-semibold text-gray-900">{employeeName}</p>
                         </div>
-                        <div className="rounded-lg px-4 py-3" style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}>
-                            <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "#6b7280" }}>Action</p>
+                        <div className="rounded-xl px-4 py-3 bg-gray-50 border border-gray-200">
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Action</p>
                             <OperationBadge op={log.operation_type} />
                         </div>
-                        <div className="rounded-lg px-4 py-3" style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}>
-                            <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "#6b7280" }}>Date & Time</p>
-                            <p className="text-sm font-semibold" style={{ color: "#111827" }}>
+                        <div className="rounded-xl px-4 py-3 bg-gray-50 border border-gray-200">
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Date & Time</p>
+                            <p className="text-sm font-semibold text-gray-900">
                                 {new Date(log.performed_at).toLocaleString([], { dateStyle: "long", timeStyle: "short" })}
                             </p>
                         </div>
-                        <div className="rounded-lg px-4 py-3" style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}>
-                            <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "#6b7280" }}>IP Address</p>
-                            <p className="text-sm font-semibold font-mono" style={{ color: "#111827" }}>
+                        <div className="rounded-xl px-4 py-3 bg-gray-50 border border-gray-200">
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">IP Address</p>
+                            <p className="text-sm font-semibold text-gray-900 font-mono">
                                 {log.ip_address ?? "Not recorded"}
                             </p>
                         </div>
-                        <div className="rounded-lg px-4 py-3 sm:col-span-2" style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}>
-                            <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "#6b7280" }}>Section / Module</p>
-                            <p className="text-sm font-semibold" style={{ color: "#111827" }}>
+                        <div className="rounded-xl px-4 py-3 bg-gray-50 border border-gray-200 sm:col-span-2">
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Section / Module</p>
+                            <p className="text-sm font-semibold text-gray-900">
                                 {log.table_name.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
                             </p>
                         </div>
                     </div>
 
                     {/* Before & After — human readable */}
-                    <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: "1.25rem" }}>
-                        <p className="text-sm font-semibold mb-4" style={{ color: "#374151" }}>What changed</p>
+                    <div className="border-t border-gray-200 pt-5">
+                        <p className="text-sm font-semibold text-gray-700 mb-4">What changed</p>
 
                         <div className="space-y-4">
                             {log.operation_type !== "INSERT" && (
                                 <div>
-                                    <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "#6b7280" }}>
+                                    <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
                                         Before the change
                                     </p>
                                     <ChangeTable
@@ -151,7 +144,7 @@ export function AuditDetailModal({ log, onClose }: AuditDetailModalProps) {
 
                             {log.operation_type !== "DELETE" && (
                                 <div>
-                                    <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "#6b7280" }}>
+                                    <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
                                         {log.operation_type === "INSERT" ? "What was created" : "After the change"}
                                     </p>
                                     <ChangeTable
@@ -163,7 +156,7 @@ export function AuditDetailModal({ log, onClose }: AuditDetailModalProps) {
 
                             {log.operation_type === "DELETE" && (
                                 <div>
-                                    <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "#6b7280" }}>
+                                    <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
                                         What was deleted
                                     </p>
                                     <ChangeTable
@@ -174,7 +167,6 @@ export function AuditDetailModal({ log, onClose }: AuditDetailModalProps) {
                             )}
                         </div>
                     </div>
-
                 </div>
             </DialogContent>
         </Dialog>

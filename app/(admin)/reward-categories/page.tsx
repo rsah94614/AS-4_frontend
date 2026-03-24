@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Search, X, Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { useRewardCategories } from "@/hooks/useRewardCategories";
 
 // Modular Components
@@ -9,11 +9,13 @@ import { RewardStats } from "@/components/features/admin/rewards/UIHelpers";
 import { CategoryModal } from "@/components/features/admin/rewards/CategoryModal";
 import { CategoryTable } from "@/components/features/admin/rewards/CategoryTable";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
+import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
 
 export default function CategoriesPage() {
   const {
     categories,
     filtered,
+    pagination,
     loading,
     error,
     search,
@@ -27,6 +29,7 @@ export default function CategoriesPage() {
     openEdit,
     closeModal,
     handleSaved,
+    setPage,
     refresh
   } = useRewardCategories();
 
@@ -66,20 +69,7 @@ export default function CategoriesPage() {
         {/* ─── Toolbar ─── */}
         <div className="flex flex-wrap items-center gap-3 mb-6">
           {/* Search */}
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value.trimStart())}
-              placeholder="Search by name or code…"
-              className="w-full pl-9 pr-8 py-2 rounded-lg border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/10 focus:border-primary/40 transition-all"
-            />
-            {search && (
-              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                <X size={13} />
-              </button>
-            )}
-          </div>
+          <AdminSearchBar value={search} onChange={setSearch} />
 
           {/* Filter tabs */}
           {!loading && categories.length > 0 && (
@@ -108,6 +98,8 @@ export default function CategoriesPage() {
           onEdit={openEdit}
           openCreate={openCreate}
           filterState={filterState}
+          pagination={pagination}
+          onPageChange={setPage}
         />
       </div>
 
