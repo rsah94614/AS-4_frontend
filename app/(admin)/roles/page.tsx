@@ -5,7 +5,7 @@ import { Shield, UserPlus, Lock } from "lucide-react";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 
 
-import { useToast, ToastContainer } from "@/components/features/admin/roles/UIHelpers";
+import { useSuccessToast, SuccessToastContainer } from "@/components/shared/SuccessToast";
 import { RolesSection } from "@/components/features/admin/roles/RolesSection";
 import { AssignmentsSection } from "@/components/features/admin/roles/AssignmentsSection";
 import { RoutePermissionsSection } from "@/components/features/admin/roles/RoutePermissionsSection";
@@ -20,7 +20,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
 
 export default function RolesPage() {
     const [tab, setTab] = useState<Tab>("roles");
-    const { toasts, show: toast } = useToast();
+    const { toasts, show: toast } = useSuccessToast();
 
     return (
         <ProtectedRoute adminOnly pathPrefix="/v1/roles">
@@ -67,7 +67,7 @@ export default function RolesPage() {
                 </div>
 
             </main>
-            <ToastContainer toasts={toasts} />
+            <SuccessToastContainer toasts={toasts} />
         </>
         </ProtectedRoute>
     );

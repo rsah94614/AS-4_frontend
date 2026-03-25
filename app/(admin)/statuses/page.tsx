@@ -21,6 +21,8 @@ import { StatusTable, type EditForm } from "@/components/features/admin/statuses
 import { StatusModal } from "@/components/features/admin/statuses/StatusModal";
 import { HowItWorks } from "@/components/features/admin/shared/HowItWorks";
 import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
+import { useSuccessToast, SuccessToastContainer } from "@/components/shared/SuccessToast";
+
 import ProtectedRoute from "@/components/features/auth/ProtectedRoute"
 const STATUS_STEPS = [
   { n: "01", title: "Create Status", desc: "Add a status with a unique code, name, entity type, and optional description." },
@@ -39,6 +41,7 @@ export default function StatusesPage() {
   const [editForm, setEditForm] = useState<EditForm>({ status_name: "", description: "" });
   const [saving, setSaving] = useState(false);
   const [flash, setFlash] = useState<{ type: "success" | "error"; msg: string } | null>(null);
+  const { toasts, show: showToast } = useSuccessToast();
 
   const showFlash = (msg: string, type: "success" | "error" = "success") => {
     setFlash({ type, msg });
@@ -75,7 +78,7 @@ export default function StatusesPage() {
     try {
       await createStatus(form);
       setShowCreate(false);
-      showFlash("Status created successfully.");
+      showToast("Status created successfully");
       loadStatuses();
     } catch (e: unknown) {
       showFlash(extractErrorMessage(e, "Could not create status. Please try again."), "error");
@@ -95,7 +98,7 @@ export default function StatusesPage() {
     try {
       await updateStatus(statusId, editForm);
       setEditId(null);
-      showFlash("Status updated successfully.");
+      showToast("Status updated successfully");
       loadStatuses();
     } catch (e: unknown) {
       showFlash(extractErrorMessage(e, "Could not update status. Please try again."), "error");
@@ -209,6 +212,7 @@ export default function StatusesPage() {
         onCreate={handleCreate}
         saving={saving}
       />
+      <SuccessToastContainer toasts={toasts} />
     </PageShell>
     </ProtectedRoute>
   );
