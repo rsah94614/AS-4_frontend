@@ -73,8 +73,8 @@ export function DepartmentModal({
                     });
                 } catch {
                     setForm({
-                        department_name: selectedDepartment.department_name,
-                        department_code: selectedDepartment.department_code,
+                        department_name: selectedDepartment?.department_name || "",
+                        department_code: selectedDepartment?.department_code || "",
                         department_type_id: "",
                     });
                 } finally {

@@ -1,46 +1,37 @@
 import { render, screen } from "@testing-library/react";
-import DashboardRecognitionCard from "@/components/features/dashboard/user/DashboardRecognitionCard";
+import DashboardRecognitionCard from "@/components/features/dashboard/dashboard/user/DashboardRecognitionCard";
 
 describe("DashboardRecognitionCard", () => {
     const defaultProps = {
         id: "rev-1",
         from: "Alice",
-        fromInitials: "AL",
-        to: "Bob",
-        toInitials: "BO",
         message: "Great teamwork on the project!",
-        points: 50,
+        tags: ["Teamwork", "Dedication"],
         time: "2h ago",
-        color: "bg-purple-500",
-        image: null,
     };
 
-    it("renders from name, to name, and message", () => {
+    it("renders from name and message", () => {
         render(<DashboardRecognitionCard {...defaultProps} />);
         expect(screen.getByText("Alice")).toBeInTheDocument();
-        expect(screen.getByText("Bob")).toBeInTheDocument();
         expect(
-            screen.getByText("Great teamwork on the project!")
+            screen.getByText("“Great teamwork on the project!”")
         ).toBeInTheDocument();
     });
 
-    it("renders time", () => {
+    it("renders time and context text", () => {
         render(<DashboardRecognitionCard {...defaultProps} />);
         expect(screen.getByText("2h ago")).toBeInTheDocument();
+        expect(screen.getByText("recognised you")).toBeInTheDocument();
     });
 
-    it("shows points badge when points > 0", () => {
+    it("renders tags when provided", () => {
         render(<DashboardRecognitionCard {...defaultProps} />);
-        expect(screen.getByText("+50 pts")).toBeInTheDocument();
+        expect(screen.getByText("Teamwork")).toBeInTheDocument();
+        expect(screen.getByText("Dedication")).toBeInTheDocument();
     });
 
-    it("hides points badge when points is 0", () => {
-        render(<DashboardRecognitionCard {...defaultProps} points={0} />);
-        expect(screen.queryByText(/pts/)).not.toBeInTheDocument();
-    });
-
-    it("renders avatar initials", () => {
-        render(<DashboardRecognitionCard {...defaultProps} />);
-        expect(screen.getByText("AL")).toBeInTheDocument();
+    it("does not break when tags array is empty", () => {
+        render(<DashboardRecognitionCard {...defaultProps} tags={[]} />);
+        expect(screen.queryByText("Teamwork")).not.toBeInTheDocument();
     });
 });
