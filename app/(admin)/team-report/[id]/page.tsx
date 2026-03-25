@@ -8,7 +8,7 @@ import AdminTeamDetailSection, { AdminTeamDetailSkeleton } from "@/components/fe
 import { fetchTeamReport } from "@/services/analytics-service";
 import { extractErrorMessage } from "@/lib/error-utils";
 import type { TeamReportResponse } from "@/types/dashboard-types";
-
+import ProtectedRoute from "@/components/features/auth/ProtectedRoute";
 type FetchState =
     | { status: "loading" }
     | { status: "error"; message: string }
@@ -38,32 +38,32 @@ export default function TeamReportPage() {
 
     return (
         <ProtectedRoute adminOnly adminOnlyKey="POST:/v1/roles/create">
-        <div className="p-4 sm:p-6 space-y-5">
+            <div className="p-4 sm:p-6 space-y-5">
 
 
-            {state.status === "loading" && <AdminTeamDetailSkeleton />}
+                {state.status === "loading" && <AdminTeamDetailSkeleton />}
 
-            {state.status === "error" && (
-                <div className="flex flex-col items-center justify-center py-32 gap-5 text-center">
-                    <div className="p-4 rounded-2xl bg-destructive/10 border border-red-100">
-                        <AlertTriangle className="w-8 h-8 text-red-400" />
+                {state.status === "error" && (
+                    <div className="flex flex-col items-center justify-center py-32 gap-5 text-center">
+                        <div className="p-4 rounded-2xl bg-destructive/10 border border-red-100">
+                            <AlertTriangle className="w-8 h-8 text-red-400" />
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-base font-bold text-gray-900">Something went wrong</p>
+                            <p className="text-sm text-muted-foreground max-w-xs">{state.message}</p>
+                        </div>
+                        <Button
+                            size="sm"
+                            onClick={() => router.back()}
+                            className="gap-2 rounded-xl bg-primary hover:bg-[#003A70] text-white font-semibold px-5"
+                        >
+                            Go back
+                        </Button>
                     </div>
-                    <div className="space-y-1">
-                        <p className="text-base font-bold text-gray-900">Something went wrong</p>
-                        <p className="text-sm text-muted-foreground max-w-xs">{state.message}</p>
-                    </div>
-                    <Button
-                        size="sm"
-                        onClick={() => router.back()}
-                        className="gap-2 rounded-xl bg-primary hover:bg-[#003A70] text-white font-semibold px-5"
-                    >
-                        Go back
-                    </Button>
-                </div>
-            )}
+                )}
 
-            {state.status === "ok" && <AdminTeamDetailSection report={state.data} />}
-        </div>
+                {state.status === "ok" && <AdminTeamDetailSection report={state.data} />}
+            </div>
         </ProtectedRoute>
     );
 }

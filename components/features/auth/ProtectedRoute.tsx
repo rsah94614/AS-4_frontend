@@ -87,6 +87,7 @@ interface ProtectedRouteProps {
      *
      * SUPER_ADMIN always bypasses all checks.
      */
+    adminOnlyKey?: string
     pathPrefix?: string
     readOnlyAccess?: boolean
 }
