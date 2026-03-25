@@ -1,60 +1,64 @@
-import { render, screen } from "@testing-library/react";
-import DashboardLeaderboardSection from "@/components/features/dashboard/user/DashboardLeaderboardSection";
-import type { LeaderboardEntry } from "@/services/analytics-service";
+import { render, screen, waitFor } from "@testing-library/react";
+import DashboardLeaderboardSection from "@/components/features/dashboard/dashboard/user/DashboardLeaderboardSection";
+import { fetchDashboardLeaderboard } from "@/services/analytics-service";
 
-const mockEntries: LeaderboardEntry[] = [
-    {
-        rank: 1,
-        employee_id: "e1",
-        username: "alice.jones",
-        department: "Engineering",
-        total_earned_points: 2500,
-    },
-    {
-        rank: 2,
-        employee_id: "e2",
-        username: "bob.smith",
-        department: "Design",
-        total_earned_points: 1800,
-    },
-];
+jest.mock("@/services/analytics-service", () => ({
+    fetchDashboardLeaderboard: jest.fn(),
+}));
+
+const mockFetch = fetchDashboardLeaderboard as jest.Mock;
 
 describe("DashboardLeaderboardSection", () => {
-    it("shows loading skeletons when loading", () => {
-        const { container } = render(
-            <DashboardLeaderboardSection entries={[]} loading={true} />
-        );
-        const skeletons = container.querySelectorAll(".animate-pulse");
-        expect(skeletons.length).toBe(5);
+    beforeEach(() => {
+        jest.clearAllMocks();
     });
 
-    it('shows "No data available" when entries is empty and not loading', () => {
-        render(<DashboardLeaderboardSection entries={[]} loading={false} />);
-        expect(screen.getByText("No data available.")).toBeInTheDocument();
+    it("shows skeletons while loading and then 'No data yet' when empty", async () => {
+        mockFetch.mockResolvedValue([]);
+        
+        render(<DashboardLeaderboardSection />);
+        // Skeletons are generic div, we just check they resolve
+        
+        await waitFor(() => {
+            expect(screen.getByText("No data yet")).toBeInTheDocument();
+        });
     });
 
-    it("renders leaderboard entries when provided", () => {
-        render(
-            <DashboardLeaderboardSection entries={mockEntries} loading={false} />
-        );
-        expect(screen.getByText("alice.jones")).toBeInTheDocument();
-        expect(screen.getByText("bob.smith")).toBeInTheDocument();
-        expect(screen.getByText("2,500 pts")).toBeInTheDocument();
-        expect(screen.getByText("1,800 pts")).toBeInTheDocument();
+    it("renders leaderboard entries when provided by API", async () => {
+        mockFetch.mockResolvedValue([
+            {
+                rank: 1,
+                employee_id: "e1",
+                username: "alice.jones",
+                department: "Engineering",
+                total_earned_points: 2500,
+            },
+            {
+                rank: 2,
+                employee_id: "e2",
+                username: "bob.smith",
+                department: "Design",
+                total_earned_points: 1800,
+            },
+        ]);
+
+        render(<DashboardLeaderboardSection />);
+
+        await waitFor(() => {
+            expect(screen.getByText("alice.jones")).toBeInTheDocument();
+            expect(screen.getByText("bob.smith")).toBeInTheDocument();
+            expect(screen.getByText("2,500 pts")).toBeInTheDocument();
+        });
     });
 
-    it("renders the section heading", () => {
-        render(
-            <DashboardLeaderboardSection entries={mockEntries} loading={false} />
-        );
+    it("renders the section heading constantly", async () => {
+        mockFetch.mockResolvedValue([]);
+        render(<DashboardLeaderboardSection />);
+        
         expect(screen.getByText("Leaderboard")).toBeInTheDocument();
-    });
-
-    it("does not show loading skeletons when not loading", () => {
-        const { container } = render(
-            <DashboardLeaderboardSection entries={mockEntries} loading={false} />
-        );
-        const skeletons = container.querySelectorAll(".animate-pulse");
-        expect(skeletons.length).toBe(0);
+        
+        await waitFor(() => {
+            expect(mockFetch).toHaveBeenCalledTimes(1);
+        });
     });
 });

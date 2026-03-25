@@ -78,9 +78,9 @@ export function DesignationModal({
                     });
                 } catch {
                     setForm({
-                        designation_name: selectedDesignation.designation_name,
-                        designation_code: selectedDesignation.designation_code,
-                        level: selectedDesignation.level,
+                        designation_name: selectedDesignation?.designation_name || "",
+                        designation_code: selectedDesignation?.designation_code || "",
+                        level: selectedDesignation?.level || 1,
                         description: "",
                     });
                 } finally {

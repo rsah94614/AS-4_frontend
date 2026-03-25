@@ -1,4 +1,4 @@
-import { formatNumber, formatGrowth } from "@/lib/dashboard-utils";
+import { formatNumber, formatMonthComparison } from "@/lib/dashboard-utils";
 
 describe("formatNumber", () => {
     it("returns dash for null", () => {
@@ -23,17 +23,17 @@ describe("formatNumber", () => {
     });
 });
 
-describe("formatGrowth", () => {
-    it("returns undefined for null", () => {
-        expect(formatGrowth(null)).toBeUndefined();
+describe("formatMonthComparison", () => {
+    it("returns dash for null", () => {
+        expect(formatMonthComparison(null, null)).toBe("—");
     });
 
     it("formats positive growth with + sign", () => {
-        expect(formatGrowth(12)).toBe("+12%");
-        expect(formatGrowth(0)).toBe("+0%");
+        expect(formatMonthComparison(112, 100)).toBe("+12%");
+        expect(formatMonthComparison(100, 100)).toBe("+0%");
     });
 
     it("formats negative growth without extra sign", () => {
-        expect(formatGrowth(-5)).toBe("-5%");
+        expect(formatMonthComparison(95, 100)).toBe("-5%");
     });
 });

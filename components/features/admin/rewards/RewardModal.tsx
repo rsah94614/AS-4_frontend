@@ -170,9 +170,9 @@ export function RewardModal({ item, categories, isOpen, onClose, onSave }: Rewar
                                             <SelectValue placeholder="Select category…" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {categories.filter((c) => c.is_active).map((c) => (
-                                                <SelectItem key={c.category_id} value={c.category_id} className="font-semibold">
-                                                    {c.category_name}
+                                            {categories?.filter((c) => c?.is_active)?.map((c) => (
+                                                <SelectItem key={c?.category_id || Math.random().toString()} value={c?.category_id || ""} className="font-semibold">
+                                                    {c?.category_name}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
