@@ -1,45 +1,25 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface DashboardRecognitionCardProps {
     id: string;
     from: string;
-    fromInitials: string;
-    to: string;
-    toInitials: string;
     message: string;
     tags: string[];
     time: string;
-    color: string;
-    image: string | null;
 }
 
-// const TAG_COLORS = [
-//     ,
-
-// ];
 
 export default function DashboardRecognitionCard({
     from,
-    fromInitials,
     message,
     tags,
     time,
-    color,
-    image,
 }: DashboardRecognitionCardProps) {
     return (
         <div className="group relative bg-white shadow-md rounded-2xl border border-gray-100 p-4 hover:shadow-lg hover:border-gray-200 transition-all duration-200">
-            {/* Quote accent */}
-            {/* <Quote className="absolute top-3 right-4 w-5 h-5 text-gray-100 group-hover:text-gray-150 transition-colors" /> */}
 
             {/* Header */}
             <div className="flex items-center gap-3 mb-3">
-                <Avatar className="h-10 w-10 shrink-0">
-                    <AvatarImage src={image ?? undefined} />
-                    <AvatarFallback className={`${color} text-white text-xs font-bold`}>
-                        {fromInitials}
-                    </AvatarFallback>
-                </Avatar>
+
                 <div className="flex-1 min-w-0">
                     <div className="flex items-baseline justify-between gap-2">
                         <p className="text-sm font-bold text-gray-900 truncate">{from}</p>

@@ -14,7 +14,9 @@ import { ReviewCategoryFilters } from "@/components/features/admin/review-catego
 import { HowItWorks } from "@/components/features/admin/shared/HowItWorks";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
+import { useSuccessToast, SuccessToastContainer } from "@/components/shared/SuccessToast";
 
+import ProtectedRoute from "@/components/features/auth/ProtectedRoute"
 const REVIEW_CAT_STEPS = [
   { n: "01", title: "Create Category", desc: "Add a category with a unique code, name, and multiplier value greater than 0." },
   { n: "02", title: "Set Multiplier", desc: "The multiplier determines points awarded — e.g. 1.4× means 1.4 points per reviewer weight unit." },
@@ -50,6 +52,7 @@ export default function ReviewCategoriesPage() {
     is_active: true,
   });
   const [saving, setSaving] = useState(false);
+  const { toasts, show: showToast } = useSuccessToast();
 
   const showFlash = (msg: string, type: "success" | "error" = "success") => {
     setFlash({ type, msg });
@@ -67,6 +70,8 @@ export default function ReviewCategoriesPage() {
     if (!category_name) return showFlash("Please enter a category name.", "error");
     if (!multiplierVal || isNaN(parseFloat(multiplierVal)) || parseFloat(multiplierVal) <= 0)
       return showFlash("Please enter a valid multiplier greater than 0 (e.g. 1.4).", "error");
+    if (parseFloat(multiplierVal) > 2)
+      return showFlash("Multiplier cannot exceed 2.", "error");
 
     setSaving(true);
     try {
@@ -78,6 +83,7 @@ export default function ReviewCategoriesPage() {
       });
       setShowCreate(false);
       showFlash("Category created successfully.");
+      showToast("Category created successfully");
     } catch (e: unknown) {
       showFlash(extractErrorMessage(e, "Could not create category. Code or name may already exist."), "error");
     } finally {
@@ -102,6 +108,8 @@ export default function ReviewCategoriesPage() {
     if (!editForm.category_name.trim()) return showFlash("Category name cannot be empty.", "error");
     if (!editForm.multiplier || isNaN(parseFloat(editForm.multiplier)) || parseFloat(editForm.multiplier) <= 0)
       return showFlash("Please enter a valid multiplier greater than 0.", "error");
+    if (parseFloat(editForm.multiplier) > 2)
+      return showFlash("Multiplier cannot exceed 2.", "error");
 
     setSaving(true);
     try {
@@ -114,6 +122,7 @@ export default function ReviewCategoriesPage() {
       });
       setEditId(null);
       showFlash("Category updated successfully.");
+      showToast("Category updated successfully");
     } catch (e: unknown) {
       showFlash(extractErrorMessage(e, "Could not update. Code or name may conflict with an existing category."), "error");
     } finally {
@@ -134,6 +143,7 @@ export default function ReviewCategoriesPage() {
   const inactiveCount = (allCategories || []).filter(c => !c.is_active).length;
 
   return (
+      <ProtectedRoute adminOnly pathPrefix="/v1/recognitions/review-categories">
     <>
       <main className="flex-1 w-full min-w-0 flex flex-col min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 
@@ -147,85 +157,85 @@ export default function ReviewCategoriesPage() {
 
         {/* ── Main content ── */}
         <div>
-            <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
+          <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
 
-              {/* ── How It Works ── */}
-              <HowItWorks steps={REVIEW_CAT_STEPS} />
+            {/* ── How It Works ── */}
+            <HowItWorks steps={REVIEW_CAT_STEPS} />
 
-              {/* ── Toolbar: filters + add button ── */}
-              <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 mb-6">
-                {/* Search */}
-                <AdminSearchBar value={search} onChange={setSearch} />
+            {/* ── Toolbar: filters + add button ── */}
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 mb-6">
+              {/* Search */}
+              <AdminSearchBar value={search} onChange={setSearch} />
 
-                <ReviewCategoryFilters activeOnly={activeOnly} onFilterChange={setActiveOnly} />
+              <ReviewCategoryFilters activeOnly={activeOnly} onFilterChange={setActiveOnly} />
 
-                <button
-                  onClick={() => setShowCreate(true)}
-                  className="w-full sm:w-auto sm:ml-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white transition-all duration-150"
-                  style={{ background: "#004C8F" }}
-                >
-                  <Plus className="w-4 h-4" />
-                  New Category
+              <button
+                onClick={() => setShowCreate(true)}
+                className="w-full sm:w-auto sm:ml-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white transition-all duration-150"
+                style={{ background: "#004C8F" }}
+              >
+                <Plus className="w-4 h-4" />
+                New Category
+              </button>
+            </div>
+
+            {/* ── Flash ── */}
+            {flash && (
+              <div
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm mb-5 ${flash.type === "success"
+                  ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+                  : "bg-destructive/10 border-destructive/20 text-red-800"
+                  }`}
+              >
+                {flash.type === "success"
+                  ? <Check className="w-4 h-4 shrink-0" />
+                  : <AlertCircle className="w-4 h-4 shrink-0" />}
+                <span className="flex-1 font-medium">{flash.msg}</span>
+                <button onClick={() => setFlash(null)} className="p-0.5 hover:opacity-60 transition-opacity">
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </div>
+            )}
 
-              {/* ── Flash ── */}
-              {flash && (
-                <div
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm mb-5 ${flash.type === "success"
-                    ? "bg-emerald-50 border-emerald-200 text-emerald-800"
-                    : "bg-destructive/10 border-destructive/20 text-red-800"
-                    }`}
-                >
-                  {flash.type === "success"
-                    ? <Check className="w-4 h-4 shrink-0" />
-                    : <AlertCircle className="w-4 h-4 shrink-0" />}
-                  <span className="flex-1 font-medium">{flash.msg}</span>
-                  <button onClick={() => setFlash(null)} className="p-0.5 hover:opacity-60 transition-opacity">
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
+            {/* ── API error ── */}
+            {error && !flash && (
+              <div className="px-4 py-3 bg-destructive/10 border border-destructive/20 text-destructive rounded-xl text-sm mb-5 text-center font-medium">
+                {error}
+              </div>
+            )}
 
-              {/* ── API error ── */}
-              {error && !flash && (
-                <div className="px-4 py-3 bg-destructive/10 border border-destructive/20 text-destructive rounded-xl text-sm mb-5 text-center font-medium">
-                  {error}
-                </div>
-              )}
-
-              {/* ── Section header ── */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Tag className="w-4 h-4" style={{ color: "#004C8F" }} />
-                  <span className="font-semibold text-sm" style={{ color: "#004C8F" }}>
-                    Review Categories
-                  </span>
-                </div>
-                <span className="text-xs text-muted-foreground">
-                  {loading
-                    ? "Loading…"
-                    : `${(allCategories || []).length} total${activeCount > 0 ? ` · ${activeCount} active` : ""}${inactiveCount > 0 ? ` · ${inactiveCount} inactive` : ""}`}
+            {/* ── Section header ── */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Tag className="w-4 h-4" style={{ color: "#004C8F" }} />
+                <span className="font-semibold text-sm" style={{ color: "#004C8F" }}>
+                  Review Categories
                 </span>
               </div>
-
-              {/* ── Table ── */}
-              <ReviewCategoryTable
-                categories={categories}
-                loading={loading}
-                onEdit={startEdit}
-                onToggleActive={handleToggleActive}
-                editingId={editId}
-                editForm={editForm}
-                onUpdate={handleUpdate}
-                onCancelEdit={() => setEditId(null)}
-                onEditFormChange={(field, val) => setEditForm(p => ({ ...p, [field]: val }))}
-                saving={saving}
-                pagination={pagination}
-                onPageChange={setPage}
-              />
-
+              <span className="text-xs text-muted-foreground">
+                {loading
+                  ? "Loading…"
+                  : `${(allCategories || []).length} total${activeCount > 0 ? ` · ${activeCount} active` : ""}${inactiveCount > 0 ? ` · ${inactiveCount} inactive` : ""}`}
+              </span>
             </div>
+
+            {/* ── Table ── */}
+            <ReviewCategoryTable
+              categories={categories}
+              loading={loading}
+              onEdit={startEdit}
+              onToggleActive={handleToggleActive}
+              editingId={editId}
+              editForm={editForm}
+              onUpdate={handleUpdate}
+              onCancelEdit={() => setEditId(null)}
+              onEditFormChange={(field, val) => setEditForm(p => ({ ...p, [field]: val }))}
+              saving={saving}
+              pagination={pagination}
+              onPageChange={setPage}
+            />
+
+          </div>
         </div>
 
       </main>
@@ -237,6 +247,8 @@ export default function ReviewCategoriesPage() {
         onCreate={handleCreate}
         saving={saving}
       />
+      <SuccessToastContainer toasts={toasts} />
     </>
+    </ProtectedRoute>
   );
 }

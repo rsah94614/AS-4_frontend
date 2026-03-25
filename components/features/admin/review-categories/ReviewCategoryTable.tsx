@@ -87,6 +87,7 @@ export function ReviewCategoryTable({
                     <input
                         type="number"
                         min="0.01"
+                        max="2"
                         step="0.1"
                         className="w-full md:w-24 border border-blue-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
                         value={editForm.multiplier}
@@ -202,6 +203,7 @@ export function ReviewCategoryTable({
                         <input
                             type="number"
                             min="0.01"
+                            max="2"
                             step="0.1"
                             className="w-full border border-blue-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
                             value={editForm.multiplier}

@@ -11,13 +11,21 @@ export function CalendarStrip({
     month: number; year: number;
     onChange: (m: number, y: number) => void;
 }) {
-    const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const now = new Date();
     const todayMonth = now.getMonth();
     const todayYear = now.getFullYear();
+    const MIN_YEAR = 2000;
     const isFuture = (m: number, y: number) => y > todayYear || (y === todayYear && m > todayMonth);
+    const isPast = (y: number) => y < MIN_YEAR;
 
-    const prev = () => month === 0 ? onChange(11, year - 1) : onChange(month - 1, year);
+    const prev = () => {
+        if (month === 0) {
+            if (year - 1 >= MIN_YEAR) onChange(11, year - 1);
+        } else {
+            onChange(month - 1, year);
+        }
+    };
     const next = () => month === 11 ? onChange(0, year + 1) : onChange(month + 1, year);
     const isNextDisabled = isFuture(month === 11 ? 0 : month + 1, month === 11 ? year + 1 : year);
     const isNextYearDisabled = isFuture(month, year + 1);
@@ -60,8 +68,8 @@ export function CalendarStrip({
             </button>
 
             <div className="flex items-center gap-1 ml-1 border-l border-gray-100 pl-2">
-                <button onClick={() => onChange(month, year - 1)}
-                    className="w-6 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-100 text-xs font-bold transition-all">
+                <button onClick={() => year - 1 >= MIN_YEAR && onChange(month, year - 1)} disabled={isPast(year - 1)}
+                    className={`w-6 h-7 rounded-lg flex items-center justify-center text-xs font-bold transition-all ${isPast(year - 1) ? "text-gray-200 cursor-not-allowed" : "text-gray-400 hover:bg-gray-100"}`}>
                     ◂
                 </button>
                 <span className="text-sm font-bold px-1 select-none" style={{ color: "#004C8F" }}>

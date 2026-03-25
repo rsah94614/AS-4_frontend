@@ -14,7 +14,9 @@ import { RestockModal } from "@/components/features/admin/rewards/RestockModal";
 import { RewardStats } from "@/components/features/admin/rewards/UIHelpers";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
+import { useSuccessToast, SuccessToastContainer } from "@/components/shared/SuccessToast";
 
+import ProtectedRoute from "@/components/features/auth/ProtectedRoute"
 export default function RewardsPage() {
   const [items, setItems] = useState<RewardItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -26,6 +28,7 @@ export default function RewardsPage() {
 
   const [modal, setModal] = useState<null | "create" | "edit" | "restock">(null);
   const [selected, setSelected] = useState<RewardItem | undefined>();
+  const { toasts, show: showToast } = useSuccessToast();
 
   // ─── Data Fetching ────────────────────────────────────────────────────────
   const load = useCallback(async () => {
@@ -117,12 +120,14 @@ export default function RewardsPage() {
     setModal(null);
     setSelected(undefined);
   };
-  const saved = () => {
+  const saved = (msg?: string) => {
     close();
     load();
+    showToast(msg || "Action completed successfully");
   };
 
   return (
+      <ProtectedRoute adminOnly pathPrefix="/v1/rewards/catalog">
     <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 
       {/* ─── Page Header ─── */}
@@ -186,23 +191,25 @@ export default function RewardsPage() {
         isOpen={modal === "create"}
         categories={categories}
         onClose={close}
-        onSave={saved}
+        onSave={() => saved("Reward created successfully")}
       />
       <RewardModal
         isOpen={modal === "edit" && !!selected}
         item={selected}
         categories={categories}
         onClose={close}
-        onSave={saved}
+        onSave={() => saved("Reward updated successfully")}
       />
       {selected && (
         <RestockModal
           isOpen={modal === "restock"}
           item={selected}
           onClose={close}
-          onSave={saved}
+          onSave={() => saved("Stock updated successfully")}
         />
       )}
+      <SuccessToastContainer toasts={toasts} />
     </main>
+     </ProtectedRoute>
   );
 }

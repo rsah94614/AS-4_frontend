@@ -10,6 +10,8 @@ import { CategoryModal } from "@/components/features/admin/rewards/CategoryModal
 import { CategoryTable } from "@/components/features/admin/rewards/CategoryTable";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 import { AdminSearchBar } from "@/components/features/admin/shared/AdminSearchBar";
+import { useSuccessToast, SuccessToastContainer } from "@/components/shared/SuccessToast";
+import ProtectedRoute from "@/components/features/auth/ProtectedRoute"
 
 export default function CategoriesPage() {
   const {
@@ -32,8 +34,10 @@ export default function CategoriesPage() {
     setPage,
     refresh
   } = useRewardCategories();
+  const { toasts, show: showToast } = useSuccessToast();
 
   return (
+      <ProtectedRoute adminOnly pathPrefix="/v1/rewards/categories">
     <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 
       {/* ─── Page Header ─── */}
@@ -109,10 +113,15 @@ export default function CategoriesPage() {
           isOpen={!!modal}
           category={selected}
           onClose={closeModal}
-          onSave={handleSaved}
+          onSave={() => {
+            handleSaved();
+            showToast(selected ? "Category updated successfully" : "Category created successfully");
+          }}
         />
       )}
+      <SuccessToastContainer toasts={toasts} />
     </main>
+    </ProtectedRoute>
   );
 }
 

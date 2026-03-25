@@ -47,6 +47,13 @@ export function EmployeeDetailDialog({ employee, open, onClose, onUpdated, toast
     const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
         setForm((f) => ({ ...f, [k]: e.target.value }));
 
+    const setDate = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        const yearPart = val.split("-")[0];
+        if (yearPart && yearPart.length > 4) return;
+        setForm((f) => ({ ...f, [k]: val }));
+    };
+
     const handleUpdate = async () => {
         try {
             setSub(true);
@@ -181,7 +188,7 @@ export function EmployeeDetailDialog({ employee, open, onClose, onUpdated, toast
                                         placeholder="Select…" options={statuses.map((s) => ({ value: s.status_id, label: s.status_name }))} />
                                     <div className="space-y-1">
                                         <Label htmlFor="e_dob" className={fieldLabel}>Date of Birth</Label>
-                                        <Input id="e_dob" type="date" value={form.date_of_birth} onChange={set("date_of_birth")}
+                                        <Input id="e_dob" type="date" value={form.date_of_birth} onChange={setDate("date_of_birth")}
                                             max={maxDobStr()}
                                             className="border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus-visible:ring-blue-300" />
                                     </div>

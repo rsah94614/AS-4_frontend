@@ -48,6 +48,7 @@ export function ReviewCategoryModals({
     description: "",
   });
   const [descError, setDescError] = useState<string | null>(null);
+  const [multiplierError, setMultiplierError] = useState<string | null>(null);
 
   const handleDescriptionChange = (value: string) => {
     if (value.length > DESC_MAX_LENGTH) return;
@@ -133,15 +134,29 @@ export function ReviewCategoryModals({
               <input
                 type="number"
                 min="0.01"
+                max="2"
                 step="0.1"
-                className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                className={`w-full border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 ${multiplierError ? "border-red-300 focus:ring-red-200" : "border-gray-200 focus:ring-blue-300"}`}
                 placeholder="e.g. 1.4"
                 value={form.multiplier}
-                onChange={e => setForm(p => ({ ...p, multiplier: e.target.value }))}
+                onChange={e => {
+                  const val = e.target.value;
+                  setForm(p => ({ ...p, multiplier: val }));
+                  const num = parseFloat(val);
+                  if (val && !isNaN(num) && num > 2) {
+                    setMultiplierError("Multiplier cannot exceed 2.");
+                  } else {
+                    setMultiplierError(null);
+                  }
+                }}
               />
-              <p className="text-xs text-gray-400 mt-1">
-                Points = sum of selected multipliers × reviewer weight.
-              </p>
+              {multiplierError ? (
+                <p className="text-xs text-red-500 mt-1 font-medium">{multiplierError}</p>
+              ) : (
+                <p className="text-xs text-gray-400 mt-1">
+                  Points = sum of selected multipliers × reviewer weight. Max: 2.
+                </p>
+              )}
             </div>
 
             {/* Description */}
@@ -178,7 +193,7 @@ export function ReviewCategoryModals({
             </button>
             <button
               onClick={handleSubmit}
-              disabled={saving || !!descError}
+              disabled={saving || !!descError || !!multiplierError}
               className="flex-1 disabled:opacity-50 text-white rounded-xl py-2.5 text-sm font-bold transition-all flex items-center justify-center gap-2"
               style={{ background: "#004C8F" }}
             >

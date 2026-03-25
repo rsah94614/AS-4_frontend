@@ -6,13 +6,13 @@ import {
 } from "lucide-react";
 
 
-import { useToast, ToastContainer } from "@/components/features/admin/roles/UIHelpers";
+import { useSuccessToast, SuccessToastContainer } from "@/components/shared/SuccessToast";
 import { AdminPageHeader } from "@/components/features/admin/shared/AdminControlPanelPageHeader";
 
 import { EmployeeListSection } from "@/components/features/admin/employees/EmployeeListSection";
 import { BulkImportSection } from "@/components/features/admin/employees/BulkImportSection";
 import { Tab } from "@/types/employee-types";
-
+import ProtectedRoute from "@/components/features/auth/ProtectedRoute"
 
 
 
@@ -23,10 +23,11 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function EmployeesPage() {
-    const { toasts, show: toast } = useToast();
+    const { toasts, show: toast } = useSuccessToast();
     const [tab, setTab] = useState<Tab>("list");
 
     return (
+        <ProtectedRoute adminOnly pathPrefix="/v1/employees">
         <>
             <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 
@@ -63,8 +64,9 @@ export default function EmployeesPage() {
                 </div>
 
             </main>
-            <ToastContainer toasts={toasts} />
+            <SuccessToastContainer toasts={toasts} />
         </>
+        </ProtectedRoute>
     );
 }
 
