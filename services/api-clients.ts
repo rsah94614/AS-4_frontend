@@ -19,33 +19,33 @@ const getBaseUrl = (envVar: string | undefined, fallback: string): string => {
 };
 
 export const authClient = createAuthenticatedClient(
-  getBaseUrl(process.env.NEXT_PUBLIC_API_URL, "http://localhost:8001") + "/v1/auth"
+  getBaseUrl(process.env.NEXT_PUBLIC_API_URL, "") + "/v1/auth"
 );
 
 export const rolesClient = createAuthenticatedClient(
-  getBaseUrl(process.env.NEXT_PUBLIC_ROLES_API_URL, "http://localhost:8002") + "/v1/roles"
+  getBaseUrl(process.env.NEXT_PUBLIC_ROLES_API_URL, "") + "/v1/roles"
 );
 
 export const employeesClient = createAuthenticatedClient(
-  getBaseUrl(process.env.NEXT_PUBLIC_EMPLOYEE_API_URL, "http://localhost:8003") + "/v1/employees"
+  getBaseUrl(process.env.NEXT_PUBLIC_EMPLOYEE_API_URL, "") + "/v1/employees"
 );
 
 export const walletClient = createAuthenticatedClient(
-  getBaseUrl(process.env.NEXT_PUBLIC_WALLET_API_URL, "http://localhost:8004") + "/v1/wallets"
+  getBaseUrl(process.env.NEXT_PUBLIC_WALLET_API_URL, "") + "/v1/wallets"
 );
 
 export const recognitionClient = createAuthenticatedClient(
-  getBaseUrl(process.env.NEXT_PUBLIC_RECOGNITION_API_URL, "http://localhost:8005") + "/v1/recognitions"
+  getBaseUrl(process.env.NEXT_PUBLIC_RECOGNITION_API_URL, "") + "/v1/recognitions"
 );
 
 export const rewardsClient = createAuthenticatedClient(
-  getBaseUrl(process.env.NEXT_PUBLIC_REWARDS_API_URL, "http://localhost:8006") + "/v1/rewards"
+  getBaseUrl(process.env.NEXT_PUBLIC_REWARDS_API_URL, "") + "/v1/rewards"
 );
 
 export const orgClient = createAuthenticatedClient(
-  getBaseUrl(process.env.NEXT_PUBLIC_ORG_API_URL, "http://localhost:8007") + "/v1/organizations"
+  getBaseUrl(process.env.NEXT_PUBLIC_ORG_API_URL, "") + "/v1/organizations"
 );
 
 export const analyticsClient = createAuthenticatedClient(
-  getBaseUrl(process.env.NEXT_PUBLIC_ANALYTICS_API_URL, "http://localhost:8008") + "/v1/analytics"
+  getBaseUrl(process.env.NEXT_PUBLIC_ANALYTICS_API_URL, "") + "/v1/analytics"
 );

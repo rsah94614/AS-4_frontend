@@ -85,9 +85,6 @@ export default function ForgotPasswordPage() {
             />
           </div>
 
-          <h1 className="text-2xl md:text-3xl text-foreground mb-6">
-            Welcome to NetBanking
-          </h1>
 
           <div className="w-full bg-white border border-border rounded-md shadow-sm p-6 md:p-8 max-w-[420px]">
             {/* Success Icon */}
