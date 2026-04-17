@@ -90,7 +90,7 @@ export const auth = {
             try {
                 // 5. Use BARE axios, NOT axiosClient, to avoid infinite 401 loops!
                 // We use the full auth microservice URL now.
-                const authBase = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001") + "/v1/auth"
+                const authBase = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001") + "/aabhar/v1/auth"
                 const response = await axios.post(
                     `${authBase}/refresh`,
                     { refresh_token: refreshToken },
