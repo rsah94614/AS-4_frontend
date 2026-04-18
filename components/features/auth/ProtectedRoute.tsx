@@ -15,21 +15,21 @@ const WRITE_METHODS = ['POST:', 'PUT:', 'PATCH:', 'DELETE:'];
 // Control panel layout check — user qualifies if they have ANY write
 // permission under any control panel section.
 const CONTROL_PANEL_WRITE_PREFIXES = [
-    '/v1/organizations/departments',
-    '/v1/organizations/designations',
-    '/v1/organizations/statuses',
-    '/v1/employees',
-    '/v1/rewards/catalog',
-    '/v1/rewards/categories',
-    '/v1/recognitions/review-categories',
-    '/v1/recognitions/reviews',
-    '/v1/roles',
+    '/aabhar/v1/organizations/departments',
+    '/aabhar/v1/organizations/designations',
+    '/aabhar/v1/organizations/statuses',
+    '/aabhar/v1/employees',
+    '/aabhar/v1/rewards/catalog',
+    '/aabhar/v1/rewards/categories',
+    '/aabhar/v1/recognitions/review-categories',
+    '/aabhar/v1/recognitions/reviews',
+    '/aabhar/v1/roles',
 ];
 
 /**
  * Self-service routes that every authenticated employee has by default.
  * Even though some of these paths share a prefix with control-panel routes
- * (e.g. PUT:/v1/employees/notifications/… starts with /v1/employees),
+ * (e.g. PUT:/aabhar/v1/employees/notifications/… starts with /aabhar/v1/employees),
  * they must NEVER grant control-panel access.
  *
  * Add new self-service routes here whenever they are introduced so that
@@ -37,20 +37,20 @@ const CONTROL_PANEL_WRITE_PREFIXES = [
  */
 const SELF_SERVICE_ROUTES = new Set([
     // Auth
-    'POST:/v1/auth/logout',
-    'POST:/v1/auth/signup',
-    'POST:/v1/auth/bulk-import',
+    'POST:/aabhar/v1/auth/logout',
+    'POST:/aabhar/v1/auth/signup',
+    'POST:/aabhar/v1/auth/bulk-import',
 
     // Employee self-service — notifications
-    'PUT:/v1/employees/notifications/read-all',
-    'PUT:/v1/employees/notifications/{notification_id}/read',
+    'PUT:/aabhar/v1/employees/notifications/read-all',
+    'PUT:/aabhar/v1/employees/notifications/{notification_id}/read',
 
     // Peer-review submission (not admin management)
-    'POST:/v1/recognitions/reviews',
-    'PUT:/v1/recognitions/reviews/{id}',
+    'POST:/aabhar/v1/recognitions/reviews',
+    'PUT:/aabhar/v1/recognitions/reviews/{id}',
 
     // Reward redemption
-    'POST:/v1/rewards/redeem',
+    'POST:/aabhar/v1/rewards/redeem',
 ]);
 
 interface ProtectedRouteProps {
@@ -71,16 +71,16 @@ interface ProtectedRouteProps {
      *
      *   Page               pathPrefix                         readOnlyAccess
      *   ─────────────────  ─────────────────────────────────  ──────────────
-     *   Audit Logs         /v1/organizations/audit-logs       true
-     *   Departments        /v1/organizations/departments      false
-     *   Designations       /v1/organizations/designations     false
-     *   Statuses           /v1/organizations/statuses         false
-     *   Employees          /v1/employees                      false
-     *   Rewards            /v1/rewards/catalog                false
-     *   Reward Categories  /v1/rewards/categories             false
-     *   Reviews            /v1/recognitions/reviews           false
-     *   Review Categories  /v1/recognitions/review-categories false
-     *   Roles              /v1/roles                          false
+     *   Audit Logs         /aabhar/v1/organizations/audit-logs       true
+     *   Departments        /aabhar/v1/organizations/departments      false
+     *   Designations       /aabhar/v1/organizations/designations     false
+     *   Statuses           /aabhar/v1/organizations/statuses         false
+     *   Employees          /aabhar/v1/employees                      false
+     *   Rewards            /aabhar/v1/rewards/catalog                false
+     *   Reward Categories  /aabhar/v1/rewards/categories             false
+     *   Reviews            /aabhar/v1/recognitions/reviews           false
+     *   Review Categories  /aabhar/v1/recognitions/review-categories false
+     *   Roles              /aabhar/v1/roles                          false
      *
      * When pathPrefix is omitted with adminOnly=true, checks for ANY
      * write permission across all control panel sections (layout use).
@@ -139,8 +139,8 @@ export default function ProtectedRoute({
                 const allKeys: string[] = await routePermissionsApi.getMyPermissions()
 
                 // Strip self-service routes before any admin check.
-                // This prevents employee-role routes (e.g. PUT:/v1/employees/notifications/…)
-                // from falsely matching admin path prefixes (e.g. /v1/employees).
+                // This prevents employee-role routes (e.g. PUT:/aabhar/v1/employees/notifications/…)
+                // from falsely matching admin path prefixes (e.g. /aabhar/v1/employees).
                 const adminKeys = allKeys.filter(k => !SELF_SERVICE_ROUTES.has(k))
 
                 let hasAccess = false
@@ -171,7 +171,7 @@ export default function ProtectedRoute({
                     if (!hasAccess) {
                         hasAccess = adminKeys.some(k =>
                             k.startsWith('GET:') &&
-                            k.slice(k.indexOf(':') + 1).startsWith('/v1/organizations/audit-logs')
+                            k.slice(k.indexOf(':') + 1).startsWith('/aabhar/v1/organizations/audit-logs')
                         )
                     }
                 }

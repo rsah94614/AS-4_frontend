@@ -21,8 +21,8 @@ import { routePermissionsApi } from '@/services/roles-service';
 // `readOnlyAccess: true` and checks for any GET permission instead.
 //
 // This naturally handles the Employee role problem:
-//   Employee has GET:/v1/rewards/catalog  → read only → NO Rewards card
-//   HR_ADMIN has POST:/v1/rewards/catalog → write     → YES Rewards card
+//   Employee has GET:/aabhar/v1/rewards/catalog  → read only → NO Rewards card
+//   HR_ADMIN has POST:/aabhar/v1/rewards/catalog → write     → YES Rewards card
 // ─────────────────────────────────────────────────────────────────────────────
 
 const categories = [
@@ -31,7 +31,7 @@ const categories = [
         description: 'Track and review all system activity and admin actions.',
         href: '/audit-logs',
         icon: ClipboardList,
-        pathPrefix: '/v1/organizations/audit-logs',
+        pathPrefix: '/aabhar/v1/organizations/audit-logs',
         readOnlyAccess: true,   // no write routes exist — GET is enough
     },
     {
@@ -39,7 +39,7 @@ const categories = [
         description: 'Configure organisational department structures.',
         href: '/departments',
         icon: Building2,
-        pathPrefix: '/v1/organizations/departments',
+        pathPrefix: '/aabhar/v1/organizations/departments',
         readOnlyAccess: false,  // requires POST/PUT/PATCH/DELETE
     },
     {
@@ -47,7 +47,7 @@ const categories = [
         description: 'Manage employee job titles and hierarchy levels.',
         href: '/designations',
         icon: UserRound,
-        pathPrefix: '/v1/organizations/designations',
+        pathPrefix: '/aabhar/v1/organizations/designations',
         readOnlyAccess: false,
     },
     {
@@ -55,7 +55,7 @@ const categories = [
         description: 'View and manage staff profiles and access.',
         href: '/employees',
         icon: Users,
-        pathPrefix: '/v1/employees',
+        pathPrefix: '/aabhar/v1/employees',
         readOnlyAccess: false,
     },
     {
@@ -63,7 +63,7 @@ const categories = [
         description: 'Organise rewards into logical groupings.',
         href: '/reward-categories',
         icon: Tags,
-        pathPrefix: '/v1/rewards/categories',
+        pathPrefix: '/aabhar/v1/rewards/categories',
         readOnlyAccess: false,
     },
     {
@@ -71,7 +71,7 @@ const categories = [
         description: 'Manage individual reward items and point values.',
         href: '/rewards',
         icon: Trophy,
-        pathPrefix: '/v1/rewards/catalog',
+        pathPrefix: '/aabhar/v1/rewards/catalog',
         readOnlyAccess: false,
     },
     {
@@ -79,7 +79,7 @@ const categories = [
         description: 'Manage review category tags and their point multipliers.',
         href: '/review-categories',
         icon: Tags,
-        pathPrefix: '/v1/recognitions/review-categories',
+        pathPrefix: '/aabhar/v1/recognitions/review-categories',
         readOnlyAccess: false,
     },
     {
@@ -87,7 +87,7 @@ const categories = [
         description: 'Monitor all peer reviews. Low ratings are flagged automatically.',
         href: '/reviews',
         icon: Star,
-        pathPrefix: '/v1/recognitions/reviews',
+        pathPrefix: '/aabhar/v1/recognitions/reviews',
         readOnlyAccess: false,
     },
     {
@@ -95,7 +95,7 @@ const categories = [
         description: 'Manage roles, assignments and route-level permissions.',
         href: '/roles',
         icon: Shield,
-        pathPrefix: '/v1/roles',
+        pathPrefix: '/aabhar/v1/roles',
         readOnlyAccess: false,
     },
     {
@@ -103,7 +103,7 @@ const categories = [
         description: 'Define and manage employee and reward status types.',
         href: '/statuses',
         icon: Activity,
-        pathPrefix: '/v1/organizations/statuses',
+        pathPrefix: '/aabhar/v1/organizations/statuses',
         readOnlyAccess: false,
     },
 ];
@@ -113,28 +113,28 @@ const WRITE_METHODS = ['POST:', 'PUT:', 'PATCH:', 'DELETE:'];
 /**
  * Self-service routes that every authenticated employee has by default.
  * Even though some of these paths share a prefix with control-panel routes
- * (e.g. PUT:/v1/employees/notifications/… starts with /v1/employees,
- *  POST:/v1/recognitions/reviews starts with /v1/recognitions/reviews),
+ * (e.g. PUT:/aabhar/v1/employees/notifications/… starts with /aabhar/v1/employees,
+ *  POST:/aabhar/v1/recognitions/reviews starts with /aabhar/v1/recognitions/reviews),
  * they must NEVER grant control-panel card access.
  *
  * Keep this list in sync with the identical constant in ProtectedRoute.tsx.
  */
 const SELF_SERVICE_ROUTES = new Set([
     // Auth
-    'POST:/v1/auth/logout',
-    'POST:/v1/auth/signup',
-    'POST:/v1/auth/bulk-import',
+    'POST:/aabhar/v1/auth/logout',
+    'POST:/aabhar/v1/auth/signup',
+    'POST:/aabhar/v1/auth/bulk-import',
 
     // Employee self-service — notifications
-    'PUT:/v1/employees/notifications/read-all',
-    'PUT:/v1/employees/notifications/{notification_id}/read',
+    'PUT:/aabhar/v1/employees/notifications/read-all',
+    'PUT:/aabhar/v1/employees/notifications/{notification_id}/read',
 
     // Peer-review submission (not admin management)
-    'POST:/v1/recognitions/reviews',
-    'PUT:/v1/recognitions/reviews/{id}',
+    'POST:/aabhar/v1/recognitions/reviews',
+    'PUT:/aabhar/v1/recognitions/reviews/{id}',
 
     // Reward redemption
-    'POST:/v1/rewards/redeem',
+    'POST:/aabhar/v1/rewards/redeem',
 ]);
 
 function cardIsAccessible(
@@ -142,8 +142,8 @@ function cardIsAccessible(
     myKeys: string[],
 ): boolean {
     // Strip self-service routes before checking.
-    // Prevents employee-role routes (e.g. PUT:/v1/employees/notifications/…)
-    // from falsely matching admin path prefixes (e.g. /v1/employees).
+    // Prevents employee-role routes (e.g. PUT:/aabhar/v1/employees/notifications/…)
+    // from falsely matching admin path prefixes (e.g. /aabhar/v1/employees).
     const adminKeys = myKeys.filter(k => !SELF_SERVICE_ROUTES.has(k));
 
     if (card.readOnlyAccess) {

@@ -77,7 +77,7 @@ export function listItemToTeamMember(e: Employee): TeamMember {
 export const employeeService = {
     async getEmployee(id: string): Promise<EmployeeDetail> {
         try {
-            // Direct client base URL already includes /v1/employees.
+            // Direct client base URL already includes /aabhar/v1/employees.
             const res = await employeesClient.get<EmployeeDetail>(`/${id}`)
             return res.data
         } catch (error) {
@@ -106,7 +106,7 @@ export const employeeService = {
         if (params?.sort_order) q.set('sort_order', params.sort_order)
 
         try {
-            // Direct client base URL already includes /v1/employees.
+            // Direct client base URL already includes /aabhar/v1/employees.
             const res = await employeesClient.get<{ data: Employee[]; pagination: Record<string, unknown> }>(
                 `/list?${q.toString()}`
             )

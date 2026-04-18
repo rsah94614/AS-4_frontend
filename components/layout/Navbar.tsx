@@ -23,17 +23,17 @@ import { routePermissionsApi } from '@/services/roles-service';
 // ── Control panel service prefixes ────────────────────────────────────────────
 // Control Panel link is shown if the user has access to ANY route under these.
 const CONTROL_PANEL_PREFIXES = [
-    '/v1/audit-logs',
-    '/v1/departments',
-    '/v1/designations',
-    '/v1/employees',
-    '/v1/reward-categories',
-    '/v1/rewards',
-    '/v1/review-categories',
-    '/v1/reviews',
-    '/v1/roles',
-    '/v1/statuses',
-    '/v1/organizations',   // audit-logs may live here
+    '/aabhar/v1/audit-logs',
+    '/aabhar/v1/departments',
+    '/aabhar/v1/designations',
+    '/aabhar/v1/employees',
+    '/aabhar/v1/reward-categories',
+    '/aabhar/v1/rewards',
+    '/aabhar/v1/review-categories',
+    '/aabhar/v1/reviews',
+    '/aabhar/v1/roles',
+    '/aabhar/v1/statuses',
+    '/aabhar/v1/organizations',   // audit-logs may live here
 ];
 
 // ── Nav items ─────────────────────────────────────────────────────────────────
@@ -121,12 +121,16 @@ export default function Navbar() {
 
         (async () => {
             try {
-                // Calls GET /v1/roles/my-permissions
+                // Calls GET /aabhar/v1/roles/my-permissions
                 // Returns string[] of route_keys the current user can access.
                 // This endpoint is always_public — auth required, no role check.
                 const myRouteKeys: string[] = await routePermissionsApi.getMyPermissions();
 
                 const canAccess = myRouteKeys.some((routeKey) => {
+                    // This route is granted to everyone, so it should not trigger 
+                    // the visibility of the Admin Control Panel.
+                    if (routeKey === 'GET:/aabhar/v1/roles/my-permissions') return false;
+                    
                     const colonIdx = routeKey.indexOf(':');
                     if (colonIdx === -1) return false;
                     const path = routeKey.slice(colonIdx + 1);
@@ -134,13 +138,13 @@ export default function Navbar() {
                 });
 
                 setHasControlPanelAccess(canAccess);
-            } catch {
-                // Silent fail — user simply won't see Control Panel link
-                setHasControlPanelAccess(false);
+            } catch (err){
+                console.error("Permission check failed:", err); // Log this to see the 404
+                setHasControlPanelAccess(false); // Silent fail — user simply won't see Control Panel link
             }
         })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         const id = setTimeout(() => { setMounted(true); }, 0);

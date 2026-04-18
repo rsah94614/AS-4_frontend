@@ -23,7 +23,7 @@ export default function RolesPage() {
     const { toasts, show: toast } = useSuccessToast();
 
     return (
-        <ProtectedRoute adminOnly pathPrefix="/v1/roles">
+        <ProtectedRoute adminOnly pathPrefix="/aabhar/v1/roles">
         <>
             <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 

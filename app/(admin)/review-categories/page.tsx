@@ -143,7 +143,7 @@ export default function ReviewCategoriesPage() {
   const inactiveCount = (allCategories || []).filter(c => !c.is_active).length;
 
   return (
-      <ProtectedRoute adminOnly pathPrefix="/v1/recognitions/review-categories">
+      <ProtectedRoute adminOnly pathPrefix="/aabhar/v1/recognitions/review-categories">
     <>
       <main className="flex-1 w-full min-w-0 flex flex-col min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 

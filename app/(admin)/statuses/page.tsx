@@ -135,7 +135,7 @@ export default function StatusesPage() {
   }, [statuses, search]);
 
   return (
-      <ProtectedRoute adminOnly pathPrefix="/v1/organizations/statuses">
+      <ProtectedRoute adminOnly pathPrefix="/aabhar/v1/organizations/statuses">
     <PageShell>
       {/* ─── Page Header ─── */}
       <PageHeader
