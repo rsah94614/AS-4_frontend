@@ -62,7 +62,7 @@ export async function uploadToStorage(file: File): Promise<UploadResult> {
     const key = `${folder}/${crypto.randomUUID()}.${ext}`
 
     // ── Step 1: Get pre-signed PUT URL ────────────────────────────────────────
-    const { data: presignData } = await axios.post<{ uploadUrl: string }>("/api/upload/presign", {
+    const { data: presignData } = await axios.post<{ uploadUrl: string }>("/aabhar/api/upload/presign", {
         key,
         contentType: file.type,
     })

@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  basePath: '/aabhar',
   output: 'standalone',
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts', 'radix-ui'],
@@ -10,8 +11,14 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/",
+        destination: "/aabhar/login",
+        permanent: false,
+        basePath: false,
+      },
+      {
+        source: "/",
         destination: "/login",
-        permanent: true,
+        permanent: false,
       },
     ];
   },

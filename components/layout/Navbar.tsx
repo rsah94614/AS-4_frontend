@@ -228,7 +228,7 @@ export default function Navbar() {
                                 </button>
                             ) : (
                                 <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
-                                    <Image src="/logo.svg" alt="HDFC Bank" width={130} height={38} priority />
+                                    <Image src="/aabhar/logo.svg" alt="HDFC Bank" width={130} height={38} priority />
                                 </Link>
                             )}
                         </div>

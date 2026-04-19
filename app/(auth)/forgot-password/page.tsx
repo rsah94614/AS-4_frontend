@@ -77,7 +77,7 @@ export default function ForgotPasswordPage() {
           {/* Logo */}
           <div className="mb-6">
             <Image
-              src="logo.svg"
+              src="/aabhar/logo.svg"
               alt="HDFC Bank Logo"
               width={240}
               height={80}
@@ -157,7 +157,7 @@ export default function ForgotPasswordPage() {
           {/* Logo */}
           <div className="mb-6 flex items-center justify-center">
             <Image
-              src="logo.svg"
+              src="/aabhar/logo.svg"
               alt="HDFC Bank Logo"
               width={240}
               height={80}

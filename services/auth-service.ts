@@ -110,7 +110,7 @@ export const auth = {
                 auth.clearTokens()
 
                 // If refresh completely fails, gracefully kick the user to login
-                if (typeof window !== 'undefined') window.location.href = '/login';
+                if (typeof window !== 'undefined') window.location.href = '/aabhar/login';
                 return false
             } finally {
                 // 6. Release the lock when done

@@ -147,7 +147,7 @@ export default function LoginPage() {
             <div className="flex items-center mb-16 bg-white/60 p-4 rounded-xl shadow-sm self-start backdrop-blur-sm">
               <div className="flex items-center gap-5">
                 <Image
-                  src="logo.svg"
+                  src="/aabhar/logo.svg"
                   alt="HDFC Bank Logo"
                   width={180}
                   height={40}
@@ -232,7 +232,7 @@ export default function LoginPage() {
               {/* Logo inside card (for mobile or generic view) */}
               <div className="mb-6 flex flex-col items-center justify-center">
                 <Image
-                  src="logo.svg"
+                  src="/aabhar/logo.svg"
                   alt="HDFC Bank Logo"
                   width={270}
                   height={60}

@@ -61,7 +61,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="flex flex-col items-center justify-center px-6 pt-5 shrink-0"
           style={{ background: '#004C8F' }}>
           <Image
-            src="/logo.svg"
+            src="/aabhar/logo.svg"
             alt="Aabhar Logo"
             width={150}
             height={44}
