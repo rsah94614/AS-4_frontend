@@ -1,14 +1,33 @@
 import { ArrowUpRight, ArrowDownLeft } from "lucide-react";
-import { getMessage } from "@/lib/history-utils";
 import type { HistoryItem } from "@/types/history-types";
 import { cn } from "@/lib/utils";
+import React from "react";
 
 interface HistoryCardProps {
     item: HistoryItem;
     onClick?: (item: HistoryItem) => void;
 }
 
-import React from "react";
+function getReviewerName(item: HistoryItem): string | null {
+    if (!item.reward_catalog && item.reviewer) {
+        const name = [item.reviewer.first_name, item.reviewer.last_name]
+            .filter(Boolean).join(" ");
+        return name || item.reviewer.username || null;
+    }
+    const g = item.employees_reward_history_granted_byToemployees;
+    if (!g) return null;
+    const full = [g.first_name, g.last_name].filter(Boolean).join(" ");
+    return full || g.username || null;
+}
+
+function getTitle(item: HistoryItem): string {
+    if (item.reward_catalog) {
+        return `You redeemed "${item.reward_catalog.reward_name}"`;
+    }
+    const name = getReviewerName(item);
+    if (name) return `${name} recognized you`;
+    return "Points awarded";
+}
 
 export default React.memo(function HistoryCard({ item, onClick }: HistoryCardProps) {
     const isRedemption = !!item.reward_catalog;
@@ -20,6 +39,13 @@ export default React.memo(function HistoryCard({ item, onClick }: HistoryCardPro
         ? "bg-[#004C8F]/5 text-[#004C8F] border-[#004C8F]/10"
         : "bg-emerald-50 text-emerald-700 border-emerald-100";
     const amountColor = isRedemption ? "#004C8F" : "#10b981";
+
+    // Only show comment if it's a real review comment, not a system description
+    // (system descriptions look like "Points credited from review <uuid>")
+    const isSystemComment =
+        item.comment?.startsWith("Points credited from review") ||
+        item.comment?.startsWith("Points deducted");
+    const displayComment = !isSystemComment ? item.comment : null;
 
     return (
         <button
@@ -38,6 +64,7 @@ export default React.memo(function HistoryCard({ item, onClick }: HistoryCardPro
                         : <ArrowDownLeft size={18} />
                     }
                 </div>
+
                 <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                         <span className={cn(
@@ -46,7 +73,6 @@ export default React.memo(function HistoryCard({ item, onClick }: HistoryCardPro
                         )}>
                             {isRedemption ? "Redeemed" : "Earned"}
                         </span>
-
                         <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-medium text-slate-500">
                             {new Date(item.granted_at).toLocaleDateString("en-US", {
                                 year: "numeric",
@@ -57,15 +83,20 @@ export default React.memo(function HistoryCard({ item, onClick }: HistoryCardPro
                     </div>
 
                     <p className="mt-3 text-[15px] font-semibold leading-6 text-slate-900 transition-colors group-hover:text-slate-950">
-                        {getMessage(item)}
+                        {getTitle(item)}
                     </p>
 
-                    {item.comment && isRedemption && (
-                        <p className="mt-2 flex items-center gap-2 text-sm text-slate-500">
-                            <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
-                            {item.comment}
+                    {/* Review comment / redemption note */}
+                    {displayComment && (
+                        <p className="mt-1.5 text-[13px] text-slate-500 leading-snug line-clamp-2">
+                            &ldquo;{displayComment}&rdquo;
                         </p>
                     )}
+
+                    {/* View more details hint */}
+                    <p className="mt-2 text-[11px] font-medium text-[#004C8F]/60 group-hover:text-[#004C8F] transition-colors">
+                        View details →
+                    </p>
                 </div>
 
                 <div className="shrink-0 text-right px-4">

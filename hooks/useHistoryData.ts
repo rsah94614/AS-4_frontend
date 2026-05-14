@@ -34,7 +34,13 @@ interface Transaction {
     amount: number;
     transaction_type: TransactionType;
     description: string | null;
+    comment?: string | null;
     transaction_at: string;
+    reviewer?: {
+        username: string;
+        first_name?: string;
+        last_name?: string;
+    } | null;
 }
 
 interface TransactionListResponse {
@@ -54,12 +60,12 @@ function transactionToHistoryItem(txn: Transaction): HistoryItem {
     return {
         history_id: txn.transaction_id,
         points: txn.amount,
-        comment: txn.description ?? "Points earned",
+        comment: txn.comment ?? undefined,
         granted_at: txn.transaction_at,
         reward_catalog: undefined,
+        reviewer: txn.reviewer ?? undefined,
     };
 }
-
 function walletDebitToHistoryItem(txn: Transaction): HistoryItem {
     return {
         history_id: txn.transaction_id,

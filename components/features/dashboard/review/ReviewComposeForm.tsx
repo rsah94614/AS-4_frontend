@@ -22,36 +22,24 @@ import { cn } from "@/lib/utils"
 const COMMENT_MIN = 10
 const COMMENT_MAX = 2000
 
-// Allowed printable characters:
-//   - Letters (any language via \p{L})
-//   - Numbers \p{N}
-//   - Spaces
-//   - Common punctuation used in chat: . , ! ? ' " - _ ( ) @ # & + = % / : ; newlines
-// Everything else (HTML tags, SQL injection chars like <>"`;\\, etc.) is stripped/blocked.
 const ALLOWED_COMMENT_REGEX = /[^\p{L}\p{N}\s.,!?'"()\-_@#&+=%;/:\n]/gu
-// Detects obvious injection attempts — reject outright rather than silently strip
 const INJECTION_PATTERNS = [
-    /<[^>]*>/,           // HTML tags
-    /javascript:/i,      // JS URIs
-    /on\w+\s*=/i,        // event handlers like onclick=
-    /--/,                // SQL comment
-    /;\s*(drop|select|insert|update|delete|truncate)/i, // SQL keywords after semicolon
-    /\{\{.*\}\}/,        // template injection {{ }}
-    /\$\{.*\}/,          // JS template literal injection
+    /<[^>]*>/,
+    /javascript:/i,
+    /on\w+\s*=/i,
+    /--/,
+    /;\s*(drop|select|insert|update|delete|truncate)/i,
+    /\{\{.*\}\}/,
+    /\$\{.*\}/,
 ]
 
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "video/mp4", "video/quicktime"]
-const MAX_IMAGE_BYTES = 10 * 1024 * 1024   // 10 MB
-const MAX_VIDEO_BYTES = 50 * 1024 * 1024   // 50 MB
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024
+const MAX_VIDEO_BYTES = 50 * 1024 * 1024
 
-// ── File-name security ───────────────────────────────────────────────────────
-// Blocked executable / script extensions — also catches double-extension tricks
-// such as "photo.jpg.exe" or "report.pdf.bat".
 const DANGEROUS_EXT_REGEX =
     /\.(exe|bat|cmd|com|msi|ps1|psm1|psd1|vbs|vbe|js|jse|wsf|wsh|hta|scr|pif|lnk|jar|app|deb|rpm|sh|bash|zsh|fish|py|pyc|pyw|rb|php|php3|php4|php5|phtml|asp|aspx|jsp|jspx|cfm|cgi|pl|csh|ksh|elf|dmg|iso|img|apk|ipa|msc|inf|reg|dll|sys|drv|cpl|ocx|swf|fla|xap|gadget|ws|wsc)(\..*)?$/i
 
-// Forbidden characters in file names:
-//   NUL, path separators, shell metacharacters, and Unicode control characters.
 const DANGEROUS_FILENAME_CHARS_REGEX = /[\x00-\x1f\x7f/\\:*?"<>|;`$!&'(){}[\]^~%]/
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -80,7 +68,7 @@ function StepDot({ n, active, done }: { n: number; active: boolean; done: boolea
             "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all shrink-0",
             done ? "bg-[#004C8F] border-[#004C8F] text-white"
                 : active ? "bg-white border-[#004C8F] text-[#004C8F]"
-                    : "bg-white border-gray-300 text-gray-300"
+                    : "bg-white border-gray-300 text-gray-400"
         )}>
             {done ? <Check size={12} strokeWidth={3} /> : n}
         </div>
@@ -90,8 +78,8 @@ function StepDot({ n, active, done }: { n: number; active: boolean; done: boolea
 function FieldError({ message }: { message?: string }) {
     if (!message) return null
     return (
-        <p className="flex items-center gap-1.5 text-[11px] text-[#E31837] mt-1.5 font-medium">
-            <AlertCircle size={11} className="shrink-0" />
+        <p className="flex items-center gap-1.5 text-xs text-[#E31837] mt-2 font-semibold">
+            <AlertCircle size={12} className="shrink-0" />
             {message}
         </p>
     )
@@ -149,8 +137,6 @@ export default function ReviewComposeForm({
         [categories, categoryIds, reviewerWeight]
     )
 
-    // ── Per-field validators ─────────────────────────────────────────────────
-
     const validateReceiver = useCallback((id: string): string | undefined => {
         if (!id) return "Please select a teammate to recognise."
         return undefined
@@ -175,12 +161,10 @@ export default function ReviewComposeForm({
 
     const validateFiles = useCallback((fileList: File[]): string | undefined => {
         for (const f of fileList) {
-            // ── File-name checks ─────────────────────────────────────────────
             if (DANGEROUS_EXT_REGEX.test(f.name))
                 return `"${f.name}" has a disallowed file extension.`
             if (DANGEROUS_FILENAME_CHARS_REGEX.test(f.name))
                 return `"${f.name}" contains invalid characters in the file name.`
-            // ── MIME-type & size checks ──────────────────────────────────────
             if (!ALLOWED_FILE_TYPES.includes(f.type))
                 return `"${f.name}" is not allowed. Use JPG, PNG, MP4, or MOV.`
             if (f.type.startsWith("image/") && f.size > MAX_IMAGE_BYTES)
@@ -190,8 +174,6 @@ export default function ReviewComposeForm({
         }
         return undefined
     }, [])
-
-    // ── Full-form validation (returns true if clean) ─────────────────────────
 
     const validateAll = useCallback((): boolean => {
         const next: FormErrors = {
@@ -204,8 +186,6 @@ export default function ReviewComposeForm({
         setTouched({ receiver: true, categories: true, comment: true, files: true })
         return !Object.values(next).some(Boolean)
     }, [receiverId, categoryIds, comment, files, validateReceiver, validateCategories, validateComment, validateFiles])
-
-    // ── Inline change handlers that clear/set errors on the fly ─────────────
 
     const handleReceiverChange = (id: string) => {
         onReceiverChange(id)
@@ -221,11 +201,10 @@ export default function ReviewComposeForm({
     }
 
     const handleCommentChange = (text: string) => {
-        // Silently strip disallowed characters as user types
         if (hasInjection(text)) {
             setErrors(e => ({ ...e, comment: "Your feedback contains disallowed characters or patterns." }))
             setTouched(t => ({ ...t, comment: true }))
-            return // Don't update comment state with injected content
+            return
         }
         const clean = sanitizeComment(text)
         onCommentChange(clean)
@@ -241,7 +220,6 @@ export default function ReviewComposeForm({
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const picked = Array.from(e.target.files ?? [])
 
-        // ── File-name: dangerous extension ───────────────────────────────────
         const extErr = picked.find(f => DANGEROUS_EXT_REGEX.test(f.name))
         if (extErr) {
             onToast({ msg: `"${extErr.name}" has a disallowed file extension.`, kind: "error" })
@@ -250,7 +228,6 @@ export default function ReviewComposeForm({
             return
         }
 
-        // ── File-name: forbidden characters ──────────────────────────────────
         const charErr = picked.find(f => DANGEROUS_FILENAME_CHARS_REGEX.test(f.name))
         if (charErr) {
             onToast({ msg: `"${charErr.name}" contains invalid characters in the file name.`, kind: "error" })
@@ -259,7 +236,6 @@ export default function ReviewComposeForm({
             return
         }
 
-        // ── MIME type ────────────────────────────────────────────────────────
         const typeErr = picked.find(f => !ALLOWED_FILE_TYPES.includes(f.type))
         if (typeErr) {
             onToast({ msg: `"${typeErr.name}" is not allowed. Use JPG, PNG, MP4, or MOV.`, kind: "error" })
@@ -268,7 +244,6 @@ export default function ReviewComposeForm({
             return
         }
 
-        // ── Size ─────────────────────────────────────────────────────────────
         const sizeErr = picked.find(f =>
             (f.type.startsWith("image/") && f.size > MAX_IMAGE_BYTES) ||
             (f.type.startsWith("video/") && f.size > MAX_VIDEO_BYTES)
@@ -287,8 +262,6 @@ export default function ReviewComposeForm({
         if (fileRef.current) fileRef.current.value = ""
     }
 
-    // ── Submit gate ──────────────────────────────────────────────────────────
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         if (!validateAll()) {
@@ -298,15 +271,11 @@ export default function ReviewComposeForm({
         onSubmit(e)
     }
 
-    // ── Derived state ────────────────────────────────────────────────────────
-
     const step1Done = !!receiverId && !errors.receiver
     const step2Done = categoryIds.length > 0 && !errors.categories
     const step3Done = comment.trim().length >= COMMENT_MIN && !errors.comment
     const canSubmit = step1Done && step2Done && step3Done && !submitting && !errors.files
     const sidebarProps = { givenThisMonth, uniquePeopleCount, totalReviews, loadingStats }
-
-    // ── Success view ─────────────────────────────────────────────────────────
 
     if (view === "submitted" && submittedData) {
         return (
@@ -326,8 +295,8 @@ export default function ReviewComposeForm({
                     <Card className="rounded-xl overflow-hidden shadow-sm border-gray-200 !py-0 !gap-0">
 
                         {/* Header */}
-                        <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-                            <h2 className="text-sm font-bold text-[#004C8F]">New Recognition</h2>
+                        <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between">
+                            <h2 className="text-[15px] font-bold text-[#004C8F]">New Recognition</h2>
                             <div className="flex items-center gap-2">
                                 <StepDot n={1} active={!step1Done} done={step1Done} />
                                 <div className="w-6 h-px bg-gray-200" />
@@ -337,14 +306,14 @@ export default function ReviewComposeForm({
                             </div>
                         </div>
 
-                        <CardContent className="p-4 sm:p-5 space-y-5 sm:space-y-6">
+                        <CardContent className="p-4 sm:p-6 space-y-6 sm:space-y-7">
 
                             {/* 01 — Receiver */}
                             <div>
-                                <Label className="flex items-center text-[11px] font-bold text-[#004C8F] tracking-widest mb-3">
-                                    <span className="text-[#E31837] mr-1.5 text-xs">01</span>
+                                <Label className="flex items-center text-xs font-extrabold text-[#004C8F] uppercase tracking-widest mb-3">
+                                    <span className="text-[#E31837] mr-2 font-black">01</span>
                                     Who are you Recognizing?
-                                    <span className="text-[#E31837] ml-0.5 text-xs">*</span>
+                                    <span className="text-[#E31837] ml-1">*</span>
                                 </Label>
                                 <ReceiverPicker
                                     allReceivers={allReceivers}
@@ -358,12 +327,12 @@ export default function ReviewComposeForm({
                             {/* 02 — Categories */}
                             <div>
                                 <div className="flex items-center justify-between mb-3">
-                                    <Label className="flex items-center text-[11px] font-bold text-[#004C8F] tracking-widest">
-                                        <span className="text-[#E31837] mr-1.5 text-xs">02</span>
+                                    <Label className="flex items-center text-xs font-extrabold text-[#004C8F] uppercase tracking-widest">
+                                        <span className="text-[#E31837] mr-2 font-black">02</span>
                                         Recognition Categories
-                                        <span className="text-[#E31837] ml-0.5 text-xs">*</span>
+                                        <span className="text-[#E31837] ml-1">*</span>
                                     </Label>
-                                    <span className="text-[11px] text-gray-400 tabular-nums">
+                                    <span className="text-xs font-semibold text-gray-500 tabular-nums">
                                         {categoryIds.length}/{Math.min(5, categories.length)} selected
                                     </span>
                                 </div>
@@ -374,26 +343,27 @@ export default function ReviewComposeForm({
                                     maxSelectable={Math.min(5, categories.length)}
                                 />
                                 {categoryIds.length > 0 && (
-                                    <div className="mt-3 flex items-center gap-2 bg-[#004C8F]/5 border border-[#004C8F]/15 rounded-lg px-4 py-3">
-                                        <Zap size={14} className="text-[#004C8F] shrink-0" />
-                                        <span className="text-sm text-[#004C8F]">
-                                            Preview: <span className="font-black tabular-nums">{previewPts} pts</span>
-                                            <span className="text-[#004C8F]/60 font-normal ml-1">
+                                    <div className="mt-3 flex items-center gap-2 bg-[#004C8F]/6 border border-[#004C8F]/20 rounded-lg px-4 py-3">
+                                        <Zap size={15} className="text-[#004C8F] shrink-0" />
+                                        <span className="text-[13px] font-semibold text-[#004C8F]">
+                                            Preview:{" "}
+                                            <span className="font-black tabular-nums text-[15px]">{previewPts} pts</span>
+                                            <span className="text-[#004C8F]/70 font-normal ml-1.5 text-xs">
                                                 (at ×{(reviewerWeight ?? 1.0).toFixed(1)} weight)
                                             </span>
                                         </span>
                                         <div className="relative ml-auto group">
-                                            <Info size={16} className="text-[#004C8F]/50 cursor-help" />
+                                            <Info size={17} className="text-[#004C8F]/60 cursor-help" />
                                             <div className="absolute bottom-full right-0 mb-2 w-64 bg-white border border-gray-200 rounded-xl shadow-lg p-4 hidden group-hover:block z-50">
-                                                <p className="text-[11px] font-bold text-[#004C8F] mb-2">How points are calculated</p>
-                                                <div className="space-y-1.5 text-[11px] text-gray-600 leading-relaxed">
+                                                <p className="text-xs font-bold text-[#004C8F] mb-2">How points are calculated</p>
+                                                <div className="space-y-1.5 text-xs text-gray-600 leading-relaxed">
                                                     <p>1. Each category you pick has a <span className="font-semibold text-[#004C8F]">point value</span></p>
                                                     <p>2. All selected category values are <span className="font-semibold text-[#004C8F]">added together</span></p>
                                                     <p>3. The total is multiplied by your <span className="font-semibold text-[#004C8F]">role weight</span></p>
                                                 </div>
                                                 <div className="mt-3 pt-2 border-t border-gray-100">
-                                                    <p className="text-[10px] font-bold text-gray-400 mb-1">Role weights:</p>
-                                                    <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10px] text-gray-500">
+                                                    <p className="text-[11px] font-bold text-gray-500 mb-1">Role weights:</p>
+                                                    <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[11px] text-gray-600">
                                                         <span>Super Admin: ×1.5</span>
                                                         <span>Manager: ×1.3</span>
                                                         <span>HR: ×1.2</span>
@@ -410,12 +380,12 @@ export default function ReviewComposeForm({
                             {/* 03 — Comment */}
                             <div>
                                 <Label
-                                    className="flex items-center text-[11px] font-bold text-[#004C8F] tracking-widest mb-3"
+                                    className="flex items-center text-xs font-extrabold text-[#004C8F] uppercase tracking-widest mb-3"
                                     htmlFor="comment"
                                 >
-                                    <span className="text-[#E31837] mr-1.5 text-xs">03</span>
+                                    <span className="text-[#E31837] mr-2 font-black">03</span>
                                     Your Feedback
-                                    <span className="text-[#E31837] ml-0.5 text-xs">*</span>
+                                    <span className="text-[#E31837] ml-1">*</span>
                                 </Label>
                                 <div className="relative">
                                     <Textarea
@@ -424,23 +394,23 @@ export default function ReviewComposeForm({
                                         onChange={(e) => handleCommentChange(e.target.value)}
                                         onBlur={handleCommentBlur}
                                         maxLength={COMMENT_MAX}
-                                        rows={3}
+                                        rows={4}
                                         placeholder="Describe what they did, the impact it had, and why it matters…"
                                         className={cn(
-                                            "resize-none text-sm text-[#004C8F] pb-6",
+                                            "resize-none text-sm font-medium text-gray-800 placeholder:text-gray-400 pb-7",
                                             touched.comment && errors.comment
                                                 ? "border-[#E31837] focus-visible:ring-[#E31837]/30"
                                                 : ""
                                         )}
                                     />
-                                    <div className="absolute bottom-2 right-3 flex items-center gap-3">
+                                    <div className="absolute bottom-2.5 right-3 flex items-center gap-3">
                                         {comment.length > 0 && comment.length < COMMENT_MIN && (
-                                            <span className="text-[10px] text-[#E31837]">
+                                            <span className="text-[11px] font-semibold text-[#E31837]">
                                                 {COMMENT_MIN - comment.length} more chars needed
                                             </span>
                                         )}
                                         <span className={cn(
-                                            "text-[10px] tabular-nums",
+                                            "text-[11px] tabular-nums font-medium",
                                             comment.length > 1900 ? "text-[#E31837]" : "text-gray-400"
                                         )}>
                                             {comment.length}/{COMMENT_MAX}
@@ -449,7 +419,7 @@ export default function ReviewComposeForm({
                                 </div>
                                 <FieldError message={touched.comment ? errors.comment : undefined} />
                                 {!errors.comment && (
-                                    <p className="text-[10px] text-gray-400 mt-1">
+                                    <p className="text-[11px] text-gray-500 mt-1.5">
                                         Allowed: letters, numbers, spaces and . , ! ? &apos; &quot; - _ ( ) @ # &amp; + = % / :
                                     </p>
                                 )}
@@ -457,10 +427,10 @@ export default function ReviewComposeForm({
 
                             {/* 04 — Attachments */}
                             <div>
-                                <Label className="flex items-center text-[11px] font-bold text-[#004C8F] uppercase tracking-widest mb-3">
-                                    <span className="text-[#E31837] mr-1.5 text-xs">04</span>
+                                <Label className="flex items-center text-xs font-extrabold text-[#004C8F] uppercase tracking-widest mb-3">
+                                    <span className="text-[#E31837] mr-2 font-black">04</span>
                                     Attachments
-                                    <span className="text-gray-400 font-normal normal-case tracking-normal ml-2">
+                                    <span className="text-gray-500 font-normal normal-case tracking-normal ml-2 text-[11px]">
                                         (optional · max 2 · JPG/PNG ≤10 MB · MP4/MOV ≤50 MB)
                                     </span>
                                 </Label>
@@ -470,11 +440,11 @@ export default function ReviewComposeForm({
                                         {files.map((f, i) => (
                                             <div
                                                 key={i}
-                                                className="flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 text-xs font-medium text-[#004C8F]"
+                                                className="flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 text-xs font-semibold text-[#004C8F]"
                                             >
                                                 {f.type.startsWith("image/") ? <ImageIcon size={14} /> : <Video size={14} />}
                                                 <span className="max-w-[150px] truncate">{f.name}</span>
-                                                <span className="text-gray-400">
+                                                <span className="text-gray-500 font-normal">
                                                     ({(f.size / 1024 / 1024).toFixed(1)} MB)
                                                 </span>
                                                 <button
@@ -507,10 +477,10 @@ export default function ReviewComposeForm({
                                             type="button"
                                             onClick={() => fileRef.current?.click()}
                                             className={cn(
-                                                "flex items-center justify-center gap-2 text-sm text-gray-500 border border-dashed rounded-lg px-4 py-3 w-full transition-all",
+                                                "flex items-center justify-center gap-2 text-sm font-medium border border-dashed rounded-lg px-4 py-3.5 w-full transition-all",
                                                 errors.files
                                                     ? "border-[#E31837]/50 bg-red-50 text-[#E31837]"
-                                                    : "border-gray-300 hover:border-[#004C8F]/40 hover:bg-gray-50 hover:text-[#004C8F]"
+                                                    : "border-gray-300 text-gray-500 hover:border-[#004C8F]/40 hover:bg-blue-50/30 hover:text-[#004C8F]"
                                             )}
                                         >
                                             <Paperclip size={16} />
@@ -523,23 +493,23 @@ export default function ReviewComposeForm({
                         </CardContent>
 
                         {/* Submit bar */}
-                        <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
-                            <div className="text-xs text-gray-500 text-center sm:text-left">
+                        <div className="px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+                            <div className="text-xs font-medium text-gray-600 text-center sm:text-left">
                                 {!step1Done && !touched.receiver && "Select a teammate to continue"}
                                 {touched.receiver && errors.receiver && (
-                                    <span className="text-[#E31837] flex items-center gap-1">
+                                    <span className="text-[#E31837] flex items-center gap-1 font-semibold">
                                         <AlertCircle size={12} /> {errors.receiver}
                                     </span>
                                 )}
                                 {step1Done && !step2Done && !touched.categories && "Pick at least one category"}
                                 {touched.categories && errors.categories && (
-                                    <span className="text-[#E31837] flex items-center gap-1">
+                                    <span className="text-[#E31837] flex items-center gap-1 font-semibold">
                                         <AlertCircle size={12} /> {errors.categories}
                                     </span>
                                 )}
                                 {step1Done && step2Done && !step3Done && !touched.comment && "Write your feedback (min 10 chars)"}
                                 {canSubmit && (
-                                    <span className="text-green-600 font-semibold flex items-center justify-center sm:justify-start gap-1.5">
+                                    <span className="text-green-700 font-bold flex items-center justify-center sm:justify-start gap-1.5">
                                         <CheckCircle2 size={14} /> Ready to submit
                                     </span>
                                 )}
@@ -548,8 +518,8 @@ export default function ReviewComposeForm({
                                 type="submit"
                                 disabled={!canSubmit || submitting}
                                 className={cn(
-                                    "w-full sm:w-auto transition-colors",
-                                    canSubmit ? "bg-[#004C8F] hover:bg-[#003A6E] text-white font-bold" : "bg-gray-400 hover:bg-gray-400 text-white cursor-not-allowed"
+                                    "w-full sm:w-auto transition-colors font-bold",
+                                    canSubmit ? "bg-[#004C8F] hover:bg-[#003A6E] text-white" : "bg-gray-300 hover:bg-gray-300 text-gray-500 cursor-not-allowed"
                                 )}
                             >
                                 {submitting

@@ -44,18 +44,20 @@ export default function ReviewListSection({
 }: ReviewListSectionProps) {
     return (
         <div>
-            <Tabs 
-                value={listTab} 
+            <Tabs
+                value={listTab}
                 onValueChange={(val) => setListTab(val as "all" | "given" | "received")}
                 className="mb-6 sm:mb-8"
             >
                 <TabsList className="bg-gray-100 p-1 h-auto">
                     {TABS.map((tab) => (
-                        <TabsTrigger 
-                            key={tab.key} 
+                        <TabsTrigger
+                            key={tab.key}
                             value={tab.key}
                             className={cn(
-                                "px-4 sm:px-5 py-2 rounded-md text-xs sm:text-sm font-semibold transition-all duration-150 data-[state=active]:bg-white data-[state=active]:text-[#004C8F] data-[state=active]:shadow-sm text-gray-500 hover:text-gray-900"
+                                "px-4 sm:px-6 py-2 rounded-md text-xs sm:text-[13px] font-bold transition-all duration-150",
+                                "data-[state=active]:bg-white data-[state=active]:text-[#004C8F] data-[state=active]:shadow-sm",
+                                "text-gray-500 hover:text-gray-800"
                             )}
                         >
                             {tab.label}
@@ -71,11 +73,11 @@ export default function ReviewListSection({
                     <div className="w-12 h-12 rounded-full bg-[#E31837]/10 flex items-center justify-center">
                         <AlertCircle className="w-6 h-6 text-[#E31837]" />
                     </div>
-                    <p className="text-sm text-gray-600">{dataError}</p>
-                    <Button 
-                        variant="link" 
+                    <p className="text-sm font-medium text-gray-700">{dataError}</p>
+                    <Button
+                        variant="link"
                         onClick={() => onLoadReviews(1)}
-                        className="text-[#004C8F] font-semibold hover:text-[#E31837]"
+                        className="text-[#004C8F] font-bold hover:text-[#E31837]"
                     >
                         Retry
                     </Button>
@@ -88,21 +90,21 @@ export default function ReviewListSection({
                         <MessageSquare className="w-6 h-6 text-gray-300" strokeWidth={1.5} />
                     </div>
                     <div className="text-center">
-                        <p className="text-sm font-semibold text-gray-700">
+                        <p className="text-[15px] font-bold text-gray-700">
                             {listTab === "given"
                                 ? "No recognitions given yet"
                                 : listTab === "received"
                                     ? "No recognitions received yet"
                                     : "No recognitions yet"}
                         </p>
-                        <p className="text-xs text-gray-400 mt-1 mb-4">
+                        <p className="text-sm text-gray-500 mt-1 mb-4">
                             {listTab !== "received" && "Start by recognising a teammate's contribution."}
                         </p>
                     </div>
                     {listTab !== "received" && (
-                        <Button 
+                        <Button
                             onClick={onCompose}
-                            className="bg-[#E31837] hover:bg-[#c41230] text-white px-6 font-semibold shadow-sm"
+                            className="bg-[#E31837] hover:bg-[#c41230] text-white px-6 font-bold shadow-sm"
                         >
                             Write a Recognition
                         </Button>

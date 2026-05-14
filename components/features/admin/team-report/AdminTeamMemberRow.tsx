@@ -45,10 +45,12 @@ export default function AdminTeamMemberRow({ member, rank }: Props) {
                         rankBg,
                         rank > 3 && "bg-[#93C5FD]",
                     )}>
-                        {initials(member.username)}
+                        {initials(`${member.first_name} ${member.last_name}`)}
                     </div>
                     <div>
-                        <p className="font-semibold text-gray-900 text-sm leading-tight">{member.username}</p>
+                        <p className="font-semibold text-gray-900 text-sm leading-tight">
+    {member.first_name} {member.last_name}
+</p>
                         <p className="text-xs text-gray-400 mt-0.5">{member.designation}</p>
                     </div>
                 </div>

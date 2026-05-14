@@ -51,7 +51,31 @@ const CONTROL_PANEL_ITEM = {
     href: '/control-panel',
     icon: SlidersHorizontal,
 };
+const WRITE_METHODS = ['POST:', 'PUT:', 'PATCH:', 'DELETE:'];
 
+const SELF_SERVICE_ROUTES = new Set([
+    'POST:/aabhar/v1/auth/logout',
+    'POST:/aabhar/v1/auth/signup',
+    'POST:/aabhar/v1/auth/bulk-import',
+    'PUT:/aabhar/v1/employees/notifications/read-all',
+    'PUT:/aabhar/v1/employees/notifications/{notification_id}/read',
+    'POST:/aabhar/v1/recognitions/reviews',
+    'PUT:/aabhar/v1/recognitions/reviews/{id}',
+    'POST:/aabhar/v1/rewards/redeem',
+]);
+
+const CONTROL_PANEL_CARDS = [
+    { pathPrefix: '/aabhar/v1/organizations/audit-logs',        readOnlyAccess: true  },
+    { pathPrefix: '/aabhar/v1/organizations/departments',       readOnlyAccess: false },
+    { pathPrefix: '/aabhar/v1/organizations/designations',      readOnlyAccess: false },
+    { pathPrefix: '/aabhar/v1/employees',                       readOnlyAccess: false },
+    { pathPrefix: '/aabhar/v1/rewards/categories',              readOnlyAccess: false },
+    { pathPrefix: '/aabhar/v1/rewards/catalog',                 readOnlyAccess: false },
+    { pathPrefix: '/aabhar/v1/recognitions/review-categories',  readOnlyAccess: false },
+    { pathPrefix: '/aabhar/v1/recognitions/reviews',            readOnlyAccess: false },
+    { pathPrefix: '/aabhar/v1/roles',                           readOnlyAccess: false },
+    { pathPrefix: '/aabhar/v1/organizations/statuses',          readOnlyAccess: false },
+];
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const POLL_INTERVAL_MS = 30_000;
@@ -72,7 +96,21 @@ function formatRelativeTime(iso: string): string {
     if (diffHours < 24) return `${diffHours}h ago`;
     return `${Math.floor(diffHours / 24)}d ago`;
 }
-
+function hasAnyCardAccess(myKeys: string[]): boolean {
+    const adminKeys = myKeys.filter(k => !SELF_SERVICE_ROUTES.has(k));
+    return CONTROL_PANEL_CARDS.some(card => {
+        if (card.readOnlyAccess) {
+            return adminKeys.some(k =>
+                k.startsWith('GET:') &&
+                k.slice(k.indexOf(':') + 1).startsWith(card.pathPrefix)
+            );
+        }
+        return adminKeys.some(k =>
+            WRITE_METHODS.some(m => k.startsWith(m)) &&
+            k.slice(k.indexOf(':') + 1).startsWith(card.pathPrefix)
+        );
+    });
+}
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function Navbar() {
@@ -108,43 +146,69 @@ export default function Navbar() {
     ];
 
     // ── Determine Control Panel visibility via /my-permissions ────────────────
-    useEffect(() => {
-        if (!user) return;
+   // In Navbar.tsx — replace the entire hasControlPanelAccess useEffect
 
-        const userRoleCodes: string[] = user.roles ?? [];
+const WRITE_METHODS = ['POST:', 'PUT:', 'PATCH:', 'DELETE:'];
 
-        // SUPER_ADMIN always gets full access — skip the API call
-        if (userRoleCodes.includes('SUPER_ADMIN')) {
-            setHasControlPanelAccess(true);
-            return;
+const SELF_SERVICE_ROUTES = new Set([
+    'POST:/aabhar/v1/auth/logout',
+    'POST:/aabhar/v1/auth/signup',
+    'POST:/aabhar/v1/auth/bulk-import',
+    'PUT:/aabhar/v1/employees/notifications/read-all',
+    'PUT:/aabhar/v1/employees/notifications/{notification_id}/read',
+    'POST:/aabhar/v1/recognitions/reviews',
+    'PUT:/aabhar/v1/recognitions/reviews/{id}',
+    'POST:/aabhar/v1/rewards/redeem',
+]);
+
+const CONTROL_PANEL_CARDS = [
+    { pathPrefix: '/aabhar/v1/organizations/audit-logs',        readOnlyAccess: true  },
+    { pathPrefix: '/aabhar/v1/organizations/departments',       readOnlyAccess: false },
+    { pathPrefix: '/aabhar/v1/organizations/designations',      readOnlyAccess: false },
+    { pathPrefix: '/aabhar/v1/employees',                       readOnlyAccess: false },
+    { pathPrefix: '/aabhar/v1/rewards/categories',              readOnlyAccess: false },
+    { pathPrefix: '/aabhar/v1/rewards/catalog',                 readOnlyAccess: false },
+    { pathPrefix: '/aabhar/v1/recognitions/review-categories',  readOnlyAccess: false },
+    { pathPrefix: '/aabhar/v1/recognitions/reviews',            readOnlyAccess: false },
+    { pathPrefix: '/aabhar/v1/roles',                           readOnlyAccess: false },
+    { pathPrefix: '/aabhar/v1/organizations/statuses',          readOnlyAccess: false },
+];
+
+function hasAnyCardAccess(myKeys: string[]): boolean {
+    const adminKeys = myKeys.filter(k => !SELF_SERVICE_ROUTES.has(k));
+    return CONTROL_PANEL_CARDS.some(card => {
+        if (card.readOnlyAccess) {
+            return adminKeys.some(k =>
+                k.startsWith('GET:') &&
+                k.slice(k.indexOf(':') + 1).startsWith(card.pathPrefix)
+            );
         }
+        return adminKeys.some(k =>
+            WRITE_METHODS.some(m => k.startsWith(m)) &&
+            k.slice(k.indexOf(':') + 1).startsWith(card.pathPrefix)
+        );
+    });
+}
 
-        (async () => {
-            try {
-                // Calls GET /aabhar/v1/roles/my-permissions
-                // Returns string[] of route_keys the current user can access.
-                // This endpoint is always_public — auth required, no role check.
-                const myRouteKeys: string[] = await routePermissionsApi.getMyPermissions();
+useEffect(() => {
+    if (!user) return;
 
-                const canAccess = myRouteKeys.some((routeKey) => {
-                    // This route is granted to everyone, so it should not trigger 
-                    // the visibility of the Admin Control Panel.
-                    if (routeKey === 'GET:/aabhar/v1/roles/my-permissions') return false;
-                    
-                    const colonIdx = routeKey.indexOf(':');
-                    if (colonIdx === -1) return false;
-                    const path = routeKey.slice(colonIdx + 1);
-                    return CONTROL_PANEL_PREFIXES.some((prefix) => path.startsWith(prefix));
-                });
+    const userRoleCodes: string[] = user.roles ?? [];
+    if (userRoleCodes.includes('SUPER_ADMIN')) {
+        setHasControlPanelAccess(true);
+        return;
+    }
 
-                setHasControlPanelAccess(canAccess);
-            } catch (err){
-                console.error("Permission check failed:", err); // Log this to see the 404
-                setHasControlPanelAccess(false); // Silent fail — user simply won't see Control Panel link
-            }
-        })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user]);
+    (async () => {
+        try {
+            const myKeys: string[] = await routePermissionsApi.getMyPermissions();
+            setHasControlPanelAccess(hasAnyCardAccess(myKeys));
+        } catch {
+            setHasControlPanelAccess(false);
+        }
+    })();
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [user]);
 
     useEffect(() => {
         const id = setTimeout(() => { setMounted(true); }, 0);

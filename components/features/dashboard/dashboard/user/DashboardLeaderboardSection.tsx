@@ -14,38 +14,44 @@ import type { LeaderboardEntryResponse } from "@/types/dashboard-types";
 //     "bg-[#1E40AF]", "bg-[#065F46]", "bg-[#92400E]", "bg-[#3730A3]",
 // ];
 
-function userInitials(username: string): string {
-    const parts = username.split(/[._\s-]+/);
-    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    return username.slice(0, 2).toUpperCase();
-}
+function userInitials(name?: string): string {
+    if (!name) return "--";
 
+    const parts = name.trim().split(/\s+/);
+
+    if (parts.length >= 2) {
+        return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+
+    return name.slice(0, 2).toUpperCase();
+}
 // ─── Podium slot config ────────────────────────────────────────────────────────
 
+// PODIUM_CONFIG — replace the color values
 const PODIUM_CONFIG = {
     1: {
         platformH: "h-20",
-        platformBg: "bg-gradient-to-t from-[#004C8F] to-[#1D6EC5]",
+        platformBg: "bg-gradient-to-t from-[#1c2c5b] to-[#2d468e]",
         avatarSize: "h-14 w-14",
-        avatarRing: "ring-2 ring-[#1D6EC5] ring-offset-2",
+        avatarRing: "ring-2 ring-[#2d468e] ring-offset-2",
         nameSize: "text-sm font-bold",
         ptsSize: "text-xs",
         order: "order-2",
     },
     2: {
         platformH: "h-14",
-        platformBg: "bg-gradient-to-t from-[#5B9BD5] to-[#93C5FD]",
+        platformBg: "bg-gradient-to-t from-[#6b7280] to-[#9ca3af]",
         avatarSize: "h-11 w-11",
-        avatarRing: "ring-2 ring-[#93C5FD] ring-offset-2",
+        avatarRing: "ring-2 ring-[#9ca3af] ring-offset-2",
         nameSize: "text-xs font-bold",
         ptsSize: "text-[10px]",
         order: "order-1",
     },
     3: {
         platformH: "h-10",
-        platformBg: "bg-gradient-to-t from-[#1E40AF] to-[#2563EB]",
+        platformBg: "bg-gradient-to-t from-[#92400e] to-[#b45309]",
         avatarSize: "h-11 w-11",
-        avatarRing: "ring-2 ring-[#2563EB] ring-offset-2",
+        avatarRing: "ring-2 ring-[#b45309] ring-offset-2",
         nameSize: "text-xs font-bold",
         ptsSize: "text-[10px]",
         order: "order-3",
@@ -68,14 +74,14 @@ function PodiumSlot({ entry }: { entry: PodiumEntry }) {
         <div className={`flex flex-col items-center flex-1 ${c.order}`}>
             {/* Crown for #1 */}
             {entry.rank === 1 && (
-                <Crown className="w-5 h-5 text-[#1D6EC5] mb-1 fill-[#1D6EC5]" />
-            )}
+    <Crown className="w-5 h-5 text-[#b8860b] mb-1 fill-[#d4a017]" />
+)}
 
             {/* Avatar */}
             <Avatar className={`${c.avatarSize} ${c.avatarRing} mb-2 shrink-0`}>
-                <AvatarFallback className={`bg-[#004C8F] text-white text-xs font-bold`}>
-                    {entry.initials}
-                </AvatarFallback>
+                <AvatarFallback className="bg-[#1c2c5b] text-white text-xs font-bold">
+    {entry.initials}
+</AvatarFallback>
             </Avatar>
 
             {/* Name */}
@@ -166,14 +172,20 @@ const DashboardLeaderboardSection = () => {
         load();
     }, []);
 
-    const mapped = entries.map((entry) => ({
+const mapped = entries.map((entry) => {
+    const fullName =
+        entry.name?.trim() ||
+        `${entry.first_name ?? ""} ${entry.last_name ?? ""}`.trim() ||
+        entry.username;
+
+    return {
         rank: entry.rank,
-        name: entry.username,
-        initials: userInitials(entry.username),
+        name: fullName,
+        initials: userInitials(fullName),
         points: entry.total_earned_points,
-        // color: AVATAR_COLORS[i % AVATAR_COLORS.length],
         image: null,
-    }));
+    };
+});
 
     const top3 = mapped.filter((e) => e.rank <= 3);
     const rest = mapped.filter((e) => e.rank > 3);
@@ -181,8 +193,8 @@ const DashboardLeaderboardSection = () => {
     return (
         <section className="lg:col-span-2 flex flex-col gap-4">
             <div>
-                <h2 className="text-lg font-bold text-gray-900">Leaderboard</h2>
-                <p className="text-xs text-gray-400 mt-0.5">Top performers this period</p>
+                <h2 className="text-xl font-bold text-gray-900">Leaderboard</h2>
+                <p className="text-xs text-gray-400 mt-0.5">Top performers</p>
             </div>
 
             {loading && <LeaderboardSkeleton />}

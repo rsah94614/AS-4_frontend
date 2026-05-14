@@ -224,6 +224,8 @@ export async function resetPassword(token: string, newPassword: string) {
 
 export interface User {
     employee_id: string
+    first_name: string
+    last_name: string
     username: string
     email: string
     designation_id: string | null

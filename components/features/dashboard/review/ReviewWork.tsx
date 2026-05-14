@@ -23,17 +23,19 @@ export default function ReviewSidebar({ givenThisMonth, uniquePeopleCount, total
             />
 
             <Card className="rounded-xl overflow-hidden shadow-sm border-gray-200 !py-0 !gap-0">
-                <div className="px-5 py-3 bg-white border-b border-gray-200 flex items-center gap-2">
-                    <BookOpen size={13} className="text-[#E31837]" />
-                    <h3 className="text-[11px] font-bold text-[#004C8F] uppercase tracking-widest m-0 leading-none">How It Works</h3>
+                <div className="px-5 py-3.5 bg-white border-b border-gray-200 flex items-center gap-2">
+                    <BookOpen size={14} className="text-[#E31837]" />
+                    <h3 className="text-xs font-extrabold text-[#004C8F] uppercase tracking-widest m-0 leading-none">
+                        How It Works
+                    </h3>
                 </div>
                 <div className="divide-y divide-gray-100">
                     {HOW_IT_WORKS.map(s => (
-                        <div key={s.n} className="flex gap-3 px-5 py-2.5 hover:bg-gray-50 transition-colors">
+                        <div key={s.n} className="flex gap-3 px-5 py-3 hover:bg-gray-50 transition-colors">
                             <span className="text-[11px] font-black text-[#E31837] w-5 shrink-0 tabular-nums pt-0.5">{s.n}</span>
                             <div>
-                                <p className="text-xs font-semibold text-[#004C8F] mb-0.5">{s.title}</p>
-                                <p className="text-[11px] text-gray-500 leading-snug">{s.desc}</p>
+                                <p className="text-[13px] font-bold text-[#004C8F] mb-0.5">{s.title}</p>
+                                <p className="text-xs text-gray-600 leading-snug">{s.desc}</p>
                             </div>
                         </div>
                     ))}

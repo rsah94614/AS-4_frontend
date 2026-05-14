@@ -28,12 +28,19 @@ export function formatMonthComparison(
 }
 
 
-export function userInitials(username: string): string {
-    const parts = username.split(/[._\s-]+/);
+export function userInitials(username?: string | null): string {
+    if (!username) return "--";
+
+    const clean = username.trim();
+    if (!clean) return "--";
+
+    const parts = clean.split(/[._\s-]+/).filter(Boolean);
+
     if (parts.length >= 2) {
         return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
     }
-    return username.slice(0, 2).toUpperCase();
+
+    return clean.slice(0, 2).toUpperCase();
 }
 
 export function formatTime(iso: string): string {

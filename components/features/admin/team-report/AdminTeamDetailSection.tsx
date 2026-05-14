@@ -38,7 +38,7 @@ async function exportTeamToXLSX(report: TeamReportResponse) {
         "Total Points Earned", "Available Points", "Points This Month",
         "Reviews Received", "Reviews This Month", "Rewards Redeemed"]);
     report.members.forEach((m, i) => membersSheet.addRow([
-        i + 1, m.username, m.designation, m.performance_score,
+        i + 1, `${m.first_name} ${m.last_name}`, m.designation, m.performance_score,
         m.performance_score >= 75 ? "Excellent" : m.performance_score >= 50 ? "Good" : m.performance_score >= 25 ? "Fair" : "Needs Attention",
         m.total_earned_points, m.available_points, m.points_this_month,
         m.reviews_received, m.reviews_this_month, m.rewards_redeemed,
@@ -94,7 +94,7 @@ function MemberPointsChart({ report }: Props) {
         .sort((a, b) => b.total_earned_points - a.total_earned_points)
         .slice(0, 12)
         .map((m) => ({
-            name: m.username.split(/[._\s]/)[0],
+            name: `${m.first_name} ${m.last_name}`.split(" ")[0],
             "Total Earned": m.total_earned_points,
             "This Month": m.points_this_month,
         }));
@@ -124,7 +124,7 @@ function MemberScoreChart({ report }: Props) {
     const data = [...report.members]
         .sort((a, b) => b.performance_score - a.performance_score)
         .map((m) => ({
-            name: m.username.split(/[._\s]/)[0],
+            name: `${m.first_name} ${m.last_name}`.split(" ")[0],
             Score: m.performance_score,
         }));
 

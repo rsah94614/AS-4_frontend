@@ -51,9 +51,20 @@ export function getMessage(item: HistoryItem): string {
     if (item.reward_catalog) {
         return `You redeemed "${item.reward_catalog.reward_name}"`;
     }
-    return item.comment ?? "Points awarded";
+    // Check reviewer first (review-based credits)
+    if (item.reviewer) {
+        const name = [item.reviewer.first_name, item.reviewer.last_name]
+            .filter(Boolean).join(" ");
+        return `${name || item.reviewer.username} recognized you`;
+    }
+    // Fall back to granted_by (admin manual credits)
+    const granter = item.employees_reward_history_granted_byToemployees;
+    if (granter) {
+        const name = [granter.first_name, granter.last_name].filter(Boolean).join(" ");
+        return `${name || granter.username} recognized you`;
+    }
+    return "Points awarded";
 }
-
 
 
 export const PAGE_SIZE = 10;

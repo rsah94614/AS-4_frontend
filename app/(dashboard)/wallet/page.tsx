@@ -1,7 +1,6 @@
 "use client";
 
-
-
+import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Gift,
@@ -9,129 +8,105 @@ import {
   RefreshCw,
   ArrowDownCircle,
   TrendingUp,
-  Star,
   ChevronRight,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Zap,
+  Clock,
+  BarChart3,
 } from "lucide-react";
 import Link from "next/link";
-// removed imports
 import { walletClient } from "@/services/api-clients";
 import { auth } from "@/services/auth-service";
 import { extractErrorMessage } from "@/lib/error-utils";
-import { Button } from "@/components/ui/button";
 import PaginationControls from "@/components/shared/PaginationControls";
 import { PageHeader } from "@/components/shared/PageHeader";
+import type {
+  WalletData,
+  PointsSummary,
+  Transaction,
+  TransactionListResponse,
+} from "@/types/wallet-types";
 
-
-
-// Date helpers 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, {
     day: "2-digit",
-    month: "2-digit",
+    month: "short",
     year: "numeric",
   });
 }
 
-/** Animated count-up from 0/previous value to target value (same feel as Redeem). */
-function useCountUp(target: number, duration = 800) {
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function useCountUp(target: number, duration = 1000) {
   const [value, setValue] = useState(0);
-  const prevTarget = useRef(0);
-
+  const prev = useRef(0);
   useEffect(() => {
-    if (target === prevTarget.current) return;
-
-    const start = prevTarget.current;
+    if (target === prev.current) return;
+    const start = prev.current;
     const diff = target - start;
-    const startTime = performance.now();
-
-    function tick(now: number) {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(Math.round(start + diff * eased));
-
-      if (progress < 1) requestAnimationFrame(tick);
-    }
-
+    const t0 = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min((now - t0) / duration, 1);
+      const e = 1 - Math.pow(1 - p, 4);
+      setValue(Math.round(start + diff * e));
+      if (p < 1) requestAnimationFrame(tick);
+    };
     requestAnimationFrame(tick);
-    prevTarget.current = target;
+    prev.current = target;
   }, [target, duration]);
-
   return value;
 }
 
-// Exact API response types (mirrors backend schemas.py) 
-
-interface WalletData {
-  wallet_id: string;
-  employee_id: string;
-  available_points: number;
-  redeemed_points: number;
-  total_earned_points: number;
-  version?: number;
+function getTxnTitle(txn: Transaction): string {
+  const desc = txn.description ?? "";
+  const code = txn.transaction_type.code ?? "";
+  const cleaned = desc
+    .replace(/\s+[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, "")
+    .trim();
+  if (code === "POINTS_REDEEMED") return "Reward Redeemed";
+  if (code === "REVIEW_CREDIT") return "Performance Review Reward";
+  if (cleaned.toLowerCase().includes("reward redemption")) return "Reward Redeemed";
+  if (cleaned.toLowerCase().includes("review")) return "Performance Review Reward";
+  return cleaned || txn.transaction_type.name;
 }
 
-interface PointsSummary {
-  wallet_id: string;
-  points_this_month: number;
-  points_this_year: number;
+function getStatus(txn: Transaction): { label: string; color: string } {
+  const code = txn.status.code;
+  const isCredit = txn.transaction_type.is_credit;
+  if (["TXN_COMPLETED", "SUCCESS", "COMPLETED"].includes(code))
+    return { label: isCredit ? "Credited" : "Redeemed", color: isCredit ? "#10b981" : "#004C8F" };
+  if (["TXN_FAILED", "FAILED"].includes(code)) return { label: "Failed", color: "#ef4444" };
+  if (["TXN_PENDING", "PENDING", "TXN_PROCESSING", "PROCESSING"].includes(code))
+    return { label: "Pending", color: "#f59e0b" };
+  if (["TXN_REVERSED", "REVERSED"].includes(code)) return { label: "Reversed", color: "#94a3b8" };
+  return { label: txn.status.name, color: "#94a3b8" };
 }
 
-interface TransactionStatus {
-  status_id: string;
-  code: string;
-  name: string;
-}
-
-interface TransactionType {
-  type_id: string;
-  code: string;
-  name: string;
-  is_credit: boolean;
-}
-
-interface Transaction {
-  transaction_id: string;
-  wallet_id: string;
-  amount: number;
-  status: TransactionStatus;
-  transaction_type: TransactionType;
-  reference_number: string;
-  description: string | null;
-  transaction_at: string;
-  created_at: string;
-  updated_at: string;
-  created_by: string | null;
-  updated_by: string | null;
-}
-
-interface TransactionListResponse {
-  page: number;
-  limit: number;
-  total: number;
-  transactions: Transaction[];
-}
-
-// Fetchers — all use the direct wallet client
+// ─── Fetchers ─────────────────────────────────────────────────────────────────
 
 async function fetchWallet(employeeId: string): Promise<WalletData> {
   try {
     const res = await walletClient.get<WalletData>(`/employees/${employeeId}`);
     return res.data;
-  } catch (error: unknown) {
-    throw new Error(extractErrorMessage(error, "Failed to load wallet"));
+  } catch (e: unknown) {
+    throw new Error(extractErrorMessage(e, "Failed to load wallet"));
   }
 }
 
 async function fetchPointsSummary(walletId: string): Promise<PointsSummary> {
   try {
-    const res = await walletClient.get<PointsSummary>(
-      `/${walletId}/points-summary`
-    );
+    const res = await walletClient.get<PointsSummary>(`/${walletId}/points-summary`);
     return res.data;
-  } catch (error: unknown) {
-    throw new Error(extractErrorMessage(error, "Failed to load points summary"));
+  } catch (e: unknown) {
+    throw new Error(extractErrorMessage(e, "Failed to load points summary"));
   }
 }
 
@@ -150,106 +125,274 @@ async function fetchTransactions(
       `/transactions?${params.toString()}`
     );
     return res.data;
-  } catch (error: unknown) {
-    throw new Error(extractErrorMessage(error, "Failed to load transactions"));
+  } catch (e: unknown) {
+    throw new Error(extractErrorMessage(e, "Failed to load transactions"));
   }
 }
 
-// Sub-components 
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
 
-function Skeleton({ className = "" }: { className?: string }) {
+function Pulse({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse rounded-2xl bg-slate-100 ${className}`} />;
+}
+
+function PageSkeleton() {
   return (
-    <div className={`animate-pulse bg-white/20 rounded-xl ${className}`} />
+    <div className="flex-1 w-full min-h-screen" style={{ background: "#F0F4FA" }}>
+      <PageHeader title="Wallet" subtitle="Manage your points balance and transactions" />
+      <div className="w-full px-6 py-8 flex flex-col gap-6">
+        <Pulse className="h-56 rounded-3xl" />
+        <div className="grid grid-cols-3 gap-4">
+          {[0, 1, 2].map((i) => <Pulse key={i} className="h-28" />)}
+        </div>
+        <div className="grid grid-cols-[1fr_300px] gap-5">
+          <Pulse className="h-96" />
+          <div className="flex flex-col gap-4">
+            <Pulse className="h-44" />
+            <Pulse className="h-44" />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
-function SkeletonLight({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse bg-muted rounded-xl ${className}`} />;
-}
+// ─── Error Banner ─────────────────────────────────────────────────────────────
 
-function ErrorBanner({
-  message,
-  onRetry,
-}: {
-  message: string;
-  onRetry: () => void;
-}) {
+function ErrorBanner({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
-    <div className="rounded-2xl bg-red-50 border border-red-200 px-5 py-4 flex items-center justify-between">
-      <p className="text-sm text-red-700">{message}</p>
+    <div className="rounded-2xl bg-red-50 border border-red-100 px-5 py-4 flex items-center justify-between">
+      <p className="text-sm text-red-600 font-medium">{message}</p>
       <button
         onClick={onRetry}
-        className="flex items-center gap-1.5 text-sm text-red-700 font-medium hover:underline ml-4"
+        className="flex items-center gap-1.5 text-xs font-semibold text-red-600 bg-red-100 px-3 py-1.5 rounded-lg hover:bg-red-200 transition-colors ml-4 shrink-0"
       >
-        <RefreshCw size={13} />
-        Retry
+        <RefreshCw size={11} /> Retry
       </button>
     </div>
   );
 }
 
-function ActivityRow({ txn }: { txn: Transaction }) {
-  const isCredit = txn.transaction_type.is_credit;
+// ─── Hero Card ────────────────────────────────────────────────────────────────
 
+function HeroCard({ balance, loading }: { balance: number; loading: boolean }) {
   return (
-    <div className="flex items-center gap-3 py-3 border-b border-border last:border-0 group hover:bg-muted/40 px-3 rounded-xl transition-colors">
-      {/* Icon circle */}
-      <div
-        className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${isCredit ? "bg-emerald-50" : "bg-[#EEF4FB]"
-          }`}
-      >
-        {isCredit ? (
-          <TrendingUp size={16} className="text-emerald-600" />
-        ) : (
-          <Ticket size={16} className="text-[#004C8F]" />
-        )}
-      </div>
+    <div
+      className="relative rounded-3xl overflow-hidden select-none"
+      style={{
+        background: "linear-gradient(135deg, #001f4d 0%, #003880 40%, #0055b3 100%)",
+        minHeight: 224,
+        boxShadow: "0 24px 60px rgba(0,60,140,0.35), 0 4px 16px rgba(0,0,0,0.12)",
+      }}
+    >
+      {/* Glow blobs */}
+      <div style={{ position: "absolute", top: -80, right: -60, width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,179,237,0.18) 0%, transparent 70%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: -60, left: -40, width: 220, height: 220, borderRadius: "50%", background: "radial-gradient(circle, rgba(129,140,248,0.14) 0%, transparent 70%)", pointerEvents: "none" }} />
+      {/* Grid overlay */}
+      <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)", backgroundSize: "40px 40px", pointerEvents: "none" }} />
 
-      {/* Description */}
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-foreground truncate transition-colors">
-          {txn.description || txn.transaction_type.name}
-        </p>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          {isCredit
-            ? `Received ${txn.amount.toLocaleString()} Points`
-            : `Redeemed ${txn.amount.toLocaleString()} Points`}
-        </p>
-      </div>
+      <div className="relative z-10 p-8 flex flex-col justify-between" style={{ minHeight: 200 }}>
+        {/* Top label */}
+        <div>
+          <p className="text-[10px] font-bold tracking-[0.18em] uppercase mb-1" style={{ color: "rgba(147,197,253,0.7)" }}>
+            Rewards Wallet
+          </p>
+          <p className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>
+            Employee Points Account
+          </p>
+        </div>
 
-      {/* Date + status */}
-      <div className="shrink-0 text-right">
-        <p className="text-xs text-muted-foreground">
-          {formatDate(txn.transaction_at)}
-        </p>
-        <p className={`mt-0.5 text-xs font-semibold ${isCredit ? "text-emerald-600" : "text-[#004C8F]"}`}>
-          {isCredit ? "SUCCESS" : "REDEEMED"}
+        {/* Balance + Redeem on same row */}
+        <div className="flex items-end justify-between mt-6">
+          <div>
+            <p className="text-[11px] font-semibold tracking-[0.1em] uppercase mb-2" style={{ color: "rgba(147,197,253,0.6)" }}>
+              Available Points
+            </p>
+            {loading ? (
+              <div className="animate-pulse rounded-xl" style={{ width: 160, height: 56, background: "rgba(255,255,255,0.08)" }} />
+            ) : (
+              <p className="font-bold tabular-nums leading-none" style={{ fontSize: 54, color: "#fff", letterSpacing: "-0.03em" }}>
+                {balance.toLocaleString()}
+                <span style={{ fontSize: 20, fontWeight: 400, color: "rgba(255,255,255,0.38)", marginLeft: 8 }}>pts</span>
+              </p>
+            )}
+          </div>
+          <Link href="/redeem">
+            <button
+              className="flex items-center gap-2 font-semibold text-sm transition-all active:scale-95 hover:brightness-110"
+              style={{ background: "rgba(255,255,255,0.13)", border: "1px solid rgba(255,255,255,0.22)", color: "#fff", borderRadius: 12, padding: "10px 22px" }}
+            >
+              Redeem Points <ArrowUpRight size={15} />
+            </button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Stat Card ────────────────────────────────────────────────────────────────
+
+function StatCard({
+  label, value, icon: Icon, iconBg, iconColor, valueColor,
+}: {
+  label: string; value: number; icon: React.ElementType;
+  iconBg: string; iconColor: string; valueColor: string;
+}) {
+  return (
+    <div className="rounded-2xl p-5 flex flex-col gap-3" style={{ background: "#fff", border: "1px solid #E8EDF5", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: iconBg }}>
+        <Icon size={18} style={{ color: iconColor }} />
+      </div>
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-wider mb-1" style={{ color: "#94a3b8" }}>{label}</p>
+        <p className="text-2xl font-bold tabular-nums" style={{ color: valueColor, letterSpacing: "-0.02em" }}>
+          {value.toLocaleString()}
         </p>
       </div>
     </div>
   );
 }
 
-// Main Page 
+// ─── Transaction Row ──────────────────────────────────────────────────────────
+
+function TransactionRow({ txn }: { txn: Transaction }) {
+  const router = useRouter();
+  const isCredit = txn.transaction_type.is_credit;
+  const isRedemption =
+    txn.transaction_type.code === "POINTS_REDEEMED" ||
+    (txn.reference_number ?? "").startsWith("redemption:");
+  const historyId = isRedemption
+    ? txn.reference_number?.replace("redemption:", "").trim()
+    : txn.transaction_id;
+
+  const title = getTxnTitle(txn);
+  const { label: statusLabel, color: statusColor } = getStatus(txn);
+
+  return (
+    <div
+      onClick={() => historyId && router.push(`/history?open=${historyId}`)}
+      className="flex items-center gap-4 px-5 py-4 transition-colors"
+      style={{ cursor: historyId ? "pointer" : "default" }}
+      onMouseEnter={(e) => { if (historyId) (e.currentTarget as HTMLDivElement).style.background = "#F7FAFF"; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = "transparent"; }}
+    >
+      <div className="shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: isCredit ? "linear-gradient(135deg,#d1fae5,#a7f3d0)" : "linear-gradient(135deg,#dbeafe,#bfdbfe)" }}>
+        {isCredit
+          ? <ArrowDownLeft size={18} style={{ color: "#059669" }} />
+          : <ArrowUpRight size={18} style={{ color: "#2563eb" }} />}
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold truncate" style={{ color: "#0f172a" }}>{title}</p>
+        <p className="text-xs mt-0.5 font-mono" style={{ color: "#94a3b8" }}>
+          {formatDate(txn.transaction_at)} · {formatTime(txn.transaction_at)}
+        </p>
+      </div>
+
+      <div className="shrink-0 text-right">
+        <p className="text-sm font-bold tabular-nums" style={{ color: isCredit ? "#059669" : "#0f172a" }}>
+          {isCredit }{txn.amount.toLocaleString()} pts
+        </p>
+        <p className="text-[10px] font-bold uppercase tracking-wider mt-1" style={{ color: statusColor }}>
+          {statusLabel}
+        </p>
+      </div>
+
+      {historyId && <ChevronRight size={14} className="shrink-0" style={{ color: "#cbd5e1" }} />}
+    </div>
+  );
+}
+
+// ─── Period Summary ───────────────────────────────────────────────────────────
+
+function PeriodSummary({ summary, loading }: { summary: PointsSummary | null; loading: boolean }) {
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ background: "#fff", border: "1px solid #E8EDF5", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+      <div className="flex items-center gap-2.5 px-5 py-4" style={{ borderBottom: "1px solid #F1F5FB" }}>
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "#EEF4FB" }}>
+          <BarChart3 size={15} style={{ color: "#004C8F" }} />
+        </div>
+        <p className="text-sm font-bold" style={{ color: "#0f172a" }}>Period Summary</p>
+      </div>
+      <div className="p-4 flex flex-col gap-3">
+        {[
+          { label: "This Month", value: summary?.points_this_month ?? 0 },
+          { label: "This Year", value: summary?.points_this_year ?? 0 },
+        ].map(({ label, value }) => (
+          <div key={label} className="flex items-center justify-between rounded-xl px-4 py-3" style={{ background: "#F7FAFF", border: "1px solid #E8EDF5" }}>
+            <p className="text-sm font-medium" style={{ color: "#64748b" }}>{label}</p>
+            {loading ? (
+              <div className="animate-pulse rounded-lg" style={{ width: 72, height: 20, background: "#e2e8f0" }} />
+            ) : (
+              <p className="text-base font-bold tabular-nums" style={{ color: "#004C8F" }}>
+                {value.toLocaleString()}
+                <span className="text-xs font-normal ml-1" style={{ color: "#94a3b8" }}>pts</span>
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Quick Actions ────────────────────────────────────────────────────────────
+
+function QuickActions() {
+  const actions = [
+    { label: "Redeem a Reward", sub: "Use your points", icon: Gift, href: "/redeem", iconBg: "#EEF4FB", iconColor: "#004C8F" },
+    { label: "View Full History", sub: "All transactions", icon: Clock, href: "/history", iconBg: "#ECFDF5", iconColor: "#059669" },
+  ];
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ background: "#fff", border: "1px solid #E8EDF5", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+      <div className="flex items-center gap-2.5 px-5 py-4" style={{ borderBottom: "1px solid #F1F5FB" }}>
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "#EEF4FB" }}>
+          <Zap size={15} style={{ color: "#004C8F" }} />
+        </div>
+        <p className="text-sm font-bold" style={{ color: "#0f172a" }}>Quick Actions</p>
+      </div>
+      <div className="p-3 flex flex-col gap-1">
+        {actions.map(({ label, sub, icon: Icon, href, iconBg, iconColor }) => (
+          <Link key={label} href={href}>
+            <div
+              className="flex items-center gap-3.5 px-3 py-3 rounded-xl transition-colors cursor-pointer"
+              onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = "#F7FAFF"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = "transparent"; }}
+            >
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: iconBg }}>
+                <Icon size={16} style={{ color: iconColor }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold" style={{ color: "#0f172a" }}>{label}</p>
+                <p className="text-xs" style={{ color: "#94a3b8" }}>{sub}</p>
+              </div>
+              <ChevronRight size={14} style={{ color: "#cbd5e1" }} />
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 const TXN_PAGE_SIZE = 10;
 
-export default function Wallet() {
+export default function WalletPage() {
   const [wallet, setWallet] = useState<WalletData | null>(null);
   const [summary, setSummary] = useState<PointsSummary | null>(null);
   const [txnData, setTxnData] = useState<TransactionListResponse | null>(null);
   const [txnPage, setTxnPage] = useState(1);
-
   const [loadingWallet, setLoadingWallet] = useState(true);
   const [loadingSummary, setLoadingSummary] = useState(true);
   const [loadingTxns, setLoadingTxns] = useState(true);
   const [walletError, setWalletError] = useState<string | null>(null);
   const [txnError, setTxnError] = useState<string | null>(null);
-  const displayBalance = useCountUp(
-    loadingWallet ? 0 : wallet?.available_points ?? 0
-  );
 
-  // Load wallet + summary
+  const displayBalance = useCountUp(loadingWallet ? 0 : wallet?.available_points ?? 0);
+
   const loadWallet = useCallback(async () => {
     const user = auth.getUser();
     if (!user?.employee_id) {
@@ -258,16 +401,13 @@ export default function Wallet() {
       setLoadingSummary(false);
       return;
     }
-
     setLoadingWallet(true);
     setLoadingSummary(true);
     setWalletError(null);
-
     try {
       const walletData = await fetchWallet(user.employee_id);
       setWallet(walletData);
       setLoadingWallet(false);
-
       try {
         const sumData = await fetchPointsSummary(walletData.wallet_id);
         setSummary(sumData);
@@ -282,305 +422,135 @@ export default function Wallet() {
     }
   }, []);
 
-  //  Load transactions 
-  const loadTransactions = useCallback(
-    async (walletId: string, page: number) => {
-      setLoadingTxns(true);
-      setTxnError(null);
-      try {
-        const data = await fetchTransactions(walletId, page, TXN_PAGE_SIZE);
-        setTxnData(data);
-      } catch (e) {
-        setTxnError(extractErrorMessage(e, "Failed to load transactions."));
-      } finally {
-        setLoadingTxns(false);
-      }
-    },
-    []
-  );
-
-  //  Initial load 
-  useEffect(() => {
-    loadWallet();
-  }, [loadWallet]);
-
-  //  Load txns whenever wallet_id or page changes 
-  useEffect(() => {
-    if (wallet?.wallet_id) {
-      loadTransactions(wallet.wallet_id, txnPage);
+  const loadTransactions = useCallback(async (walletId: string, page: number) => {
+    setLoadingTxns(true);
+    setTxnError(null);
+    try {
+      const data = await fetchTransactions(walletId, page, TXN_PAGE_SIZE);
+      setTxnData(data);
+    } catch (e) {
+      setTxnError(extractErrorMessage(e, "Failed to load transactions."));
+    } finally {
+      setLoadingTxns(false);
     }
+  }, []);
+
+  useEffect(() => { loadWallet(); }, [loadWallet]);
+
+  useEffect(() => {
+    if (wallet?.wallet_id) loadTransactions(wallet.wallet_id, txnPage);
   }, [wallet?.wallet_id, txnPage, loadTransactions]);
 
-  //  Pagination 
-  const totalPages = txnData
-    ? Math.max(1, Math.ceil(txnData.total / TXN_PAGE_SIZE))
-    : 1;
+  const totalPages = txnData ? Math.max(1, Math.ceil(txnData.total / TXN_PAGE_SIZE)) : 1;
 
-  if (loadingWallet) {
-    return (
-      <div className="flex-1 w-full min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_45%,#ffffff_100%)] mx-auto shadow-[0_10px_50px_rgba(15,23,42,0.05)]">
-        <PageHeader
-          title="Wallet"
-          subtitle="Manage your points balance and transactions"
-        />
+  if (loadingWallet) return <PageSkeleton />;
 
-        <div className="px-6 md:px-10 py-8 md:py-10 mx-auto rounded-b-[24px]">
-          <div className="flex flex-col gap-5">
-            <SkeletonLight className="h-28 w-full" />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {Array.from({ length: 2 }).map((_, i) => (
-                <SkeletonLight key={`stat-${i}`} className="h-24" />
-              ))}
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-              <div className="lg:col-span-2 rounded-2xl border border-border bg-white p-4 space-y-3">
-                <SkeletonLight className="h-8 w-full" />
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <SkeletonLight key={`txn-${i}`} className="h-14 w-full" />
-                ))}
-              </div>
-
-              <div className="rounded-2xl border border-border bg-white p-4 space-y-3">
-                <SkeletonLight className="h-8 w-40" />
-                <SkeletonLight className="h-12 w-full" />
-                <SkeletonLight className="h-12 w-full" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Render
   return (
-    <div className="flex-1 w-full min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_45%,#ffffff_100%)] mx-auto shadow-[0_10px_50px_rgba(15,23,42,0.05)]">
+    <div className="flex-1 w-full min-h-screen" style={{ background: "#F0F4FA" }}>
+      <PageHeader title="Wallet" subtitle="Manage your points balance and transactions" />
 
-      {/* Page Header */}
-      <PageHeader
-        title="Wallet"
-        subtitle="Manage your points balance and transactions"
-      />
+      <div className="w-full px-6 md:px-10 py-8 flex flex-col gap-6">
 
+        {/* Hero */}
+        <HeroCard balance={displayBalance} loading={loadingWallet} />
 
+        {walletError && <ErrorBanner message={walletError} onRetry={loadWallet} />}
 
-      {/* Main content */}
-      <div className="px-6 md:px-10 py-8 md:py-10 mx-auto rounded-b-[24px]">
-        <div className="flex flex-col gap-5">
-
-          {/* Hero Balance Banner */}
-          <div
-            className="rounded-2xl border border-[#E2E8F0] overflow-hidden shadow-lg shadow-slate-200/60 relative px-6 py-5 bg-white"
-          >
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] items-center gap-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
-                  <Gift size={20} className="text-[#1E293B]" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 font-medium">Points Balance</p>
-                  <p className="text-2xl font-bold text-[#1E293B] leading-none mt-0.5 tabular-nums">
-                    {displayBalance.toLocaleString()}
-                    <span className="text-sm font-normal text-slate-400 ml-1.5">pts</span>
-                  </p>
-                </div>
-              </div>
-
-              <div className="justify-self-start lg:justify-self-end">
-                <Link href="/redeem">
-                  <button
-                    className="px-7 py-2.5 rounded-xl font-semibold text-white bg-[#004C8F] text-sm leading-none shadow-md transition-all duration-200 active:scale-95 hover:bg-[#003d73]"
-                  >
-                    Redeem Reward
-                  </button>
-                </Link>
-              </div>
-            </div>
+        {/* Stats */}
+        {wallet && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <StatCard label="Available" value={wallet.available_points} icon={TrendingUp}
+              iconBg="linear-gradient(135deg,#dbeafe,#bfdbfe)" iconColor="#2563eb" valueColor="#004C8F" />
+            <StatCard label="Total Earned" value={wallet.total_earned_points} icon={Gift}
+              iconBg="linear-gradient(135deg,#d1fae5,#a7f3d0)" iconColor="#059669" valueColor="#065f46" />
+            <StatCard label="Redeemed" value={wallet.redeemed_points} icon={Ticket}
+              iconBg="linear-gradient(135deg,#fce7f3,#fbcfe8)" iconColor="#db2777" valueColor="#9d174d" />
           </div>
+        )}
 
-          {/* Error if wallet failed */}
-          {walletError && (
-            <ErrorBanner message={walletError} onRetry={loadWallet} />
-          )}
+        {/* Two-col */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5 items-start">
 
-          {/* Stats row */}
-          {wallet && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                {
-                  label: "Lifetime Points Earned",
-                  value: wallet.total_earned_points,
-                  icon: Gift,
-                },
-                {
-                  label: "Points Redeemed",
-                  value: wallet.redeemed_points,
-                  icon: Ticket,
-                },
-              ].map(({ label, value, icon: Icon }) => (
-                <div
-                  key={label}
-                  className="rounded-2xl p-4 border border-border bg-white shadow-sm flex items-center gap-3 transition-all"
-                >
-                  <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border border-[#D8E6F7] bg-[#EEF4FB]"
-                  >
-                    <Icon size={18} className="text-[#004C8F]" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-muted-foreground">{label}</p>
-                    <p className="text-lg font-bold text-foreground leading-tight mt-0.5">
-                      {value.toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
+          {/* Transactions */}
+          <div className="rounded-2xl overflow-hidden" style={{ background: "#fff", border: "1px solid #E8EDF5", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid #F1F5FB" }}>
+              <div>
+                <h3 className="text-sm font-bold" style={{ color: "#0f172a" }}>Recent Activity</h3>
+                {txnData && (
+                  <p className="text-xs mt-0.5" style={{ color: "#94a3b8" }}>
+                    {txnData.total.toLocaleString()} transactions total
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => wallet?.wallet_id && loadTransactions(wallet.wallet_id, txnPage)}
+                disabled={loadingTxns || !wallet}
+                className="flex items-center gap-1.5 text-xs font-semibold rounded-xl px-3 py-2 transition-colors disabled:opacity-40"
+                style={{ color: "#004C8F", background: "#EEF4FB", border: "1px solid #D8E6F7" }}
+              >
+                <RefreshCw size={11} className={loadingTxns ? "animate-spin" : ""} /> Refresh
+              </button>
             </div>
-          )}
 
-          {/* Main content: Activity + Side Panel */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-
-            {/* Left: Recent Wallet Activity */}
-            <div
-              id="txn-section"
-              className="lg:col-span-2 rounded-2xl shadow-sm border border-border overflow-hidden bg-white"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-muted/20">
-                <div>
-                  <h3 className="text-base font-semibold leading-tight" style={{ color: "#004C8F" }}>
-                    Recent Wallet Activity
-                  </h3>
-                  {txnData && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {txnData.total.toLocaleString()} total transactions
-                    </p>
-                  )}
-                </div>
-                <Button
-                  onClick={() => {
-                    if (wallet?.wallet_id) {
-                      loadTransactions(wallet.wallet_id, txnPage);
-                    }
-                  }}
-                  disabled={loadingTxns || !wallet}
-                  size="sm"
-                  className="text-[#004C8F] bg-[#EEF4FB] border border-[#D8E6F7] hover:bg-[#e4eefb] hover:text-[#003a70] shadow-none transition-all text-sm font-semibold"
-                >
-                  <RefreshCw
-                    size={13}
-                    className={`mr-1.5 ${loadingTxns ? "animate-spin" : ""}`}
-                  />
-                  Refresh
-                </Button>
-              </div>
-
-              {/* Transaction list */}
-              <div className="px-3 py-2">
-                {txnError && (
-                  <div className="mb-4 px-2">
-                    <ErrorBanner
-                      message={txnError}
-                      onRetry={() =>
-                        wallet && loadTransactions(wallet.wallet_id, txnPage)
-                      }
-                    />
-                  </div>
-                )}
-
-                {loadingTxns ? (
-                  <div className="flex flex-col gap-3 py-2">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <SkeletonLight key={i} className="h-14" />
-                    ))}
-                  </div>
-                ) : txnData?.transactions.length === 0 ? (
-                  <div className="flex flex-col items-center py-14 gap-3 text-muted-foreground">
-                    <ArrowDownCircle size={32} strokeWidth={1.2} />
-                    <p className="text-sm">No transactions yet.</p>
-                  </div>
-                ) : (
-                  <div className="py-1">
-                    {txnData?.transactions.map((txn) => (
-                      <ActivityRow key={txn.transaction_id} txn={txn} />
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Pagination footer */}
-              {!loadingTxns && txnData && txnData.total > TXN_PAGE_SIZE && (
-                <div className="px-6 py-3 border-t border-border">
-                  <PaginationControls
-                    currentPage={txnPage}
-                    totalPages={totalPages}
-                    hasPrevious={txnPage > 1}
-                    hasNext={txnPage < totalPages}
-                    onPageChange={setTxnPage}
-                    className="mt-0"
-                  />
+            <div>
+              {txnError && (
+                <div className="p-4">
+                  <ErrorBanner message={txnError} onRetry={() => wallet && loadTransactions(wallet.wallet_id, txnPage)} />
                 </div>
               )}
 
-              {/* View All Activity link */}
-              <div className="px-5 py-2.5 border-t border-border flex justify-center">
-                <Link
-                  href="/history"
-                  className="text-sm font-semibold flex items-center gap-1 transition-colors hover:opacity-80"
-                  style={{ color: "#004C8F" }}
-                >
-                  View All Activity
-                  <ChevronRight size={15} />
-                </Link>
-              </div>
+              {loadingTxns ? (
+                <div className="flex flex-col gap-3 p-5">
+                  {Array.from({ length: 5 }).map((_, i) => <Pulse key={i} className="h-16" />)}
+                </div>
+              ) : txnData?.transactions.length === 0 ? (
+                <div className="flex flex-col items-center py-16 gap-3" style={{ color: "#cbd5e1" }}>
+                  <ArrowDownCircle size={36} strokeWidth={1} />
+                  <p className="text-sm font-medium">No transactions yet</p>
+                </div>
+              ) : (
+                <div>
+                  {txnData?.transactions.map((txn, idx) => (
+                    <div key={txn.transaction_id}>
+                      <TransactionRow txn={txn} />
+                      {idx < (txnData.transactions.length - 1) && (
+                        <div style={{ height: 1, background: "#F1F5FB", marginLeft: 72, marginRight: 20 }} />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Right: Period Summary Panel */}
-            <div className="flex flex-col gap-4">
+            {!loadingTxns && txnData && txnData.total > TXN_PAGE_SIZE && (
+              <div className="px-5 py-3" style={{ borderTop: "1px solid #F1F5FB" }}>
+                <PaginationControls
+                  currentPage={txnPage}
+                  totalPages={totalPages}
+                  hasPrevious={txnPage > 1}
+                  hasNext={txnPage < totalPages}
+                  onPageChange={setTxnPage}
+                  className="mt-0"
+                />
+              </div>
+            )}
+
+            <Link href="/history">
               <div
-                className="rounded-2xl shadow-sm p-4 bg-white border border-border"
+                className="flex items-center justify-center gap-1.5 py-3.5 text-sm font-semibold transition-colors cursor-pointer"
+                style={{ borderTop: "1px solid #F1F5FB", color: "#004C8F" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = "#F7FAFF"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = "transparent"; }}
               >
-                <div className="flex items-center gap-2 mb-3">
-                  <div
-                    className="w-7 h-7 rounded-lg flex items-center justify-center"
-                    style={{ background: "#EEF4FB" }}
-                  >
-                    <Star size={14} className="text-[#004C8F]" />
-                  </div>
-                  <h4 className="text-base font-semibold leading-tight" style={{ color: "#004C8F" }}>Period Summary</h4>
-                </div>
-
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between px-3 py-2.5 rounded-xl border border-border bg-muted/20">
-                    <span className="text-sm font-semibold text-muted-foreground">This Month</span>
-                    {loadingSummary ? (
-                      <Skeleton className="h-5 w-16" />
-                    ) : (
-                      <span className="text-base font-bold leading-tight" style={{ color: "#004C8F" }}>
-                        {(summary?.points_this_month ?? 0).toLocaleString()}
-                        <span className="text-sm font-normal text-muted-foreground ml-1">pts</span>
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between px-3 py-2.5 rounded-xl border border-border bg-muted/20">
-                    <span className="text-sm font-semibold text-muted-foreground">This Year</span>
-                    {loadingSummary ? (
-                      <Skeleton className="h-5 w-16" />
-                    ) : (
-                      <span className="text-base font-bold leading-tight" style={{ color: "#004C8F" }}>
-                        {(summary?.points_this_year ?? 0).toLocaleString()}
-                        <span className="text-sm font-normal text-muted-foreground ml-1">pts</span>
-                      </span>
-                    )}
-                  </div>
-                </div>
-
+                View All Activity <ChevronRight size={14} />
               </div>
+            </Link>
+          </div>
 
-            </div>
+          {/* Sidebar */}
+          <div className="flex flex-col gap-4">
+            <PeriodSummary summary={summary} loading={loadingSummary} />
+            <QuickActions />
           </div>
         </div>
       </div>

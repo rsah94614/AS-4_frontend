@@ -161,8 +161,8 @@ export default function LoginPage() {
 
             {/* Typography */}
             <div className="mt-4">
-              <h1 className="text-4xl xl:text-5xl font-bold text-[#b8860b] mb-4 leading-tight">
-                CELEBRATING SUCCESS, TOGETHER.
+              <h1 className="text-3xl xl:text-4xl font-bold text-[#b8860b] mb-4 leading-tight whitespace-nowrap">
+                  CELEBRATING SUCCESS TOGETHER.
               </h1>
               <h2 className="text-2xl xl:text-3xl font-medium text-[#1c2c5b] mb-12 uppercase tracking-wide">
                 Aabhar: Recognizing Your Impact.

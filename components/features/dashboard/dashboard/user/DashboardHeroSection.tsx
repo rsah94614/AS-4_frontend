@@ -26,7 +26,7 @@ export default function DashboardHeroSection() {
                     <span className="text-white/70 text-sm font-medium">{getGreeting()}</span>
                 </div>
                 <h1 className="text-3xl font-black text-white leading-tight">
-                    {user?.username}!
+                    {user ? `${user.first_name} ${user.last_name}` : ""}!
                 </h1>
                 <p className="text-white/60 text-sm mt-1.5">
                     Here&apos;s your recognition activity at a glance.

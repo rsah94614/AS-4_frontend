@@ -67,7 +67,7 @@ export function useReviewPage(): ReviewPageState {
     const [totalPages, setTotalPages] = useState(1)
     const [loadingData, setLoadingData] = useState(true)
     const [dataError, setDataError] = useState<string | null>(null)
-
+const [myDeptTypeId, setMyDeptTypeId] = useState<string | null>(null)
     const [view, setView] = useState<ViewMode>("compose")
     const [editingReview, setEditingReview] = useState<Review | null>(null)
 
@@ -170,10 +170,12 @@ export function useReviewPage(): ReviewPageState {
         setEditingReview(null)
     }
 
-    const allReceivers = [
+    const allReceivers = useMemo(() => {
+    return [
         ...(teamLeader ? [{ ...teamLeader, isManager: true as const }] : []),
         ...teamMembers.map((m) => ({ ...m, isManager: false as const })),
-    ]
+    ].filter((m) => m.id !== myId)
+}, [teamLeader, teamMembers, myId])
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()

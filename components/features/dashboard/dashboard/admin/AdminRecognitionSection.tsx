@@ -96,9 +96,11 @@ function UserTable({ users, sort, onSortChange }: {
                         <div className="col-span-5 flex items-center gap-2 min-w-0">
                             <span className="text-[10px] text-muted-foreground w-4 flex-shrink-0">{i + 1}</span>
                             <div className="w-6 h-6 rounded-md bg-[#EEF4FB] text-[#004C8F] flex items-center justify-center text-[10px] font-bold flex-shrink-0">
-                                {u.username.charAt(0).toUpperCase()}
+                                {(u.name || u.username).charAt(0).toUpperCase()}
                             </div>
-                            <span className="text-xs font-semibold text-gray-900 truncate">{u.username}</span>
+                            <span className="text-xs font-semibold text-gray-900 truncate">
+    {u.name || u.username}
+</span>
                         </div>
                         <span className="col-span-3 text-[10px] text-muted-foreground text-center truncate">{u.department}</span>
                         <div className="col-span-2 flex justify-end">

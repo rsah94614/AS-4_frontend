@@ -113,7 +113,7 @@ export default function AdminTeamReportsSection() {
                     sheet.columns = [6, 22, 22, 18, 18, 20, 18, 18, 18, 18, 18].map(w => ({ width: w }));
                     sheet.addRow(memberHeaders);
                     report.members.forEach((m, idx) => sheet.addRow([
-                        idx + 1, m.username, m.designation, m.performance_score,
+                        i + 1, `${m.first_name} ${m.last_name}`, m.designation, m.performance_score,
                         m.performance_score >= 75 ? "Excellent" : m.performance_score >= 50 ? "Good" : m.performance_score >= 25 ? "Fair" : "Needs Attention",
                         m.total_earned_points, m.available_points, m.points_this_month,
                         m.reviews_received, m.reviews_this_month, m.rewards_redeemed,

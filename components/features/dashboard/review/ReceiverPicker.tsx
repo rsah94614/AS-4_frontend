@@ -75,26 +75,26 @@ export default function ReceiverPicker({
             >
                 {selected ? (
                     <>
-                        <div className="w-9 h-9 rounded-lg bg-[#004C8F] flex items-center justify-center text-xs font-bold text-white shrink-0">
+                        <div className="w-10 h-10 rounded-lg bg-[#004C8F] flex items-center justify-center text-xs font-bold text-white shrink-0">
                             {getInitials(selected.name)}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-[#004C8F]">{selected.name}</p>
-                            <p className="text-xs text-gray-400">
+                            <p className="text-[15px] font-bold text-[#004C8F]">{selected.name}</p>
+                            <p className="text-xs text-gray-500 mt-0.5">
                                 {selected.designation ?? (selected.isManager ? "Manager" : "Team Member")}
                             </p>
                         </div>
                     </>
                 ) : (
                     <>
-                        <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-                            <Users size={15} className="text-gray-400" />
+                        <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                            <Users size={16} className="text-gray-400" />
                         </div>
-                        <span className="text-sm text-gray-400">Select a team member…</span>
+                        <span className="text-sm font-medium text-gray-500">Select a team member…</span>
                     </>
                 )}
                 <ChevronDown
-                    size={15}
+                    size={16}
                     className={cn(
                         "text-gray-400 ml-auto shrink-0 transition-transform duration-200",
                         open && "rotate-180"
@@ -107,7 +107,7 @@ export default function ReceiverPicker({
                     {/* Search */}
                     <div className="p-3 border-b border-gray-100">
                         <div className="relative">
-                            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                             <input
                                 ref={searchRef}
                                 type="text"
@@ -130,9 +130,9 @@ export default function ReceiverPicker({
                     </div>
 
                     {/* List */}
-                    <div className="max-h-60 overflow-y-auto">
+                    <div className="max-h-64 overflow-y-auto">
                         {filteredReceivers.length === 0 ? (
-                            <p className="text-sm text-gray-400 p-5 text-center">
+                            <p className="text-sm font-medium text-gray-500 p-5 text-center">
                                 {allReceivers.length === 0 ? "No team members found." : `No match for "${search}"`}
                             </p>
                         ) : (
@@ -151,24 +151,24 @@ export default function ReceiverPicker({
                                         className={cn(
                                             "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors",
                                             done ? "opacity-40 cursor-not-allowed" : "hover:bg-gray-50 cursor-pointer",
-                                            isSelected && "bg-[#E31837]/5"
+                                            isSelected && "bg-[#004C8F]/5"
                                         )}
                                     >
                                         <div className={cn(
-                                            "w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0",
-                                            m.isManager ? "bg-[#004C8F] text-white" : "bg-gray-200 text-gray-600"
+                                            "w-9 h-9 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0",
+                                            m.isManager ? "bg-[#004C8F] text-white" : "bg-gray-100 text-gray-700"
                                         )}>
                                             {getInitials(m.name)}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-[#004C8F] truncate">{m.name}</p>
-                                            <p className="text-xs text-gray-400">
+                                            <p className="text-[13px] font-semibold text-gray-900 truncate">{m.name}</p>
+                                            <p className="text-xs text-gray-500 mt-0.5">
                                                 {m.designation ?? (m.isManager ? "Manager" : "Employee")}
                                             </p>
                                         </div>
                                         {isSelected && <Check size={14} className="text-[#E31837] shrink-0" />}
                                         {done && !isSelected && (
-                                            <span className="text-[9px] font-bold bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full uppercase tracking-wide">
+                                            <span className="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full uppercase tracking-wide">
                                                 Reviewed
                                             </span>
                                         )}

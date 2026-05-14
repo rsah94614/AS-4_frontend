@@ -12,7 +12,15 @@ export interface HistoryTypeOption {
 
 export interface GrantedByEmployee {
     username: string;
+    first_name?: string;
+    last_name?: string;
     email?: string;
+}
+
+export interface ReviewerInfo {
+    username: string;
+    first_name?: string;
+    last_name?: string;
 }
 
 export interface HistoryItem {
@@ -22,6 +30,7 @@ export interface HistoryItem {
     granted_at: string;
     reward_catalog?: RewardCatalog;
     employees_reward_history_granted_byToemployees?: GrantedByEmployee;
+    reviewer?: ReviewerInfo;
 }
 
 export interface PaginatedHistoryResponse {

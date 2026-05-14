@@ -17,6 +17,7 @@ export function CreateEmployeeDialog({ open, onClose, onCreated, toast, designat
     const [submitting, setSub] = useState(false);
     const [showPwd, setShowPwd] = useState(false);
     const [form, setForm] = useState({
+        first_name: "", last_name: "",
         username: "", email: "", password: "",
         designation_id: "", department_id: "", manager_id: "",
         date_of_joining: "", date_of_birth: "",
@@ -33,6 +34,8 @@ export function CreateEmployeeDialog({ open, onClose, onCreated, toast, designat
     };
 
     const isFormValid = !!(
+        form.first_name.trim() &&
+        form.last_name.trim() &&
         form.username.trim() &&
         form.email.trim() &&
         form.password.trim() &&
@@ -42,7 +45,11 @@ export function CreateEmployeeDialog({ open, onClose, onCreated, toast, designat
     );
 
     const handleCreate = async () => {
-        if (!form.username || !form.email || !form.password || !form.designation_id || !form.department_id || !form.date_of_joining) {
+        if (
+            !form.first_name || !form.last_name ||
+            !form.username || !form.email || !form.password ||
+            !form.designation_id || !form.department_id || !form.date_of_joining
+        ) {
             toast("All required fields must be filled", "error"); return;
         }
         if (form.date_of_joining > todayStr()) {
@@ -54,17 +61,24 @@ export function CreateEmployeeDialog({ open, onClose, onCreated, toast, designat
         try {
             setSub(true);
             await authClient.post("/signup", {
-                username: form.username,
-                email: form.email,
+                first_name: form.first_name.trim(),
+                last_name: form.last_name.trim(),
+                username: form.username.trim(),
+                email: form.email.trim(),
                 password: form.password,
                 designation_id: form.designation_id,
                 department_id: form.department_id,
                 manager_id: form.manager_id || undefined,
                 date_of_birth: form.date_of_birth || undefined,
             });
-            toast("Employee created successfully");
+            toast("Employee created successfully — welcome email sent");
             onClose();
-            setForm({ username: "", email: "", password: "", designation_id: "", department_id: "", manager_id: "", date_of_joining: "", date_of_birth: "" });
+            setForm({
+                first_name: "", last_name: "",
+                username: "", email: "", password: "",
+                designation_id: "", department_id: "", manager_id: "",
+                date_of_joining: "", date_of_birth: "",
+            });
             onCreated();
         } catch (e: unknown) {
             toast(extractErrorMessage(e, "Failed to create employee"), "error");
@@ -97,6 +111,33 @@ export function CreateEmployeeDialog({ open, onClose, onCreated, toast, designat
                 {/* Body — scrollable */}
                 <div className="flex-1 overflow-y-auto px-6 pb-6">
                     <div className="space-y-4">
+
+                        {/* First Name + Last Name */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    First Name <span style={{ color: "#E31837" }}>*</span>
+                                </label>
+                                <input
+                                    placeholder="John"
+                                    value={form.first_name}
+                                    onChange={set("first_name")}
+                                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                                    Last Name <span style={{ color: "#E31837" }}>*</span>
+                                </label>
+                                <input
+                                    placeholder="Doe"
+                                    value={form.last_name}
+                                    onChange={set("last_name")}
+                                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                />
+                            </div>
+                        </div>
+
                         {/* Username + Email */}
                         <div className="grid grid-cols-2 gap-3">
                             <div>

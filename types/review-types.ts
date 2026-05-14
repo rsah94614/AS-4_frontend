@@ -27,6 +27,10 @@ export interface Review {
         category_code: string
         multiplier_snapshot: number
     }[] | null
+
+    // Name fields — populated by joining with the employee/user table on fetch
+    reviewer_name?: string | null
+    receiver_name?: string | null
 }
 
 export type ViewMode = "list" | "compose" | "edit" | "submitted"

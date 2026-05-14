@@ -2,43 +2,26 @@
 
 import { ChevronDown } from "lucide-react";
 import { periodOptions } from "@/lib/history-utils";
-import type { HistoryTypeOption, PeriodFilter, TypeFilter } from "@/types/history-types";
+import type { PeriodFilter } from "@/types/history-types";
 
 interface HistoryFilterBarProps {
     selectedPeriod: PeriodFilter;
     setSelectedPeriod: (v: PeriodFilter) => void;
-    selectedType: TypeFilter;
-    setSelectedType: (v: TypeFilter) => void;
-    typeOptions: HistoryTypeOption[];
     clearFilters: () => void;
     filteredCount: number;
-    loading: boolean;
     periodDropdownOpen: boolean;
     setPeriodDropdownOpen: (v: boolean) => void;
-    typeDropdownOpen: boolean;
-    setTypeDropdownOpen: (v: boolean) => void;
 }
 
 export default function HistoryFilterBar({
     selectedPeriod,
     setSelectedPeriod,
-    selectedType,
-    setSelectedType,
-    typeOptions,
     clearFilters,
     filteredCount,
     periodDropdownOpen,
     setPeriodDropdownOpen,
-    typeDropdownOpen,
-    setTypeDropdownOpen,
 }: HistoryFilterBarProps) {
-    const hasActiveFilter =
-        selectedPeriod !== "All History" || selectedType !== "All";
-    const disableTypeFilter = selectedPeriod === "Points History";
-    const selectedTypeLabel =
-        selectedType === "All"
-            ? "Transaction Type"
-            : typeOptions.find((option) => option.value === selectedType)?.label ?? selectedType;
+    const hasActiveFilter = selectedPeriod !== "All History";
 
     return (
         <div className="rounded-[24px] border border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] p-4 sm:p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
@@ -56,29 +39,18 @@ export default function HistoryFilterBar({
                                 Filters active
                             </span>
                         )}
-                        {disableTypeFilter && (
-                            <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-500">
-                                Type filter is unavailable for points history
-                            </span>
-                        )}
                     </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                    {/* Period Dropdown */}
-                    <div
-                        className="relative"
-                        onClick={(e) => e.stopPropagation()}
-                    >
+                    <div className="relative" onClick={(e) => e.stopPropagation()}>
                         <button
                             type="button"
-                            onClick={() => {
-                                setPeriodDropdownOpen(!periodDropdownOpen);
-                                setTypeDropdownOpen(false);
-                            }}
+                            onClick={() => setPeriodDropdownOpen(!periodDropdownOpen)}
                             aria-expanded={periodDropdownOpen}
-                            className={`inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004C8F]/20 ${selectedPeriod !== "All History" ? "border-[#004C8F]/20 bg-[#004C8F]/5 text-[#004C8F]" : ""
-                                }`}
+                            className={`inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004C8F]/20 ${
+                                selectedPeriod !== "All History" ? "border-[#004C8F]/20 bg-[#004C8F]/5 text-[#004C8F]" : ""
+                            }`}
                         >
                             <span className="truncate max-w-[120px] sm:max-w-none">
                                 {selectedPeriod}
@@ -89,7 +61,7 @@ export default function HistoryFilterBar({
                         </button>
 
                         {periodDropdownOpen && (
-                            <div className="absolute top-full left-0 mt-2 w-56 overflow-hidden rounded-2xl border border-slate-200/80 bg-white py-1 shadow-[0_18px_50px_rgba(15,23,42,0.14)] z-20 animate-in fade-in zoom-in-95 duration-150">
+                            <div className="absolute top-full right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-slate-200/80 bg-white py-1 shadow-[0_18px_50px_rgba(15,23,42,0.14)] z-20 animate-in fade-in zoom-in-95 duration-150">
                                 {periodOptions.map((option) => (
                                     <button
                                         key={option}
@@ -97,10 +69,11 @@ export default function HistoryFilterBar({
                                             setSelectedPeriod(option);
                                             setPeriodDropdownOpen(false);
                                         }}
-                                        className={`w-full text-left px-5 py-2.5 text-sm transition-colors ${selectedPeriod === option
-                                            ? "bg-[#004C8F]/5 text-[#003867] font-semibold"
-                                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
-                                            }`}
+                                        className={`w-full text-left px-5 py-2.5 text-sm transition-colors ${
+                                            selectedPeriod === option
+                                                ? "bg-[#004C8F]/5 text-[#003867] font-semibold"
+                                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                                        }`}
                                     >
                                         {option}
                                     </button>
@@ -109,64 +82,6 @@ export default function HistoryFilterBar({
                         )}
                     </div>
 
-                    <div
-                        className={`relative ${disableTypeFilter ? "opacity-50" : ""}`}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <button
-                            type="button"
-                            onClick={() => {
-                                if (disableTypeFilter) return;
-                                setTypeDropdownOpen(!typeDropdownOpen);
-                                setPeriodDropdownOpen(false);
-                            }}
-                            aria-expanded={typeDropdownOpen}
-                            disabled={disableTypeFilter}
-                            className={`inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004C8F]/20 ${selectedType !== "All" ? "border-[#004C8F]/20 bg-[#004C8F]/5 text-[#004C8F]" : ""
-                                }`}
-                        >
-                            <span className="truncate max-w-[120px] sm:max-w-none">
-                                {selectedTypeLabel}
-                            </span>
-                            <ChevronDown
-                                className={`w-4 h-4 shrink-0 transition-transform duration-200 ${typeDropdownOpen ? "rotate-180" : ""}`}
-                            />
-                        </button>
-
-                        {typeDropdownOpen && (
-                            <div className="absolute top-full left-0 mt-2 w-56 overflow-hidden rounded-2xl border border-slate-200/80 bg-white py-1 shadow-[0_18px_50px_rgba(15,23,42,0.14)] z-20 animate-in fade-in zoom-in-95 duration-150">
-                                <button
-                                    onClick={() => {
-                                        setSelectedType("All");
-                                        setTypeDropdownOpen(false);
-                                    }}
-                                    className={`w-full text-left px-5 py-2.5 text-sm transition-colors ${selectedType === "All"
-                                        ? "bg-[#004C8F]/5 text-[#003867] font-semibold"
-                                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
-                                        }`}
-                                >
-                                    All
-                                </button>
-                                {typeOptions.map((option) => (
-                                    <button
-                                        key={option.value}
-                                        onClick={() => {
-                                            setSelectedType(option.value);
-                                            setTypeDropdownOpen(false);
-                                        }}
-                                        className={`w-full text-left px-5 py-2.5 text-sm transition-colors ${selectedType === option.value
-                                            ? "bg-[#004C8F]/5 text-[#003867] font-semibold"
-                                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
-                                            }`}
-                                    >
-                                        {option.label}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Clear filters button */}
                     {hasActiveFilter && (
                         <button
                             type="button"

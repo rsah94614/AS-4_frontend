@@ -36,20 +36,23 @@ function CategoryCard({
             )}
         >
             <Card className={cn(
-                "relative !flex-row items-center !gap-0 overflow-hidden transition-all duration-150 shadow-sm !py-0 h-[52px]",
+                "relative !flex-row items-center !gap-0 overflow-hidden transition-all duration-150 shadow-sm !py-0 h-[56px]",
                 selected
-                    ? "border-[#004C8F] bg-[#004C8F]/5"
-                    : "border-gray-200 bg-white group-hover:border-[#004C8F]/30 group-hover:bg-gray-50"
+                    ? "border-[#004C8F] bg-[#004C8F]/8 ring-1 ring-[#004C8F]/20"
+                    : "border-gray-200 bg-white group-hover:border-[#004C8F]/40 group-hover:bg-blue-50/40"
             )}>
-                <div className="flex-1 min-w-0 py-1.5 pl-4 pr-2">
+                <div className="flex-1 min-w-0 py-2 pl-4 pr-2">
                     <span className={cn(
-                        "text-xs font-semibold leading-tight block",
-                        selected ? "text-[#004C8F]" : "text-gray-700"
+                        "text-[13px] font-bold leading-tight block",
+                        selected ? "text-[#004C8F]" : "text-gray-800"
                     )}>
                         {cat.category_name}
                     </span>
                     {cat.description && (
-                        <span className="text-[10px] text-gray-400 leading-tight mt-0.5 block truncate">
+                        <span className={cn(
+                            "text-[11px] leading-tight mt-0.5 block truncate",
+                            selected ? "text-[#004C8F]/70" : "text-gray-500"
+                        )}>
                             {cat.description}
                         </span>
                     )}
@@ -57,13 +60,13 @@ function CategoryCard({
 
                 {/* Multiplier badge */}
                 <div className="pr-3 shrink-0">
-                    <Badge 
+                    <Badge
                         variant="secondary"
                         className={cn(
-                            "gap-0.5 text-[9px] font-black rounded-md px-1.5 py-0.5 border-0 hover:bg-transparent transition-colors",
+                            "gap-0.5 text-[10px] font-black rounded-md px-1.5 py-0.5 border-0 hover:bg-transparent transition-colors",
                             selected
                                 ? "bg-[#004C8F] text-white hover:bg-[#004C8F]/90"
-                                : "bg-gray-100 text-gray-500 group-hover:bg-gray-200"
+                                : "bg-gray-100 text-gray-600 group-hover:bg-gray-200"
                         )}
                     >
                         <Zap size={9} strokeWidth={2.5} />

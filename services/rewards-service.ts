@@ -75,7 +75,11 @@ export async function fetchCategories(): Promise<CategoryInfo[]> {
 
 // ── Wallet ────────────────────────────────────────────────────────────────────
 
+// services/rewards-service.ts
 export async function fetchWallet(employeeId: string): Promise<WalletData> {
+    if (!employeeId || employeeId === "undefined" || employeeId === "null") {
+        throw new Error("Invalid employee ID — auth not ready yet");
+    }
     try {
         const res = await walletClient.get<WalletData>(`/employees/${employeeId}`);
         return res.data;
@@ -83,7 +87,6 @@ export async function fetchWallet(employeeId: string): Promise<WalletData> {
         throw new Error(extractErrorMessage(error, "Failed to load wallet"));
     }
 }
-
 export async function redeemReward(
     walletId: string,
     catalogId: string,

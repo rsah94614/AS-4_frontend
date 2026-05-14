@@ -30,6 +30,8 @@ export interface RecentReview {
 export type RecentReviewResponse = {
     review_id: string;
     reviewer_name: string;
+    receiver_name: string;
+    raw_points: number;
     tags: string[];
     comment: string;
     review_at: string;
@@ -41,6 +43,9 @@ export type RecentReviewResponse = {
 export type LeaderboardEntryResponse = {
     rank: number;
     employee_id: string;
+    name?: string;
+    first_name?: string;
+    last_name?: string;
     username: string;
     department: string;
     total_earned_points: number;
@@ -51,6 +56,7 @@ export type LeaderboardEntryResponse = {
 
 export type UserRecognition = {
     employee_id: string;
+    name: string;
     username: string;
     department: string;
     given: number;
@@ -138,7 +144,10 @@ export type TeamSummaryResponse = {
 
 export type TeamMemberReportResponse = {
     employee_id: string;
+    name: string;
     username: string;
+    first_name: string;   
+    last_name: string; 
     designation: string;
     total_earned_points: number;
     available_points: number;

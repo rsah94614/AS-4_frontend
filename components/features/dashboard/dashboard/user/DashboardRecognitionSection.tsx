@@ -48,25 +48,26 @@ const DashboardRecognitionSection = () => {
         load();
     }, []);
 
-    const items = reviews.map((r) => ({
-        id: r.review_id,
-        from: r.reviewer_name,
-        fromInitials: userInitials(r.reviewer_name),
-        to: "you",
-        toInitials: "",
-        message: r.comment,
-        tags: r.tags ?? [],
-        time: formatTime(r.review_at),
-        color: "bg-[#004C8F]",
-        image: null,
-    }));
+const items = reviews.map((r) => ({
+    id: r.review_id,
+    from: r.reviewer_name ?? "Unknown User",
+    fromInitials: userInitials(r.reviewer_name),
+    to: r.receiver_name,
+    toInitials: userInitials(r.receiver_name),
+    points: r.raw_points,
+    message: r.comment,
+    tags: r.tags ?? [],
+    time: formatTime(r.review_at),
+    color: "bg-[#004C8F]",
+    image: null,
+}));
 
     return (
         <section className="lg:col-span-3 flex flex-col gap-4">
             {/* Section header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-lg font-bold text-gray-900">Recent Reviews</h2>
+                    <h2 className="text-xl font-bold text-gray-900">Recent Reviews</h2>
                     <p className="text-xs text-gray-400 mt-0.5">What your peers are saying</p>
                 </div>
                 {!loading && items.length > 0 && (
