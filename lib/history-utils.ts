@@ -64,21 +64,6 @@ export function getMessage(item: HistoryItem): string {
     return item.comment ?? "Points earned";
 }
 
-/** Sanitizes the raw comment (hides ugly IDs for legacy data) */
-export function getSanitizedComment(item: HistoryItem): string | undefined {
-    if (!item.comment) return undefined;
-    if (item.comment.startsWith("Points credited from review ")) {
-        const remainder = item.comment.slice("Points credited from review ".length);
-        const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-        if (uuidRegex.test(remainder)) {
-            return "Points credited from review";
-        }
-    }
-    return item.comment;
-}
-
-
-
 export const PAGE_SIZE = 10;
 
 export const periodOptions: PeriodFilter[] = [
