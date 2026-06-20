@@ -3,7 +3,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Skeleton } from '@/components/ui/skeleton'
 import { auth } from '@/services/auth-service'
 import { routePermissionsApi } from '@/services/roles-service'
@@ -100,6 +100,7 @@ export default function ProtectedRoute({
     readOnlyAccess = false,
 }: ProtectedRouteProps) {
     const router = useRouter()
+    const pathname = usePathname()
     const [isChecking, setIsChecking] = useState(true)
     const [isAuthorized, setIsAuthorized] = useState(false)
 
@@ -119,6 +120,14 @@ export default function ProtectedRoute({
                 return
             }
 
+            const user = auth.getUser()
+            // usePathname() includes the basePath prefix ('/aabhar'), so use
+            // endsWith to match '/aabhar/first-time-setup' correctly.
+            if (user?.must_change_password && !pathname.endsWith('/first-time-setup')) {
+                router.push('/first-time-setup')
+                return
+            }
+
             if (!adminOnly) {
                 setIsAuthorized(true)
                 setIsChecking(false)
@@ -126,7 +135,6 @@ export default function ProtectedRoute({
             }
 
             // ── 2. SUPER_ADMIN bypasses everything ────────────────────────
-            const user = auth.getUser()
             const roles: string[] = user?.roles ?? []
             if (roles.includes('SUPER_ADMIN')) {
                 setIsAuthorized(true)
@@ -185,7 +193,7 @@ export default function ProtectedRoute({
         }
 
         checkAuth()
-    }, [router, redirectTo, adminOnly, pathPrefix, readOnlyAccess])
+    }, [router, redirectTo, adminOnly, pathPrefix, readOnlyAccess, pathname])
 
     // ── Loading skeleton ──────────────────────────────────────────────────────
     if (isChecking) {

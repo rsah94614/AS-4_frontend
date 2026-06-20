@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Loader2, Mail, LockKeyhole, ThumbsUp, Gift, Award, LineChart } from 'lucide-react'
 import { useAuth } from '@/providers/AuthProvider'
+import { auth } from '@/services/auth-service'
 
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -28,10 +29,15 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({})
   const [touched, setTouched] = useState<{ email?: boolean; password?: boolean }>({})
 
-  // Redirect to dashboard if already authenticated
+  // Redirect authenticated users — respect must_change_password flag
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      router.replace('/dashboard')
+      const currentUser = auth.getUser()
+      if (currentUser?.must_change_password) {
+        router.replace('/first-time-setup')
+      } else {
+        router.replace('/dashboard')
+      }
     }
   }, [authLoading, isAuthenticated, router])
 
@@ -110,8 +116,12 @@ export default function LoginPage() {
       if (error) {
         setErrors({ general: error })
       } else {
-        // Redirect to dashboard on success
-        router.push('/dashboard')
+        const currentUser = auth.getUser()
+        if (currentUser?.must_change_password) {
+          router.push('/first-time-setup')
+        } else {
+          router.push('/dashboard')
+        }
       }
     } catch (error) {
       console.error('Login error:', error)
@@ -162,7 +172,7 @@ export default function LoginPage() {
             {/* Typography */}
             <div className="mt-4">
               <h1 className="text-4xl xl:text-5xl font-bold text-[#b8860b] mb-4 leading-tight">
-                CELEBRATING SUCCESS, TOGETHER.
+                CELEBRATING SUCCESS TOGETHER.
               </h1>
               <h2 className="text-2xl xl:text-3xl font-medium text-[#1c2c5b] mb-12 uppercase tracking-wide">
                 Aabhar: Recognizing Your Impact.

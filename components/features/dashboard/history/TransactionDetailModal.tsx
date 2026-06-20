@@ -2,7 +2,6 @@
 
 import {
     Calendar,
-    Hash,
     Package,
     Coins,
     Clock,

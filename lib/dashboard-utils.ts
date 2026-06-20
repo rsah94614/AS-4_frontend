@@ -47,3 +47,20 @@ export function formatTime(iso: string): string {
     if (diffHours < 24) return `${diffHours}h ago`;
     return date.toLocaleDateString();
 }
+
+export function formatDisplayName(username?: string | null, email?: string | null): string {
+    if (!username) return "User";
+    
+    // Check if username is a UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    
+    let base = username;
+    if (uuidRegex.test(username)) {
+        base = email ? email.split('@')[0] : "Employee";
+    }
+    
+    // Capitalize and replace dots/underscores with spaces (e.g., john.doe -> John Doe)
+    return base
+        .replace(/[._-]/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase());
+}

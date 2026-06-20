@@ -21,6 +21,7 @@ export const AUTH_ENDPOINTS = {
     VALIDATE: '/validate',
     FORGOT_PASSWORD: '/forgot-password',
     RESET_PASSWORD: '/reset-password',
+    CHANGE_PASSWORD: '/change-password',
 } as const
 
 // 2. Create a module-level lock for concurrency
@@ -222,6 +223,17 @@ export async function resetPassword(token: string, newPassword: string) {
     }
 }
 
+export async function changePassword(newPassword: string) {
+    try {
+        const response = await axiosClient.post(AUTH_ENDPOINTS.CHANGE_PASSWORD, {
+            new_password: newPassword,
+        })
+        return { success: true as const, data: response.data }
+    } catch (error) {
+        return createErrorResponse(error, 'Failed to change password');
+    }
+}
+
 export interface User {
     employee_id: string
     username: string
@@ -229,6 +241,7 @@ export interface User {
     designation_id: string | null
     department_id: string | null
     roles: string[]
+    must_change_password?: boolean
 }
 
 export interface LoginResponse {

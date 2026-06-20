@@ -3,6 +3,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, Mail, Briefcase } from "lucide-react";
 
+import { formatDisplayName } from "@/lib/dashboard-utils";
+
 interface ProfileHeaderProps {
     profile: EmployeeDetail;
 }
@@ -18,14 +20,14 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
             <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
                 <Avatar className="h-24 w-24 shrink-0 ring-4 ring-[#F0F4F8] shadow-xl sm:h-28 sm:w-28">
                     <AvatarFallback className="bg-gradient-to-br from-[#003A70] to-[#004C8F] text-3xl font-bold text-white sm:text-4xl">
-                        {profile.username.charAt(0).toUpperCase()}
+                        {formatDisplayName(profile.username, profile.email).charAt(0)}
                     </AvatarFallback>
                 </Avatar>
 
                 <div className="space-y-4 sm:pt-2">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                            {profile.username}
+                            {formatDisplayName(profile.username, profile.email)}
                         </h1>
                         <div className="mt-1.5 flex flex-col gap-2 text-sm font-medium text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
                             <div className="flex items-center justify-center gap-1.5 sm:justify-start">

@@ -20,16 +20,16 @@ export default function ProfileStats({ metrics }: ProfileStatsProps) {
             label: "Recognitions",
             value: metrics.recognitions_given,
             subtext: "Sent",
-            bg: "bg-emerald-50",
-            border: "border-emerald-100"
+            bg: "bg-[#EEF4FB]",
+            border: "border-[#D8E6F7]"
         },
         {
             icon: <Gift className="w-6 h-6 text-[#004C8F]" />,
             label: "Rewards",
             value: metrics.rewards_redeemed,
             subtext: "Redeemed",
-            bg: "bg-[#FEF2F2]",
-            border: "border-[#FECACA]"
+            bg: "bg-[#EEF4FB]",
+            border: "border-[#D8E6F7]"
         },
     ];
 
