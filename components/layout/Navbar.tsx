@@ -9,6 +9,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useNotificationStore } from '@/lib/notification-store';
 import { useAuth } from '@/providers/AuthProvider';
 import { isAdminUser } from '@/lib/role-utils';
+import { formatDisplayName } from '@/lib/dashboard-utils';
 import {
     LayoutGrid, FileText, Trophy, Clock,
     Wallet, SlidersHorizontal, Bug,
@@ -143,7 +144,6 @@ export default function Navbar() {
                 setHasControlPanelAccess(false); // Silent fail — user simply won't see Control Panel link
             }
         })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
 
     useEffect(() => {
@@ -198,14 +198,18 @@ export default function Navbar() {
     };
 
     const initials = React.useMemo(() => {
-        if (!user?.username) return '';
-        const parts = (user.username as string).trim().split(/\s+/);
+        const displayName = formatDisplayName(user?.username as string, user?.email as string);
+        if (!displayName || displayName === 'User' || displayName === 'Employee') {
+            if (!user?.username) return '';
+        }
+        const parts = displayName.trim().split(/\s+/);
         return parts.length >= 2
             ? (parts[0][0] + parts[1][0]).toUpperCase()
-            : (user.username as string).slice(0, 2).toUpperCase();
+            : displayName.slice(0, 2).toUpperCase();
     }, [user]);
 
     const username = user?.username || '';
+    const email = user?.email || '';
 
     return (
         <>
@@ -379,7 +383,7 @@ export default function Navbar() {
                                     <span className="text-white font-bold text-xs">{initials || '??'}</span>
                                 </div>
                                 {username && (
-                                    <span className="text-white font-medium hidden md:block text-sm">{username}</span>
+                                    <span className="text-white font-medium hidden md:block text-sm">{formatDisplayName(username as string, email as string)}</span>
                                 )}
                             </button>
 

@@ -1,8 +1,6 @@
-import { getGreeting } from "@/lib/dashboard-utils";
+import { getGreeting, formatDisplayName } from "@/lib/dashboard-utils";
 import { useAuth } from "@/providers/AuthProvider";
 import { Sparkles } from "lucide-react";
-
-
 
 export default function DashboardHeroSection() {
     const { user } = useAuth();
@@ -10,7 +8,6 @@ export default function DashboardHeroSection() {
     const dateStr = new Date().toLocaleDateString("en-IN", {
         weekday: "long", day: "numeric", month: "long",
     });
-
 
     return <div className="relative overflow-hidden bg-gradient-to-br from-[#003A70] via-[#004C8F] to-[#1D6EC5] px-8 md:px-10 py-8 text-white">
         {/* Decorative blobs */}
@@ -26,7 +23,7 @@ export default function DashboardHeroSection() {
                     <span className="text-white/70 text-sm font-medium">{getGreeting()}</span>
                 </div>
                 <h1 className="text-3xl font-black text-white leading-tight">
-                    {user?.username}!
+                    {formatDisplayName(user?.username, user?.email)}!
                 </h1>
                 <p className="text-white/60 text-sm mt-1.5">
                     Here&apos;s your recognition activity at a glance.
