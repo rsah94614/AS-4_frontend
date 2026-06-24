@@ -77,7 +77,7 @@ export default function ForgotPasswordPage() {
           {/* Logo */}
           <div className="mb-6">
             <Image
-              src="logo.svg"
+              src="/aabhar/logo.svg"
               alt="HDFC Bank Logo"
               width={240}
               height={80}
@@ -85,9 +85,6 @@ export default function ForgotPasswordPage() {
             />
           </div>
 
-          <h1 className="text-2xl md:text-3xl text-foreground mb-6">
-            Welcome to NetBanking
-          </h1>
 
           <div className="w-full bg-white border border-border rounded-md shadow-sm p-6 md:p-8 max-w-[420px]">
             {/* Success Icon */}
@@ -160,7 +157,7 @@ export default function ForgotPasswordPage() {
           {/* Logo */}
           <div className="mb-6 flex items-center justify-center">
             <Image
-              src="logo.svg"
+              src="/aabhar/logo.svg"
               alt="HDFC Bank Logo"
               width={240}
               height={80}

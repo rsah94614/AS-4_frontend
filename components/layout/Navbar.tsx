@@ -9,6 +9,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useNotificationStore } from '@/lib/notification-store';
 import { useAuth } from '@/providers/AuthProvider';
 import { isAdminUser } from '@/lib/role-utils';
+import { formatDisplayName } from '@/lib/dashboard-utils';
 import {
     LayoutGrid, FileText, Trophy, Clock,
     Wallet, SlidersHorizontal, Bug,
@@ -23,17 +24,17 @@ import { routePermissionsApi } from '@/services/roles-service';
 // ── Control panel service prefixes ────────────────────────────────────────────
 // Control Panel link is shown if the user has access to ANY route under these.
 const CONTROL_PANEL_PREFIXES = [
-    '/v1/audit-logs',
-    '/v1/departments',
-    '/v1/designations',
-    '/v1/employees',
-    '/v1/reward-categories',
-    '/v1/rewards',
-    '/v1/review-categories',
-    '/v1/reviews',
-    '/v1/roles',
-    '/v1/statuses',
-    '/v1/organizations',   // audit-logs may live here
+    '/aabhar/v1/audit-logs',
+    '/aabhar/v1/departments',
+    '/aabhar/v1/designations',
+    '/aabhar/v1/employees',
+    '/aabhar/v1/reward-categories',
+    '/aabhar/v1/rewards',
+    '/aabhar/v1/review-categories',
+    '/aabhar/v1/reviews',
+    '/aabhar/v1/roles',
+    '/aabhar/v1/statuses',
+    '/aabhar/v1/organizations',   // audit-logs may live here
 ];
 
 // ── Nav items ─────────────────────────────────────────────────────────────────
@@ -121,12 +122,16 @@ export default function Navbar() {
 
         (async () => {
             try {
-                // Calls GET /v1/roles/my-permissions
+                // Calls GET /aabhar/v1/roles/my-permissions
                 // Returns string[] of route_keys the current user can access.
                 // This endpoint is always_public — auth required, no role check.
                 const myRouteKeys: string[] = await routePermissionsApi.getMyPermissions();
 
                 const canAccess = myRouteKeys.some((routeKey) => {
+                    // This route is granted to everyone, so it should not trigger 
+                    // the visibility of the Admin Control Panel.
+                    if (routeKey === 'GET:/aabhar/v1/roles/my-permissions') return false;
+                    
                     const colonIdx = routeKey.indexOf(':');
                     if (colonIdx === -1) return false;
                     const path = routeKey.slice(colonIdx + 1);
@@ -134,13 +139,12 @@ export default function Navbar() {
                 });
 
                 setHasControlPanelAccess(canAccess);
-            } catch {
-                // Silent fail — user simply won't see Control Panel link
-                setHasControlPanelAccess(false);
+            } catch (err){
+                console.error("Permission check failed:", err); // Log this to see the 404
+                setHasControlPanelAccess(false); // Silent fail — user simply won't see Control Panel link
             }
         })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         const id = setTimeout(() => { setMounted(true); }, 0);
@@ -194,14 +198,18 @@ export default function Navbar() {
     };
 
     const initials = React.useMemo(() => {
-        if (!user?.username) return '';
-        const parts = (user.username as string).trim().split(/\s+/);
+        const displayName = formatDisplayName(user?.username as string, user?.email as string);
+        if (!displayName || displayName === 'User' || displayName === 'Employee') {
+            if (!user?.username) return '';
+        }
+        const parts = displayName.trim().split(/\s+/);
         return parts.length >= 2
             ? (parts[0][0] + parts[1][0]).toUpperCase()
-            : (user.username as string).slice(0, 2).toUpperCase();
+            : displayName.slice(0, 2).toUpperCase();
     }, [user]);
 
     const username = user?.username || '';
+    const email = user?.email || '';
 
     return (
         <>
@@ -224,7 +232,7 @@ export default function Navbar() {
                                 </button>
                             ) : (
                                 <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
-                                    <Image src="/logo.svg" alt="HDFC Bank" width={130} height={38} priority />
+                                    <Image src="/aabhar/logo.svg" alt="HDFC Bank" width={130} height={38} priority />
                                 </Link>
                             )}
                         </div>
@@ -375,7 +383,7 @@ export default function Navbar() {
                                     <span className="text-white font-bold text-xs">{initials || '??'}</span>
                                 </div>
                                 {username && (
-                                    <span className="text-white font-medium hidden md:block text-sm">{username}</span>
+                                    <span className="text-white font-medium hidden md:block text-sm">{formatDisplayName(username as string, email as string)}</span>
                                 )}
                             </button>
 

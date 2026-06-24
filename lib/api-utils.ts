@@ -149,7 +149,7 @@ export function createAuthenticatedClient(baseURL: string): AxiosInstance {
                 }
 
                 auth.clearTokens();
-                if (typeof window !== "undefined") window.location.href = "/login";
+                if (typeof window !== "undefined") window.location.href = "/aabhar/login";
             }
 
             return Promise.reject(error);

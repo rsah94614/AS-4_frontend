@@ -2,8 +2,6 @@
 
 import {
     Calendar,
-    Hash,
-    MessageSquare,
     Package,
     Coins,
     Clock,
@@ -85,6 +83,7 @@ export default function TransactionDetailModal({
             {/* Fully white, compact modal — no rounded-b artifacts */}
             <DialogContent
                 className="sm:max-w-[400px] p-0 overflow-hidden border-0 shadow-2xl rounded-2xl bg-white"
+                aria-describedby={undefined}
                 onOpenAutoFocus={(e) => {
                     e.preventDefault();
                 }}
@@ -133,16 +132,6 @@ export default function TransactionDetailModal({
                     <div className="rounded-xl border border-gray-200 p-4 grid grid-cols-2 gap-4">
                         <DetailRow icon={<Calendar size={12} />} label="Date" value={formatDate(item.granted_at)} />
                         <DetailRow icon={<Clock size={12} />} label="Time" value={formatTime(item.granted_at)} />
-                        <DetailRow
-                            className="col-span-2"
-                            icon={<Hash size={12} />}
-                            label="Transaction ID"
-                            value={
-                                <span className="font-mono text-[10px] font-normal text-gray-600 break-all tracking-tight">
-                                    {item.history_id}
-                                </span>
-                            }
-                        />
                     </div>
 
                     {/* Reward info */}
@@ -160,18 +149,7 @@ export default function TransactionDetailModal({
                         </div>
                     )}
 
-                    {/* Note */}
-                    {item.comment && (
-                        <div className="flex gap-3 pt-1">
-                            <MessageSquare className="w-4 h-4 text-gray-600 shrink-0 mt-0.5" />
-                            <div>
-                                <p className="text-[9px] font-normal text-gray-600 uppercase tracking-widest mb-1">Note</p>
-                                <p className="text-xs text-gray-600 italic leading-relaxed">
-                                    &ldquo;{item.comment}&rdquo;
-                                </p>
-                            </div>
-                        </div>
-                    )}
+
                 </div>
             </DialogContent>
         </Dialog>

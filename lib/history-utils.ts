@@ -51,10 +51,18 @@ export function getMessage(item: HistoryItem): string {
     if (item.reward_catalog) {
         return `You redeemed "${item.reward_catalog.reward_name}"`;
     }
-    return item.comment ?? "Points awarded";
+
+    if (item.comment?.startsWith("Points credited from review ")) {
+        const remainder = item.comment.slice("Points credited from review ".length);
+        // If the remainder is exactly a UUID (legacy data), hide it so the UI is clean
+        const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+        if (uuidRegex.test(remainder)) {
+            return "Points credited from review";
+        }
+    }
+
+    return item.comment ?? "Points earned";
 }
-
-
 
 export const PAGE_SIZE = 10;
 

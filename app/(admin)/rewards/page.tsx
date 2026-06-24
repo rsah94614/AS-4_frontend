@@ -127,7 +127,7 @@ export default function RewardsPage() {
   };
 
   return (
-      <ProtectedRoute adminOnly pathPrefix="/v1/rewards/catalog">
+      <ProtectedRoute adminOnly pathPrefix="/aabhar/v1/rewards/catalog">
     <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 
       {/* ─── Page Header ─── */}

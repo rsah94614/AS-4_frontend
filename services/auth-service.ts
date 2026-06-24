@@ -21,6 +21,7 @@ export const AUTH_ENDPOINTS = {
     VALIDATE: '/validate',
     FORGOT_PASSWORD: '/forgot-password',
     RESET_PASSWORD: '/reset-password',
+    CHANGE_PASSWORD: '/change-password',
 } as const
 
 // 2. Create a module-level lock for concurrency
@@ -90,7 +91,7 @@ export const auth = {
             try {
                 // 5. Use BARE axios, NOT axiosClient, to avoid infinite 401 loops!
                 // We use the full auth microservice URL now.
-                const authBase = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001") + "/v1/auth"
+                const authBase = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001") + "/aabhar/v1/auth"
                 const response = await axios.post(
                     `${authBase}/refresh`,
                     { refresh_token: refreshToken },
@@ -110,7 +111,7 @@ export const auth = {
                 auth.clearTokens()
 
                 // If refresh completely fails, gracefully kick the user to login
-                if (typeof window !== 'undefined') window.location.href = '/login';
+                if (typeof window !== 'undefined') window.location.href = '/aabhar/login';
                 return false
             } finally {
                 // 6. Release the lock when done
@@ -222,6 +223,17 @@ export async function resetPassword(token: string, newPassword: string) {
     }
 }
 
+export async function changePassword(newPassword: string) {
+    try {
+        const response = await axiosClient.post(AUTH_ENDPOINTS.CHANGE_PASSWORD, {
+            new_password: newPassword,
+        })
+        return { success: true as const, data: response.data }
+    } catch (error) {
+        return createErrorResponse(error, 'Failed to change password');
+    }
+}
+
 export interface User {
     employee_id: string
     username: string
@@ -229,6 +241,7 @@ export interface User {
     designation_id: string | null
     department_id: string | null
     roles: string[]
+    must_change_password?: boolean
 }
 
 export interface LoginResponse {

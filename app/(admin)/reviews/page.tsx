@@ -42,7 +42,7 @@ export default function AdminReviewsPage() {
     };
 
     return (
-        <ProtectedRoute adminOnly pathPrefix="/v1/recognitions/reviews">
+        <ProtectedRoute adminOnly pathPrefix="/aabhar/v1/recognitions/reviews">
         <>
             <main className="flex-1 overflow-y-auto bg-white">
 

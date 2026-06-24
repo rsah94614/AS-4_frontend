@@ -34,7 +34,7 @@ function getActivityAppearance(activity: ProfileActivityItem) {
         return {
             icon: <Gift className="h-4 w-4" />,
             iconColor: "text-[#004C8F]",
-            iconBg: "bg-[#FEF2F2]",
+            iconBg: "bg-[#EEF4FB]",
         };
     }
 
@@ -49,7 +49,7 @@ function getActivityAppearance(activity: ProfileActivityItem) {
     return {
         icon: <Award className="h-4 w-4" />,
         iconColor: "text-[#004C8F]",
-        iconBg: "bg-emerald-50",
+        iconBg: "bg-[#EEF4FB]",
     };
 }
 

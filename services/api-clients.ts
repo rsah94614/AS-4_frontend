@@ -1,39 +1,51 @@
 import { createAuthenticatedClient } from "@/lib/api-utils";
 
 /**
- * Modular Axios clients for each microservice.
- * Pointing directly to microservice URLs (via NEXT_PUBLIC env vars)
- * instead of routing through the Next.js API proxy.
+ * Sanitizes environment variables for the DMZ architecture.
+ * If in production and the variable is empty/null, it returns "" (Relative Path).
+ * If in development, it returns the local fallback.
  */
+const getBaseUrl = (envVar: string | undefined, fallback: string): string => {
+  // 1. Check if the variable is literally the string "null" or "undefined" (common CI/CD artifact)
+  const isInvalid = !envVar || envVar === "null" || envVar === "undefined" || envVar === "";
+
+  // 2. In Production (EKS), we WANT an empty string for Relative Paths
+  if (process.env.NODE_ENV === "production") {
+    return isInvalid ? "" : envVar;
+  }
+
+  // 3. In Development (Localhost), use the fallback
+  return isInvalid ? fallback : envVar;
+};
 
 export const authClient = createAuthenticatedClient(
-    (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001") + "/v1/auth"
+  getBaseUrl(process.env.NEXT_PUBLIC_API_URL, "") + "/aabhar/v1/auth"
 );
 
 export const rolesClient = createAuthenticatedClient(
-    (process.env.NEXT_PUBLIC_ROLES_API_URL ?? "http://localhost:8002") + "/v1/roles"
+  getBaseUrl(process.env.NEXT_PUBLIC_ROLES_API_URL, "") + "/aabhar/v1/roles"
 );
 
 export const employeesClient = createAuthenticatedClient(
-    (process.env.NEXT_PUBLIC_EMPLOYEE_API_URL ?? "http://localhost:8003") + "/v1/employees"
+  getBaseUrl(process.env.NEXT_PUBLIC_EMPLOYEE_API_URL, "") + "/aabhar/v1/employees"
 );
 
 export const walletClient = createAuthenticatedClient(
-    (process.env.NEXT_PUBLIC_WALLET_API_URL ?? "http://localhost:8004") + "/v1/wallets"
+  getBaseUrl(process.env.NEXT_PUBLIC_WALLET_API_URL, "") + "/aabhar/v1/wallets"
 );
 
 export const recognitionClient = createAuthenticatedClient(
-    (process.env.NEXT_PUBLIC_RECOGNITION_API_URL ?? "http://localhost:8005") + "/v1/recognitions"
+  getBaseUrl(process.env.NEXT_PUBLIC_RECOGNITION_API_URL, "") + "/aabhar/v1/recognitions"
 );
 
 export const rewardsClient = createAuthenticatedClient(
-    (process.env.NEXT_PUBLIC_REWARDS_API_URL ?? "http://localhost:8006") + "/v1/rewards"
+  getBaseUrl(process.env.NEXT_PUBLIC_REWARDS_API_URL, "") + "/aabhar/v1/rewards"
 );
 
 export const orgClient = createAuthenticatedClient(
-    (process.env.NEXT_PUBLIC_ORG_API_URL ?? "http://localhost:8007") + "/v1/organizations"
+  getBaseUrl(process.env.NEXT_PUBLIC_ORG_API_URL, "") + "/aabhar/v1/organizations"
 );
 
 export const analyticsClient = createAuthenticatedClient(
-    (process.env.NEXT_PUBLIC_ANALYTICS_API_URL ?? "http://localhost:8008") + "/v1/analytics"
+  getBaseUrl(process.env.NEXT_PUBLIC_ANALYTICS_API_URL, "") + "/aabhar/v1/analytics"
 );

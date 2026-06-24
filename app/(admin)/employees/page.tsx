@@ -27,7 +27,7 @@ export default function EmployeesPage() {
     const [tab, setTab] = useState<Tab>("list");
 
     return (
-        <ProtectedRoute adminOnly pathPrefix="/v1/employees">
+        <ProtectedRoute adminOnly pathPrefix="/aabhar/v1/employees">
         <>
             <main className="flex-1 w-full min-h-screen bg-white mx-auto shadow-[0_10px_50px_rgba(0,0,0,0.04)]">
 

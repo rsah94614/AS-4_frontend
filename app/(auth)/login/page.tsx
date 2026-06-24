@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Loader2, Mail, LockKeyhole, ThumbsUp, Gift, Award, LineChart } from 'lucide-react'
 import { useAuth } from '@/providers/AuthProvider'
+import { auth } from '@/services/auth-service'
 
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -28,10 +29,15 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({})
   const [touched, setTouched] = useState<{ email?: boolean; password?: boolean }>({})
 
-  // Redirect to dashboard if already authenticated
+  // Redirect authenticated users — respect must_change_password flag
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      router.replace('/dashboard')
+      const currentUser = auth.getUser()
+      if (currentUser?.must_change_password) {
+        router.replace('/first-time-setup')
+      } else {
+        router.replace('/dashboard')
+      }
     }
   }, [authLoading, isAuthenticated, router])
 
@@ -110,8 +116,12 @@ export default function LoginPage() {
       if (error) {
         setErrors({ general: error })
       } else {
-        // Redirect to dashboard on success
-        router.push('/dashboard')
+        const currentUser = auth.getUser()
+        if (currentUser?.must_change_password) {
+          router.push('/first-time-setup')
+        } else {
+          router.push('/dashboard')
+        }
       }
     } catch (error) {
       console.error('Login error:', error)
@@ -142,12 +152,12 @@ export default function LoginPage() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#d9a05b]/10 rounded-full blur-3xl pointer-events-none"></div>
           <div className="absolute -bottom-20 -right-20 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
 
-          <div className="relative z-10 w-full max-w-2xl flex flex-col mb-20">
+          <div className="relative z-10 w-full max-w-4xl flex flex-col mb-20">
             {/* Header containing HDFC Logo and Aabhar Text */}
             <div className="flex items-center mb-16 bg-white/60 p-4 rounded-xl shadow-sm self-start backdrop-blur-sm">
               <div className="flex items-center gap-5">
                 <Image
-                  src="logo.svg"
+                  src="/aabhar/logo.svg"
                   alt="HDFC Bank Logo"
                   width={180}
                   height={40}
@@ -162,10 +172,10 @@ export default function LoginPage() {
             {/* Typography */}
             <div className="mt-4">
               <h1 className="text-4xl xl:text-5xl font-bold text-[#b8860b] mb-4 leading-tight">
-                CELEBRATING SUCCESS, TOGETHER.
+                CELEBRATING SUCCESS TOGETHER
               </h1>
               <h2 className="text-2xl xl:text-3xl font-medium text-[#1c2c5b] mb-12 uppercase tracking-wide">
-                Aabhar: Recognizing Your Impact.
+                Aabhar: Recognizing Your Impact 
               </h2>
 
               {/* Grid of features mimicking the graphic */}
@@ -232,7 +242,7 @@ export default function LoginPage() {
               {/* Logo inside card (for mobile or generic view) */}
               <div className="mb-6 flex flex-col items-center justify-center">
                 <Image
-                  src="logo.svg"
+                  src="/aabhar/logo.svg"
                   alt="HDFC Bank Logo"
                   width={270}
                   height={60}

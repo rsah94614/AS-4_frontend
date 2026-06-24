@@ -7,25 +7,19 @@ pipeline {
 
     environment {
         // --- Branch Control & Images ---
-        TARGET_BRANCH = "pipeline-branch"
+        TARGET_BRANCH = "ms-pipeline"
         REPO_URL = "https://github.com/rsah94614/as-4_frontend_nextjs.git" 
         IMAGE = "mrmonster786/employee-rr-frontend"
         TAG = "${TARGET_BRANCH}-${env.BUILD_NUMBER}"
         CONTAINER_NAME = "frontend-${TARGET_BRANCH}"
+        DOCKER_BUILDKIT = "1"
         
         // --- Target Infrastructure ---
-        TARGET_EC2_HOST = "frontend.aabhar.top"
+        TARGET_EC2_HOST = "aabhar.top"
         HOST_PORT = "3000"
 
-        // --- Frontend API Routing Variables ---
-        NEXT_PUBLIC_API_URL = "https://test.aabhar.top"
-        NEXT_PUBLIC_RECOGNITION_API_URL = "https://test.aabhar.top"
-        NEXT_PUBLIC_EMPLOYEE_API_URL = "https://test.aabhar.top"
-        NEXT_PUBLIC_WALLET_API_URL = "https://test.aabhar.top"
-        NEXT_PUBLIC_REWARDS_API_URL = "https://test.aabhar.top"
-        NEXT_PUBLIC_ANALYTICS_API_URL = "https://test.aabhar.top"
-        NEXT_PUBLIC_ORG_API_URL = "https://test.aabhar.top"
-        NEXT_PUBLIC_ROLES_API_URL = "https://test.aabhar.top"
+        NEXT_PUBLIC_S3_REGION = "us-east-1"
+        NEXT_PUBLIC_S3_BUCKET = "aabhar-storage-gu-2026"
     }
 
     options {
@@ -35,6 +29,25 @@ pipeline {
     }
 
     stages {
+        stage('Bootstrap Docker Buildx') {
+            steps {
+                script {
+                    // Check if buildx is already installed to avoid redundant downloads
+                    def exitCode = sh(script: "docker buildx version", returnStatus: true)
+                    if (exitCode != 0) {
+                        echo "Buildx missing. Installing for Jenkins user..."
+                        sh '''
+                        mkdir -p ~/.docker/cli-plugins
+                        curl -SL https://github.com/docker/buildx/releases/download/v0.12.1/buildx-v0.12.1.linux-amd64 -o ~/.docker/cli-plugins/docker-buildx
+                        chmod +x ~/.docker/cli-plugins/docker-buildx
+                        docker buildx version
+                        '''
+                    } else {
+                        echo "Buildx is already configured."
+                    }
+                }
+            }
+        }
         stage('Checkout Source') {
             steps {
                 echo "Fetching code for branch: ${TARGET_BRANCH} using GitHub PAT..."
@@ -69,22 +82,58 @@ pipeline {
 
         // 2. Build Stage (Injects Environment Variables)
         stage('Build Docker Image') {
+            environment {
+                // Defining these here prevents the 'MissingPropertyException'
+                NEXT_PUBLIC_API_URL = ""
+                NEXT_PUBLIC_RECOGNITION_API_URL = ""
+                NEXT_PUBLIC_EMPLOYEE_API_URL = ""
+                NEXT_PUBLIC_WALLET_API_URL = ""
+                NEXT_PUBLIC_REWARDS_API_URL = ""
+                NEXT_PUBLIC_ANALYTICS_API_URL = ""
+                NEXT_PUBLIC_ORG_API_URL = ""
+                NEXT_PUBLIC_ROLES_API_URL = ""
+            }
             steps {
-                echo 'Building Next.js Production Image...'
-                sh """
-                docker build \\
-                  --build-arg NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \\
-                  --build-arg NEXT_PUBLIC_RECOGNITION_API_URL=${NEXT_PUBLIC_RECOGNITION_API_URL} \\
-                  --build-arg NEXT_PUBLIC_EMPLOYEE_API_URL=${NEXT_PUBLIC_EMPLOYEE_API_URL} \\
-                  --build-arg NEXT_PUBLIC_WALLET_API_URL=${NEXT_PUBLIC_WALLET_API_URL} \\
-                  --build-arg NEXT_PUBLIC_REWARDS_API_URL=${NEXT_PUBLIC_REWARDS_API_URL} \\
-                  --build-arg NEXT_PUBLIC_ANALYTICS_API_URL=${NEXT_PUBLIC_ANALYTICS_API_URL} \\
-                  --build-arg NEXT_PUBLIC_ORG_API_URL=${NEXT_PUBLIC_ORG_API_URL} \\
-                  --build-arg NEXT_PUBLIC_ROLES_API_URL=${NEXT_PUBLIC_ROLES_API_URL} \\
-                  -t ${IMAGE}:${TAG} .
-                """
+                echo "Building Next.js Production Image (No Cache)..."
+                script {
+                    // Replaced 'your-repo-name/frontend:latest' with '${IMAGE}:${TAG}'
+                    sh """
+                    docker build --no-cache \
+                        --build-arg NEXT_PUBLIC_API_URL='${env.NEXT_PUBLIC_API_URL}' \
+                        --build-arg NEXT_PUBLIC_RECOGNITION_API_URL='${env.NEXT_PUBLIC_RECOGNITION_API_URL}' \
+                        --build-arg NEXT_PUBLIC_EMPLOYEE_API_URL='${env.NEXT_PUBLIC_EMPLOYEE_API_URL}' \
+                        --build-arg NEXT_PUBLIC_WALLET_API_URL='${env.NEXT_PUBLIC_WALLET_API_URL}' \
+                        --build-arg NEXT_PUBLIC_REWARDS_API_URL='${env.NEXT_PUBLIC_REWARDS_API_URL}' \
+                        --build-arg NEXT_PUBLIC_ANALYTICS_API_URL='${env.NEXT_PUBLIC_ANALYTICS_API_URL}' \
+                        --build-arg NEXT_PUBLIC_ORG_API_URL='${env.NEXT_PUBLIC_ORG_API_URL}' \
+                        --build-arg NEXT_PUBLIC_ROLES_API_URL='${env.NEXT_PUBLIC_ROLES_API_URL}' \
+                        --build-arg NEXT_PUBLIC_S3_REGION='${env.NEXT_PUBLIC_S3_REGION}' \
+                        --build-arg NEXT_PUBLIC_S3_BUCKET='${env.NEXT_PUBLIC_S3_BUCKET}' \
+                        -t ${IMAGE}:${TAG} .
+                    """
+                }
             }
         }
+
+        // stage('Build Docker Image') {
+        //     steps {
+        //         echo 'Building Next.js Production Image (No Cache)...'
+        //         sh """
+        //         docker build --no-cache --pull \\
+        //           --build-arg NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \\
+        //           --build-arg NEXT_PUBLIC_RECOGNITION_API_URL=${NEXT_PUBLIC_RECOGNITION_API_URL} \\
+        //           --build-arg NEXT_PUBLIC_EMPLOYEE_API_URL=${NEXT_PUBLIC_EMPLOYEE_API_URL} \\
+        //           --build-arg NEXT_PUBLIC_WALLET_API_URL=${NEXT_PUBLIC_WALLET_API_URL} \\
+        //           --build-arg NEXT_PUBLIC_REWARDS_API_URL=${NEXT_PUBLIC_REWARDS_API_URL} \\
+        //           --build-arg NEXT_PUBLIC_ANALYTICS_API_URL=${NEXT_PUBLIC_ANALYTICS_API_URL} \\
+        //           --build-arg NEXT_PUBLIC_ORG_API_URL=${NEXT_PUBLIC_ORG_API_URL} \\
+        //           --build-arg NEXT_PUBLIC_ROLES_API_URL=${NEXT_PUBLIC_ROLES_API_URL} \\
+        //           --build-arg NEXT_PUBLIC_S3_REGION=${NEXT_PUBLIC_S3_REGION} \\
+        //           --build-arg NEXT_PUBLIC_S3_BUCKET=${NEXT_PUBLIC_S3_BUCKET} \\
+        //           -t ${IMAGE}:${TAG} .
+        //         """
+        //     }
+        // }
 
         // 3. Container Scan
         stage('Dynamic Analysis') {
@@ -95,7 +144,7 @@ pipeline {
 
         // 4. Push Image
         stage('Push Image') {
-            when { branch 'pipeline-branch' }
+            when { branch 'ms-pipeline' }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh '''
@@ -108,54 +157,64 @@ pipeline {
             }
         }
 
-        // 5. Deploy to Frontend EC2 & Verify Health
-        stage('Deploy to EC2 (AWS)') {
-            when { branch 'pipeline-branch' }
-            steps {
-                script {
-                    sshagent(credentials: ['frontend-ec2-ssh-key']) {
-                        sh """
-                        ssh -o StrictHostKeyChecking=no ubuntu@${TARGET_EC2_HOST} "
-                            docker stop ${CONTAINER_NAME} || true
-                            docker rm ${CONTAINER_NAME} || true
-                            
-                            docker pull ${IMAGE}:${TAG}
-                            
-                            docker run -d \\
-                            --name ${CONTAINER_NAME} \\
-                            --restart always \\
-                            -p ${HOST_PORT}:3000 \\
-                            ${IMAGE}:${TAG}
-                            
-                            echo '🧹 Running cleanup...'
-                            docker system prune -f
-                            docker image prune -af --filter 'until=24h'
-                        "
-                        """
-                    }
+    //     // 5. Deploy to Frontend EC2 & Verify Health
+    //     stage('Deploy to EC2 (AWS)') {
+    //         when { branch 'ms-pipeline' }
+    //         steps {
+    //             script {
+    //                 withCredentials([
+    //                     string(credentialsId: 'aws-s3-access-key', variable: 'AWS_ACCESS_KEY_ID'),
+    //                     string(credentialsId: 'aws-s3-secret-key', variable: 'AWS_SECRET_ACCESS_KEY'),
+    //                     string(credentialsId: 'aws-s3-session-token', variable: 'AWS_SESSION_TOKEN')
+    //                 ]) {
+    //                     sshagent(credentials: ['frontend-ec2-ssh-key']) {
+    //                         sh """
+    //                         ssh -o StrictHostKeyChecking=no ubuntu@${TARGET_EC2_HOST} "
+    //                             docker stop ${CONTAINER_NAME} || true
+    //                             docker rm ${CONTAINER_NAME} || true
+                                
+    //                             docker pull ${IMAGE}:${TAG}
+                                
+    //                             # Inject AWS Secrets at runtime via -e flags
+    //                             docker run -d \\
+    //                             --name ${CONTAINER_NAME} \\
+    //                             --restart always \\
+    //                             -p ${HOST_PORT}:3000 \\
+    //                             -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \\
+    //                             -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \\
+    //                             -e AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN} \\
+    //                             ${IMAGE}:${TAG}
+                                
+    //                             echo '🧹 Running cleanup...'
+    //                             docker system prune -f
+    //                             docker image prune -af --filter 'until=24h'
+    //                         "
+    //                         """
+    //                     }
+    //                 }
 
-                    echo "🚀 Application deployed successfully. Traffic handled by Nginx." 
-                    echo "⏳ Waiting for Next.js SSR to boot..."
+    //                 echo "🚀 Application deployed successfully. Traffic handled by Nginx." 
+    //                 echo "⏳ Waiting for Next.js SSR to boot..."
                     
-                    timeout(time: 3, unit: 'MINUTES') { 
-                        waitUntil {
-                            script {
-                                def r = sh(script: "curl -sL -o /dev/null -w '%{http_code}' https://${TARGET_EC2_HOST}/ || true", returnStdout: true).trim()
-                                if (r == "200" || r == "308") {
-                                    echo "Frontend is reachable! HTTP Code: ${r}"
-                                    return true
-                                } else {
-                                    echo "Still waiting for Frontend... HTTP Code: ${r}"
-                                    return false
-                                }
-                            }
-                        }
-                    }
-                    echo "✅ Next.js Frontend is fully booted and responding!"
-                }
-            }
+    //                 timeout(time: 3, unit: 'MINUTES') { 
+    //                     waitUntil {
+    //                         script {
+    //                             def r = sh(script: "curl -sL -o /dev/null -w '%{http_code}' https://${TARGET_EC2_HOST}/ || true", returnStdout: true).trim()
+    //                             if (r == "200" || r == "308") {
+    //                                 echo "Frontend is reachable! HTTP Code: ${r}"
+    //                                 return true
+    //                             } else {
+    //                                 echo "Still waiting for Frontend... HTTP Code: ${r}"
+    //                                 return false
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //                 echo "✅ Next.js Frontend is fully booted and responding!"
+    //             }
+    //         }
+    //     }
         }
-    }
 
     post {
         always {
