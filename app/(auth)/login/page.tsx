@@ -152,7 +152,7 @@ export default function LoginPage() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#d9a05b]/10 rounded-full blur-3xl pointer-events-none"></div>
           <div className="absolute -bottom-20 -right-20 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
 
-          <div className="relative z-10 w-full max-w-2xl flex flex-col mb-20">
+          <div className="relative z-10 w-full max-w-4xl flex flex-col mb-20">
             {/* Header containing HDFC Logo and Aabhar Text */}
             <div className="flex items-center mb-16 bg-white/60 p-4 rounded-xl shadow-sm self-start backdrop-blur-sm">
               <div className="flex items-center gap-5">
@@ -172,10 +172,10 @@ export default function LoginPage() {
             {/* Typography */}
             <div className="mt-4">
               <h1 className="text-4xl xl:text-5xl font-bold text-[#b8860b] mb-4 leading-tight">
-                CELEBRATING SUCCESS TOGETHER.
+                CELEBRATING SUCCESS TOGETHER
               </h1>
               <h2 className="text-2xl xl:text-3xl font-medium text-[#1c2c5b] mb-12 uppercase tracking-wide">
-                Aabhar: Recognizing Your Impact.
+                Aabhar: Recognizing Your Impact 
               </h2>
 
               {/* Grid of features mimicking the graphic */}
